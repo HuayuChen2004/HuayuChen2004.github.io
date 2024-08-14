@@ -12,9 +12,10 @@ header {
     height: 50px;
     width: 100%;
     position: fixed;
+    top: 0;
 }
 
-@media screen and (max-width: 920px) {
+@media screen and (max-width: 940px) {
     header {
         width: 100%;
         position: fixed;
@@ -28,6 +29,8 @@ header {
     }
     .basic-information-container {
         display: none;
+        visibility: hidden;
+        
     }
     
 }
@@ -87,9 +90,8 @@ header {
 .basic-information-container {
     float: left;
     margin-left: 0px;
-    margin-top: 50px;
     align-items: center;
-    padding: 50px 0px;
+    padding: 30px 0px;
     float: left;
     height: 100vh;
     background-color: rgb(13, 153, 165);
@@ -141,8 +143,49 @@ header {
     font-size: 1.5em;
 }
 
+.main-content {
+    margin-left: 300px;
+    padding-top: 20px;
+    padding-left: 20px;
+    margin-top: 50px;
+    background-color: rgb(42, 73, 109);
+    height: 100vh;
+}
 
+@media screen and (max-width: 940px) {
+    .main-content {
+        margin-left: 0px;
+        margin-top: 50px;
+    }
+    
+}
 
+.main-content-title {
+    color: white;
+    font-family: 'Times New Roman', Times, serif;
+    text-align: center;
+    margin: 0px 0px;
+    width: 100%;
+    text-align: left;
+    height: 50px;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.dividing-line {
+    width: 70%;
+    height: 1px;
+    background-color: white;
+    margin: 0px 0px;
+}
+
+.text-content {
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 1.2em;
+    margin-top: 20px;
+    padding: 0px 0px;
+}
 
 
 
