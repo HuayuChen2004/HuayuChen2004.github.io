@@ -2,10 +2,147 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     color: #333;
-    text-align: center;
-    padding: 50px;
+    margin: 0;
+    padding: 0;
 }
 
-h1 {
-    color: #0073e6;
+header {
+    background-color: #0073e6;
+    padding: 0px 0;
+    height: 50px;
+    width: 100%;
+    position: fixed;
 }
+
+@media screen and (max-width: 920px) {
+    header {
+        width: 100%;
+        position: fixed;
+    }
+    .navbar-container .navbar {
+        display: none;
+    }
+    .navbar-title {
+        text-align: center;
+        flex-grow: 1;
+    }
+    .basic-information-container {
+        display: none;
+    }
+    
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between; /* 标题和导航栏之间的空间 */
+    align-items: center;
+    padding: 0 0px; /* 添加内边距 */
+    
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0;
+    text-align: center;
+    padding: 0px 50px;
+}
+
+.navbar li {
+    display: inline;
+    margin: 0 15px;
+    justify-content: flex-end;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2em;
+    padding: 10px 5px;
+    user-select: none;
+}
+
+.navbar a:hover {
+    background-color: #005bb5;
+    border-radius: 5px;
+}
+
+.navbar a:active {
+    background-color: #004499;
+}
+
+.navbar-title {
+    float: left;
+    margin-left: 0px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: black;
+    padding: 10px 50px;
+    height: 30px;
+    user-select: none;
+
+}
+
+.basic-information-container {
+    float: left;
+    margin-left: 0px;
+    margin-top: 50px;
+    align-items: center;
+    padding: 50px 0px;
+    float: left;
+    height: 100vh;
+    background-color: rgb(13, 153, 165);
+    width: 300px;
+    position: fixed;
+    text-align: center;
+}
+
+.basic-information-container img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    align-content: center;
+    display: block;
+    margin: 0 auto;
+
+}
+
+.word-information-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.name {
+    font-size: 1.5em;
+    color: white;
+    font-family: Comic Sans MS;
+}
+
+.profession {
+
+    color: white;
+    font-family: Lucida Handwriting;
+    margin-top: 10px;
+}
+
+.email {
+    color: white;
+    font-family: Comic Sans MS;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.basic-information-container a {
+    text-decoration: none;
+    color: white;
+    font-family: Comic Sans MS;
+    margin-top: 20px;
+    font-size: 1.5em;
+}
+
+
+
+
+
+
