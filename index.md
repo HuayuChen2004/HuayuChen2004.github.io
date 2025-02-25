@@ -4,7 +4,7 @@ layout: homepage
 
 ## About Me
 
-My research interest lies in computer vision, reinforcement learning and causal perception, and have been reading related papers for the past year. I love to learn new knowledge, to think and to write. My ultimate dream is to build a human-like machine utilizing the power of computation and memory, and this requires extending robots' abilities in various fields, such as perception, motion, cognition and reasoning. I will work ceaselessly to approach this goal.
+I’m Huayu Chen, a sophomore in Department of Automation, Tsinghua University. I’m now a member of Software Department of Association of Science and Technology of Automation(ASTA). I’m also selected as a member of Tong Class in 2023, which is a special program targeted at cultivating talents for developing AGI. Now I’m also working as a volunteer in the Beijing Institute for General Artificial Intelligence(BIGAI), where I have two cooperative projects with researchers there. I have also participated in two social practice groups so far, including Δ-Group in Yangtze River Delta and Qianyu Qianxing in Guizhou, investigating how AI and digital industry have benifited the life of the public.
 
 ## Research Interests
 
