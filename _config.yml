@@ -2,6 +2,7 @@
 title: Huayu Chen
 position: Undergraduate Student
 affiliation: Department of Automation, Tsinghua University
+affiliation_link: https://www.au.tsinghua.edu.cn/
 email: chenhuay23@mails.tsinghua.edu.cn
 
 # Search Engine Optimization (SEO)
@@ -14,8 +15,8 @@ canonical: https://minimal-light-theme.yliu.me/
 # If you don't need one of them, you may delete the corresponding line.
 google_scholar: https://scholar.google.com/
 cv_link: assets/files/curriculum_vitae.pdf
-github_link: https://github.com/
-linkedin: https://www.linkedin.com/
+github_link: https://github.com/HuayuChen2004
+# linkedin: https://www.linkedin.com/
 twitter: https://twitter.com/
 
 # Images (e.g., your profile picture and your website's favicon) 
