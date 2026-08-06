@@ -11,6 +11,10 @@ I’m Huayu Chen, a sophomore in Department of Automation, Tsinghua University. 
 - **Computer Vision:** 3D vision, articulated object reconstruction
 - **Cognitive Reasoning:** decision making, reinforcement learning
 
+## Projects
+
+- **[Visual Token vs Caption](/visual-rag/)** — Interactive demo comparing visual-token retrieval with caption-based retrieval on an open CLEVR gallery.
+
 <!-- ## News -->
 
 <!-- - **[Feb. 2020]** Our paper about incremental learning is accepted to CVPR 2020.

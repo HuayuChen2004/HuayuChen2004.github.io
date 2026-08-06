@@ -1,0 +1,3328 @@
+{
+  "title": "Visual Token vs Caption Retrieval",
+  "gallery_size": 842,
+  "methods": {
+    "caption": {
+      "name": "Caption Retrieval",
+      "short": "Caption",
+      "desc": "先把每张图写成文本描述，再用文本 embedding + 关键词做混合检索。"
+    },
+    "visual_token": {
+      "name": "Visual Token (Rel tok/2)",
+      "short": "Visual Token",
+      "desc": "保留视觉 token，用相关性打分直接在图库上排序，不依赖中间 caption。"
+    }
+  },
+  "overall": {
+    "caption_pool_recall": 0.311,
+    "visual_token_pool_recall": 0.823,
+    "gate_pool_recall": 0.583,
+    "n_questions_eval": 24
+  },
+  "questions": [
+    {
+      "id": "gal_qa_F01",
+      "question": "有没有「全是球体、没有圆柱」的合影？",
+      "answer_type": "qa_boolean",
+      "answer": "是",
+      "risk": "high",
+      "n_gt": 12,
+      "K": 50,
+      "category": "F",
+      "why_hard": "集合约束（全是球、没有圆柱）很难写进 caption，文本检索几乎全军覆没。",
+      "metrics_summary": {
+        "caption_pool_recall": 0.0,
+        "gate_pool_recall": 1.0,
+        "visual_token_pool_recall": 1.0
+      },
+      "caption": {
+        "K": 50,
+        "pool_recall": 0.0,
+        "n_hit": 0,
+        "n_gt": 12,
+        "n_miss": 12,
+        "n_fp": 50,
+        "first_gt_rank": 573,
+        "top": [
+          {
+            "id": "CLEVR_train_024280.png",
+            "rank": 1,
+            "score": 0.4807,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_055820.png",
+            "rank": 2,
+            "score": 0.4789,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_037783.png",
+            "rank": 3,
+            "score": 0.4759,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_040089.png",
+            "rank": 4,
+            "score": 0.4737,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_015353.png",
+            "rank": 5,
+            "score": 0.4692,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_003306.png",
+            "rank": 6,
+            "score": 0.4684,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_039972.png",
+            "rank": 7,
+            "score": 0.4678,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_005106.png",
+            "rank": 8,
+            "score": 0.4667,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_010037.png",
+            "rank": 9,
+            "score": 0.4662,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_061795.png",
+            "rank": 10,
+            "score": 0.4661,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002497.png",
+            "rank": 11,
+            "score": 0.4661,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_058408.png",
+            "rank": 12,
+            "score": 0.466,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_059835.png",
+            "rank": 13,
+            "score": 0.4658,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_023124.png",
+            "rank": 14,
+            "score": 0.4649,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_056027.png",
+            "rank": 15,
+            "score": 0.4648,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_038302.png",
+            "rank": 16,
+            "score": 0.4645,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_046838.png",
+            "rank": 17,
+            "score": 0.4644,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_026428.png",
+            "rank": 18,
+            "score": 0.464,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_053906.png",
+            "rank": 19,
+            "score": 0.4638,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_052799.png",
+            "rank": 20,
+            "score": 0.4637,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_043973.png",
+            "rank": 21,
+            "score": 0.4636,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_000537.png",
+            "rank": 22,
+            "score": 0.4634,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_060934.png",
+            "rank": 23,
+            "score": 0.4631,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_057592.png",
+            "rank": 24,
+            "score": 0.4629,
+            "label": "noise"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_007425.png",
+            "rank": 573,
+            "score": 0.3806
+          },
+          {
+            "id": "CLEVR_train_000363.png",
+            "rank": 583,
+            "score": 0.3693
+          },
+          {
+            "id": "CLEVR_train_018093.png",
+            "rank": 597,
+            "score": 0.3652
+          },
+          {
+            "id": "CLEVR_train_050501.png",
+            "rank": 611,
+            "score": 0.3625
+          },
+          {
+            "id": "CLEVR_train_000392.png",
+            "rank": 620,
+            "score": 0.3603
+          },
+          {
+            "id": "CLEVR_train_022058.png",
+            "rank": 622,
+            "score": 0.3603
+          },
+          {
+            "id": "CLEVR_train_001670.png",
+            "rank": 632,
+            "score": 0.3589
+          },
+          {
+            "id": "CLEVR_train_000136.png",
+            "rank": 675,
+            "score": 0.3533
+          },
+          {
+            "id": "CLEVR_train_018853.png",
+            "rank": 701,
+            "score": 0.3505
+          },
+          {
+            "id": "CLEVR_train_066839.png",
+            "rank": 708,
+            "score": 0.3496
+          },
+          {
+            "id": "CLEVR_train_048715.png",
+            "rank": 710,
+            "score": 0.3493
+          },
+          {
+            "id": "CLEVR_train_000872.png",
+            "rank": 767,
+            "score": 0.3384
+          }
+        ]
+      },
+      "visual_token": {
+        "K": 50,
+        "pool_recall": 1.0,
+        "n_hit": 12,
+        "n_gt": 12,
+        "n_miss": 0,
+        "n_fp": 38,
+        "first_gt_rank": 1,
+        "top": [
+          {
+            "id": "CLEVR_train_018853.png",
+            "rank": 1,
+            "score": 4.893,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_066839.png",
+            "rank": 2,
+            "score": 4.863,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_000363.png",
+            "rank": 3,
+            "score": 4.8513,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_022058.png",
+            "rank": 4,
+            "score": 4.8471,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_001670.png",
+            "rank": 5,
+            "score": 4.7971,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_048715.png",
+            "rank": 6,
+            "score": 4.7767,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_007425.png",
+            "rank": 7,
+            "score": 4.7762,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_050501.png",
+            "rank": 8,
+            "score": 4.7656,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_018093.png",
+            "rank": 9,
+            "score": 4.7111,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_000872.png",
+            "rank": 10,
+            "score": 4.6788,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_017301.png",
+            "rank": 11,
+            "score": 4.2292,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_000392.png",
+            "rank": 12,
+            "score": 4.0007,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_000136.png",
+            "rank": 13,
+            "score": 3.9546,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_031066.png",
+            "rank": 14,
+            "score": 3.9544,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_069995.png",
+            "rank": 15,
+            "score": 3.7442,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_027989.png",
+            "rank": 16,
+            "score": 3.7223,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_057576.png",
+            "rank": 17,
+            "score": 3.6638,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_069321.png",
+            "rank": 18,
+            "score": 3.64,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_022616.png",
+            "rank": 19,
+            "score": 3.5847,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_052128.png",
+            "rank": 20,
+            "score": 3.5508,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_055426.png",
+            "rank": 21,
+            "score": 3.5042,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_013848.png",
+            "rank": 22,
+            "score": 3.4941,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_058489.png",
+            "rank": 23,
+            "score": 3.4789,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002234.png",
+            "rank": 24,
+            "score": 3.4639,
+            "label": "noise"
+          }
+        ],
+        "missed": []
+      },
+      "captions_snippet": {
+        "CLEVR_train_048715.png": "画面中展示七个不同大小和材质的球体，置于浅灰色平面上。前景有一个较大的棕色哑光球，其后方是一个中等大小的浅青色哑光球。右侧有一个大号紫色金属光泽球，左侧有一个小号绿色哑光球。背景中",
+        "CLEVR_train_015353.png": "画面中展示多个几何体，包括大小不一的球体、立方体和圆柱体，散落在浅灰色平面上。球体有金属质感的青绿色、蓝色、紫色、黄色和绿色；立方体有红色、黄色、青绿色，表面呈哑光质感；圆柱体为绿",
+        "CLEVR_train_000363.png": "画面中展示七个大小不一的球体，散落在浅灰色平面上。左侧有一个大号绿色金属球，表面高光反射明显；其后方偏右是一个大号银灰色金属球；右上方是一个大号红色金属球；前景中央是一个大号紫色金",
+        "CLEVR_train_040089.png": "画面中展示多个几何体，包括不同大小和颜色的圆柱体、立方体和球体，散落在浅灰色平面上。可见物体有：一个大灰色圆柱、一个大青绿色金属圆柱、一个棕色圆柱、一个紫色小圆柱、一个绿色小圆柱、",
+        "CLEVR_train_003306.png": "画面中展示多个几何体，包括大小不一的圆柱体、球体和立方体，散落在浅灰色平面上。前景有红色金属光泽球体、黄色哑光圆柱体、棕色哑光球体；中景有青绿色金属圆柱体、紫色金属立方体、蓝色立方",
+        "CLEVR_train_055820.png": "画面中展示多个几何体，包括大小不一的球体、圆柱体和立方体，散落在浅灰色平面上。球体有蓝色、紫色、红色、青色，表面光滑反光；圆柱体有蓝色、红色、灰色、棕色，材质各异，部分金属光泽明显",
+        "CLEVR_train_024280.png": "画面中展示多个几何体，包括大小不一的球体、圆柱体和立方体，散落在浅灰色平面上。球体有金色、红色、蓝色、银色、棕色等，表面光滑反光；圆柱体有绿色、棕色、灰色，材质似塑料或金属；立方体",
+        "CLEVR_train_022058.png": "画面中展示七个不同大小和材质的球体，置于浅灰色平面上。左侧有一个小号淡紫色哑光球；中间偏左是一个中等大小的灰色哑光球；中央是一个大号银色金属光泽球，表面有明显高光反射；右侧有三个紫",
+        "CLEVR_train_001670.png": "画面中展示六个大小不一的球体，置于浅灰色平面上。从左至右依次为：一个灰色哑光小球，一个紫色哑光中等球体，一个蓝色金属光泽小球，一个蓝色哑光中等球体，一个紫色金属光泽小球，以及一个金",
+        "CLEVR_train_066839.png": "画面中展示七个球体，置于浅灰色背景上。其中五个为哑光质感的青绿色球体，大小不一；两个为棕色球体，一个较大，一个较小；一个为高光泽金属质感的银灰色球体；还有一个极小的紫色球体。所有球",
+        "CLEVR_train_037783.png": "画面中展示多个几何体，包括大小不一的圆柱体、立方体和球体，散落在浅灰色平面上。颜色多样：有大号黄色圆柱、绿色圆柱、红色小圆柱；黄色和蓝色立方体；蓝色小球、金色大球、青色小球；还有一",
+        "CLEVR_train_018853.png": "画面中散布着多个大小不一的球体，置于浅灰色平面上。左侧有一个大号金色金属光泽球体，旁边有小号红色哑光球和紫色哑光球。中央偏右是一个大号黄色哑光球。右侧区域分布着多个小球，包括蓝色、"
+      }
+    },
+    {
+      "id": "gal_qa_F02",
+      "question": "有没有全是立方、没有球体的合影？",
+      "answer_type": "qa_boolean",
+      "answer": "是",
+      "risk": "high",
+      "n_gt": 9,
+      "K": 50,
+      "category": "F",
+      "why_hard": "「全是立方、没有球体」同样是 caption 难覆盖的全局否定约束。",
+      "metrics_summary": {
+        "caption_pool_recall": 0.0,
+        "gate_pool_recall": 0.0,
+        "visual_token_pool_recall": 1.0
+      },
+      "caption": {
+        "K": 50,
+        "pool_recall": 0.0,
+        "n_hit": 0,
+        "n_gt": 9,
+        "n_miss": 9,
+        "n_fp": 50,
+        "first_gt_rank": 629,
+        "top": [
+          {
+            "id": "CLEVR_train_055820.png",
+            "rank": 1,
+            "score": 0.4922,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_024280.png",
+            "rank": 2,
+            "score": 0.4891,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_039972.png",
+            "rank": 3,
+            "score": 0.4756,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002497.png",
+            "rank": 4,
+            "score": 0.4733,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_016291.png",
+            "rank": 5,
+            "score": 0.4722,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_052799.png",
+            "rank": 6,
+            "score": 0.4718,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_019484.png",
+            "rank": 7,
+            "score": 0.471,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_046838.png",
+            "rank": 8,
+            "score": 0.4703,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_003424.png",
+            "rank": 9,
+            "score": 0.4702,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_001112.png",
+            "rank": 10,
+            "score": 0.4697,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_005106.png",
+            "rank": 11,
+            "score": 0.4688,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_034137.png",
+            "rank": 12,
+            "score": 0.4687,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_056027.png",
+            "rank": 13,
+            "score": 0.4677,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_024617.png",
+            "rank": 14,
+            "score": 0.4676,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_050772.png",
+            "rank": 15,
+            "score": 0.4675,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033717.png",
+            "rank": 16,
+            "score": 0.4673,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_051147.png",
+            "rank": 17,
+            "score": 0.4663,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_038991.png",
+            "rank": 18,
+            "score": 0.4661,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_020372.png",
+            "rank": 19,
+            "score": 0.4654,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002795.png",
+            "rank": 20,
+            "score": 0.465,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_034176.png",
+            "rank": 21,
+            "score": 0.465,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_058408.png",
+            "rank": 22,
+            "score": 0.4647,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_019933.png",
+            "rank": 23,
+            "score": 0.4644,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_026428.png",
+            "rank": 24,
+            "score": 0.4643,
+            "label": "noise"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_038351.png",
+            "rank": 629,
+            "score": 0.3593
+          },
+          {
+            "id": "CLEVR_train_000426.png",
+            "rank": 645,
+            "score": 0.3567
+          },
+          {
+            "id": "CLEVR_train_000033.png",
+            "rank": 664,
+            "score": 0.3545
+          },
+          {
+            "id": "CLEVR_train_035489.png",
+            "rank": 682,
+            "score": 0.3521
+          },
+          {
+            "id": "CLEVR_train_050947.png",
+            "rank": 690,
+            "score": 0.3512
+          },
+          {
+            "id": "CLEVR_train_015997.png",
+            "rank": 708,
+            "score": 0.3485
+          },
+          {
+            "id": "CLEVR_train_000720.png",
+            "rank": 713,
+            "score": 0.3481
+          },
+          {
+            "id": "CLEVR_train_025872.png",
+            "rank": 744,
+            "score": 0.3431
+          },
+          {
+            "id": "CLEVR_train_005403.png",
+            "rank": 776,
+            "score": 0.3369
+          }
+        ]
+      },
+      "visual_token": {
+        "K": 50,
+        "pool_recall": 1.0,
+        "n_hit": 9,
+        "n_gt": 9,
+        "n_miss": 0,
+        "n_fp": 41,
+        "first_gt_rank": 1,
+        "top": [
+          {
+            "id": "CLEVR_train_025872.png",
+            "rank": 1,
+            "score": 4.8667,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_038351.png",
+            "rank": 2,
+            "score": 4.8631,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_000426.png",
+            "rank": 3,
+            "score": 4.8435,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_050947.png",
+            "rank": 4,
+            "score": 4.8435,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_015997.png",
+            "rank": 5,
+            "score": 4.7115,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_000720.png",
+            "rank": 6,
+            "score": 4.4909,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_046114.png",
+            "rank": 7,
+            "score": 4.3577,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_011412.png",
+            "rank": 8,
+            "score": 4.3035,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_013459.png",
+            "rank": 9,
+            "score": 4.2403,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_004057.png",
+            "rank": 10,
+            "score": 4.2309,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_029715.png",
+            "rank": 11,
+            "score": 4.2219,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_007031.png",
+            "rank": 12,
+            "score": 4.2207,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_005403.png",
+            "rank": 13,
+            "score": 4.1898,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_000033.png",
+            "rank": 14,
+            "score": 4.161,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_035489.png",
+            "rank": 15,
+            "score": 4.0944,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_014841.png",
+            "rank": 16,
+            "score": 4.0914,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033459.png",
+            "rank": 17,
+            "score": 4.0808,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_010186.png",
+            "rank": 18,
+            "score": 4.0581,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_044759.png",
+            "rank": 19,
+            "score": 4.0524,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_008454.png",
+            "rank": 20,
+            "score": 4.0228,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_011935.png",
+            "rank": 21,
+            "score": 3.9999,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_027925.png",
+            "rank": 22,
+            "score": 3.9946,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_003200.png",
+            "rank": 23,
+            "score": 3.9032,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_017580.png",
+            "rank": 24,
+            "score": 3.8493,
+            "label": "noise"
+          }
+        ],
+        "missed": []
+      },
+      "captions_snippet": {
+        "CLEVR_train_000720.png": "画面中展示五个立方体，置于浅灰色平面上。前景左侧有一个较大的金色金属立方体，右侧有一个较小的紫色哑光立方体。背景处有两个小立方体，一个金色金属，一个红色金属，紧挨着。右侧还有一个较",
+        "CLEVR_train_039972.png": "画面中展示多个几何体，包括一个黄色的立方体、一个红色的球体、一个蓝色的圆柱体、一个紫色的立方体、一个蓝色的金属球、一个金色的小球、一个蓝色的小立方体、一个青色的小立方体和一个绿色的",
+        "CLEVR_train_002497.png": "画面中展示了多个几何体，包括不同大小和颜色的立方体、圆柱体和一个球体。左侧有一个较大的棕色立方体，旁边有小的青色和银色立方体。中间偏右有一个红色圆柱体、一个银色立方体、一个紫色小圆",
+        "CLEVR_train_055820.png": "画面中展示多个几何体，包括大小不一的球体、圆柱体和立方体，散落在浅灰色平面上。球体有蓝色、紫色、红色、青色，表面光滑反光；圆柱体有蓝色、红色、灰色、棕色，材质各异，部分金属光泽明显",
+        "CLEVR_train_052799.png": "画面中展示多个几何体，包括大小不一的球体、圆柱体和立方体，散落在浅灰色平面上。球体有铜色、绿色和金色，表面光滑反光；圆柱体有绿色、黄色、青色，材质分别为金属和哑光；立方体有银色、金",
+        "CLEVR_train_024280.png": "画面中展示多个几何体，包括大小不一的球体、圆柱体和立方体，散落在浅灰色平面上。球体有金色、红色、蓝色、银色、棕色等，表面光滑反光；圆柱体有绿色、棕色、灰色，材质似塑料或金属；立方体",
+        "CLEVR_train_000426.png": "画面中展示了多个不同颜色和材质的立方体，散落在浅灰色平面上。前景有两颗较大的红色立方体，表面呈哑光质感；中间偏左有一颗蓝色金属光泽立方体，其后方是一颗紫色金属光泽立方体；右侧有一颗",
+        "CLEVR_train_038351.png": "画面中展示了七个不同颜色和大小的立方体，散落在浅灰色平面上。左侧有一个较大的红色立方体，其右侧是一个稍小的红色立方体，前方有一个小尺寸的紫色金属光泽立方体。中间偏后位置有一个青绿色",
+        "CLEVR_train_050947.png": "画面中展示了多个不同颜色和材质的立方体，散落在浅灰色平面上。前景有两个醒目的紫色金属光泽立方体，表面反射光线。左侧有一个蓝色哑光立方体，后方有一个金色金属立方体。右侧有一个棕色哑光",
+        "CLEVR_train_015997.png": "画面中展示了六个不同颜色和大小的立方体，置于浅灰色平面上。一个较大的紫色金属光泽立方体位于后方偏左，其前方有一个较小的金色金属光泽立方体。中央是一个中等大小的蓝色哑光立方体，其前方",
+        "CLEVR_train_025872.png": "画面中展示了多个不同大小和颜色的立方体，散落在浅灰色平面上。左侧有一个较大的蓝色金属光泽立方体，其前方有一个较小的黄色哑光立方体。中央偏右是一个较大的银灰色金属立方体，周围环绕着多",
+        "CLEVR_train_016291.png": "画面中展示多个几何体，包括蓝色、黄色、棕色的圆柱体，黄色、蓝色、红色的球体，以及蓝色、紫色、灰色的立方体。一个紫色立方体表面有金属光泽，红色球体表面光滑反光。物体大小不一，材质呈现"
+      }
+    },
+    {
+      "id": "gal_qa_A03",
+      "question": "有没有金属绿圆柱站在橡胶红立方右边的那种？",
+      "answer_type": "qa_boolean",
+      "answer": "是",
+      "risk": "high",
+      "n_gt": 9,
+      "K": 50,
+      "category": "A",
+      "why_hard": "多属性 + 空间关系（金属绿圆柱在橡胶红立方右边），caption 易漏。",
+      "metrics_summary": {
+        "caption_pool_recall": 0.111,
+        "gate_pool_recall": 0.556,
+        "visual_token_pool_recall": 1.0
+      },
+      "caption": {
+        "K": 50,
+        "pool_recall": 0.111,
+        "n_hit": 1,
+        "n_gt": 9,
+        "n_miss": 8,
+        "n_fp": 49,
+        "first_gt_rank": 30,
+        "top": [
+          {
+            "id": "CLEVR_train_002487.png",
+            "rank": 1,
+            "score": 0.5157,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002795.png",
+            "rank": 2,
+            "score": 0.4969,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_017580.png",
+            "rank": 3,
+            "score": 0.4953,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_013716.png",
+            "rank": 4,
+            "score": 0.4948,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_053618.png",
+            "rank": 5,
+            "score": 0.4947,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_049235.png",
+            "rank": 6,
+            "score": 0.4866,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_053765.png",
+            "rank": 7,
+            "score": 0.4859,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_043605.png",
+            "rank": 8,
+            "score": 0.4851,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_048707.png",
+            "rank": 9,
+            "score": 0.4848,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_037336.png",
+            "rank": 10,
+            "score": 0.4847,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_025836.png",
+            "rank": 11,
+            "score": 0.4837,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_041203.png",
+            "rank": 12,
+            "score": 0.4831,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_019466.png",
+            "rank": 13,
+            "score": 0.4829,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_034137.png",
+            "rank": 14,
+            "score": 0.4821,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_007031.png",
+            "rank": 15,
+            "score": 0.4817,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033193.png",
+            "rank": 16,
+            "score": 0.4812,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_027222.png",
+            "rank": 17,
+            "score": 0.4811,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_030031.png",
+            "rank": 18,
+            "score": 0.4811,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_023503.png",
+            "rank": 19,
+            "score": 0.4806,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002497.png",
+            "rank": 20,
+            "score": 0.4804,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_021972.png",
+            "rank": 21,
+            "score": 0.4794,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_006177.png",
+            "rank": 22,
+            "score": 0.4792,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_060806.png",
+            "rank": 23,
+            "score": 0.479,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_013459.png",
+            "rank": 24,
+            "score": 0.4789,
+            "label": "noise"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_042997.png",
+            "rank": 108,
+            "score": 0.4652
+          },
+          {
+            "id": "CLEVR_train_045933.png",
+            "rank": 153,
+            "score": 0.4611
+          },
+          {
+            "id": "CLEVR_train_030057.png",
+            "rank": 160,
+            "score": 0.4607
+          },
+          {
+            "id": "CLEVR_train_009692.png",
+            "rank": 171,
+            "score": 0.46
+          },
+          {
+            "id": "CLEVR_train_023299.png",
+            "rank": 176,
+            "score": 0.4598
+          },
+          {
+            "id": "CLEVR_train_021596.png",
+            "rank": 225,
+            "score": 0.4561
+          },
+          {
+            "id": "CLEVR_train_042006.png",
+            "rank": 530,
+            "score": 0.4393
+          },
+          {
+            "id": "CLEVR_train_011241.png",
+            "rank": 798,
+            "score": 0.353
+          }
+        ]
+      },
+      "visual_token": {
+        "K": 50,
+        "pool_recall": 1.0,
+        "n_hit": 9,
+        "n_gt": 9,
+        "n_miss": 0,
+        "n_fp": 41,
+        "first_gt_rank": 1,
+        "top": [
+          {
+            "id": "CLEVR_train_012308.png",
+            "rank": 1,
+            "score": 4.0027,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_029443.png",
+            "rank": 2,
+            "score": 3.9092,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_042006.png",
+            "rank": 3,
+            "score": 3.9008,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_035351.png",
+            "rank": 4,
+            "score": 3.8991,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_045933.png",
+            "rank": 5,
+            "score": 3.8987,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_001032.png",
+            "rank": 6,
+            "score": 3.8596,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_027616.png",
+            "rank": 7,
+            "score": 3.8135,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033919.png",
+            "rank": 8,
+            "score": 3.7985,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_053618.png",
+            "rank": 9,
+            "score": 3.7459,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_019466.png",
+            "rank": 10,
+            "score": 3.7442,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_011241.png",
+            "rank": 11,
+            "score": 3.7373,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_060806.png",
+            "rank": 12,
+            "score": 3.7263,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_061460.png",
+            "rank": 13,
+            "score": 3.716,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_043219.png",
+            "rank": 14,
+            "score": 3.6971,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_052739.png",
+            "rank": 15,
+            "score": 3.6827,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_051617.png",
+            "rank": 16,
+            "score": 3.6632,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_042997.png",
+            "rank": 17,
+            "score": 3.6611,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_027222.png",
+            "rank": 18,
+            "score": 3.6025,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_062148.png",
+            "rank": 19,
+            "score": 3.5957,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_006613.png",
+            "rank": 20,
+            "score": 3.5386,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_044656.png",
+            "rank": 21,
+            "score": 3.5337,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_016966.png",
+            "rank": 22,
+            "score": 3.508,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_052904.png",
+            "rank": 23,
+            "score": 3.4967,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033607.png",
+            "rank": 24,
+            "score": 3.4922,
+            "label": "noise"
+          }
+        ],
+        "missed": []
+      },
+      "captions_snippet": {
+        "CLEVR_train_045933.png": "画面中展示多个几何体，包括一个橙色哑光大立方体、一个红色小立方体、一个紫色金属光泽球体、一个黄色小圆柱体、一个蓝色小圆柱体、一个青绿色金属光泽大圆柱体、一个绿色金属光泽大圆柱体、一",
+        "CLEVR_train_002487.png": "画面中展示三个几何体置于浅灰色平面上。左侧是一个高大的银灰色金属圆柱体，表面光滑反光；右前方是一个较小的蓝色金属立方体，棱角分明，表面有明显高光；右下方是一个棕褐色的立方体，材质看",
+        "CLEVR_train_053618.png": "画面中展示多个金属质感的几何体，置于浅灰色平面上。左侧有一个大的青绿色金属球，旁边是一个小的金色金属球。中央偏右有两个大小不一的绿色金属圆柱体，后方有一个红色金属立方体和一个更小的",
+        "CLEVR_train_012308.png": "画面中展示五个几何体置于浅灰色平面上。前景是一个银灰色金属质感的圆柱体，表面有高光反射。其右后方是一个亮绿色金属质感的圆柱体。左前方有一个红色小立方体，旁边是一个灰色小立方体。后方",
+        "CLEVR_train_042006.png": "画面中展示多个几何体置于浅灰色平面上，包括一个大灰圆柱、一个紫立方体、一个红立方体、一个小红立方体、一个黄球、一个蓝球、一个绿球、一个蓝小圆柱和一个绿小圆柱。物体材质多样，有哑光、",
+        "CLEVR_train_049235.png": "画面中展示了多个几何体，包括不同大小的圆柱体、立方体和球体，散落在浅灰色平面上。左侧有一个大紫色圆柱体，中间偏左是一个红色金属质感立方体，其前方有一个黄色小球和一个紫色金属小球。右",
+        "CLEVR_train_001032.png": "画面中展示多个几何体，包括大小不一的黄色圆柱、红色小圆柱、绿色金属质感圆柱、银灰色金属圆柱、黄色和蓝色立方体、棕色小立方体、以及一个黄色小球体。物体材质多样，有哑光、金属光泽和半透",
+        "CLEVR_train_002795.png": "画面中展示多个几何体，包括大小不一的立方体、圆柱体和球体，散落在浅灰色平面上。左侧有一个较大的金色金属立方体，前方有一个棕色圆柱体。中央偏右是一个绿色立方体，其后方有一个紫色圆柱体",
+        "CLEVR_train_035351.png": "画面中展示多个几何体置于浅灰色平面上，包括一个大的绿色圆柱体、一个大的红色球体、一个大的青色金属立方体，以及若干小尺寸物体：一个青色小立方体、一个灰色小立方体、一个黄色小长方体、三",
+        "CLEVR_train_017580.png": "画面中展示六个几何体，置于浅灰色平面上。中央是一个较大的红色金属圆柱体，表面光滑反光。其前方偏右是一个紫色塑料质感的立方体。左侧有一个小号金色金属立方体，后方有一个深灰色金属立方体",
+        "CLEVR_train_029443.png": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的球体与圆柱体。左侧有一个大紫色哑光球，前方有一个小红色球；中央偏右有一个大紫色金属光泽球，其后方是一个棕色圆柱体；右侧有一个高大",
+        "CLEVR_train_013716.png": "画面中展示六个几何体置于浅灰色平面上：左侧有一个蓝色小立方体，中间偏左是一个高大的绿色金属圆柱体，其前方有一个小巧的红色金属圆柱体，右侧是一个较大的绿色金属立方体，后方偏右是一个金"
+      }
+    },
+    {
+      "id": "gal_qa_A05",
+      "question": "帮我找出一张：红立方在蓝球左边的。",
+      "answer_type": "qa_locate",
+      "answer": "CLEVR_train_001460.png",
+      "risk": "medium",
+      "n_gt": 32,
+      "K": 100,
+      "category": "A",
+      "why_hard": "定位题依赖「红立方在蓝球左边」的细粒度空间关系。",
+      "metrics_summary": {
+        "caption_pool_recall": 0.156,
+        "gate_pool_recall": 0.75,
+        "visual_token_pool_recall": 0.812
+      },
+      "caption": {
+        "K": 100,
+        "pool_recall": 0.156,
+        "n_hit": 5,
+        "n_gt": 32,
+        "n_miss": 27,
+        "n_fp": 95,
+        "first_gt_rank": 8,
+        "top": [
+          {
+            "id": "CLEVR_train_042006.png",
+            "rank": 1,
+            "score": 0.4507,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_006831.png",
+            "rank": 2,
+            "score": 0.4457,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_023386.png",
+            "rank": 3,
+            "score": 0.394,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_043605.png",
+            "rank": 4,
+            "score": 0.3939,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_058954.png",
+            "rank": 5,
+            "score": 0.3911,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_026197.png",
+            "rank": 6,
+            "score": 0.3902,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_066876.png",
+            "rank": 7,
+            "score": 0.3888,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_052384.png",
+            "rank": 8,
+            "score": 0.388,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_038351.png",
+            "rank": 9,
+            "score": 0.387,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_013716.png",
+            "rank": 10,
+            "score": 0.3866,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_019923.png",
+            "rank": 11,
+            "score": 0.3837,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_023249.png",
+            "rank": 12,
+            "score": 0.3831,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_038991.png",
+            "rank": 13,
+            "score": 0.3814,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_049235.png",
+            "rank": 14,
+            "score": 0.3813,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_035139.png",
+            "rank": 15,
+            "score": 0.3813,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_029443.png",
+            "rank": 16,
+            "score": 0.3802,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_048707.png",
+            "rank": 17,
+            "score": 0.3797,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_067118.png",
+            "rank": 18,
+            "score": 0.3797,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_051335.png",
+            "rank": 19,
+            "score": 0.3797,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_015997.png",
+            "rank": 20,
+            "score": 0.3791,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_064208.png",
+            "rank": 21,
+            "score": 0.3777,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_016291.png",
+            "rank": 22,
+            "score": 0.3773,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002795.png",
+            "rank": 23,
+            "score": 0.377,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_034137.png",
+            "rank": 24,
+            "score": 0.3769,
+            "label": "noise"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_069096.png",
+            "rank": 103,
+            "score": 0.3637
+          },
+          {
+            "id": "CLEVR_train_009692.png",
+            "rank": 106,
+            "score": 0.3632
+          },
+          {
+            "id": "CLEVR_train_064219.png",
+            "rank": 109,
+            "score": 0.363
+          },
+          {
+            "id": "CLEVR_train_019567.png",
+            "rank": 118,
+            "score": 0.3615
+          },
+          {
+            "id": "CLEVR_train_032441.png",
+            "rank": 146,
+            "score": 0.3594
+          },
+          {
+            "id": "CLEVR_train_067967.png",
+            "rank": 160,
+            "score": 0.3586
+          },
+          {
+            "id": "CLEVR_train_013708.png",
+            "rank": 191,
+            "score": 0.3565
+          },
+          {
+            "id": "CLEVR_train_040908.png",
+            "rank": 197,
+            "score": 0.3561
+          },
+          {
+            "id": "CLEVR_train_039614.png",
+            "rank": 218,
+            "score": 0.3552
+          },
+          {
+            "id": "CLEVR_train_027222.png",
+            "rank": 234,
+            "score": 0.3546
+          },
+          {
+            "id": "CLEVR_train_010695.png",
+            "rank": 314,
+            "score": 0.3505
+          },
+          {
+            "id": "CLEVR_train_034176.png",
+            "rank": 315,
+            "score": 0.3505
+          }
+        ]
+      },
+      "visual_token": {
+        "K": 100,
+        "pool_recall": 0.812,
+        "n_hit": 26,
+        "n_gt": 32,
+        "n_miss": 6,
+        "n_fp": 74,
+        "first_gt_rank": 1,
+        "top": [
+          {
+            "id": "CLEVR_train_011597.png",
+            "rank": 1,
+            "score": 4.006,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_014168.png",
+            "rank": 2,
+            "score": 3.9885,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_023249.png",
+            "rank": 3,
+            "score": 3.9697,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_010695.png",
+            "rank": 4,
+            "score": 3.9606,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_059970.png",
+            "rank": 5,
+            "score": 3.9431,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_027845.png",
+            "rank": 6,
+            "score": 3.9302,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_065752.png",
+            "rank": 7,
+            "score": 3.9139,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_022616.png",
+            "rank": 8,
+            "score": 3.9067,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_021169.png",
+            "rank": 9,
+            "score": 3.8973,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_064219.png",
+            "rank": 10,
+            "score": 3.8849,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_035571.png",
+            "rank": 11,
+            "score": 3.8463,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_062890.png",
+            "rank": 12,
+            "score": 3.8409,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_029513.png",
+            "rank": 13,
+            "score": 3.8251,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_030956.png",
+            "rank": 14,
+            "score": 3.8042,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_069096.png",
+            "rank": 15,
+            "score": 3.7759,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_047690.png",
+            "rank": 16,
+            "score": 3.7477,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_054889.png",
+            "rank": 17,
+            "score": 3.7449,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_011744.png",
+            "rank": 18,
+            "score": 3.7447,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_003527.png",
+            "rank": 19,
+            "score": 3.7362,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_023240.png",
+            "rank": 20,
+            "score": 3.7357,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_032441.png",
+            "rank": 21,
+            "score": 3.7319,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_014375.png",
+            "rank": 22,
+            "score": 3.7273,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_052384.png",
+            "rank": 23,
+            "score": 3.7271,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_005628.png",
+            "rank": 24,
+            "score": 3.7192,
+            "label": "noise"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_013651.png",
+            "rank": 101,
+            "score": 3.1586
+          },
+          {
+            "id": "CLEVR_train_024697.png",
+            "rank": 104,
+            "score": 3.1524
+          },
+          {
+            "id": "CLEVR_train_052357.png",
+            "rank": 120,
+            "score": 3.0939
+          },
+          {
+            "id": "CLEVR_train_009692.png",
+            "rank": 123,
+            "score": 3.0859
+          },
+          {
+            "id": "CLEVR_train_067967.png",
+            "rank": 129,
+            "score": 3.0657
+          },
+          {
+            "id": "CLEVR_train_064506.png",
+            "rank": 133,
+            "score": 3.054
+          }
+        ]
+      },
+      "captions_snippet": {
+        "CLEVR_train_026197.png": "画面中展示了六个几何体，置于浅灰色平面上。左侧是一个青绿色的立方体，表面哑光；其后方是一个黄色的球体，表面光滑。中央偏右是一个红色金属光泽的球体，反射明显。前景是一个红色哑光球体。",
+        "CLEVR_train_058954.png": "画面中展示五个几何体，置于浅灰色背景上。左侧有一个小的蓝色金属球，表面高光反射；其右前方是一个浅青色圆柱体，材质哑光；中央偏右是一个较大的浅青色立方体，表面光滑；右侧是一个大的金色",
+        "CLEVR_train_010695.png": "画面中展示多个几何体置于浅灰色平面上，包括一个绿色哑光立方体、一个红色金属质感立方体、一个黄色圆柱体、一个青绿色圆柱体、一个绿色圆柱体、一个蓝色金属质感球体、一个蓝色哑光球体，以及",
+        "CLEVR_train_006831.png": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的立方体（紫色、绿色、青色、黄色、棕色）、球体（红色、紫色、银色、蓝色）和一个红色圆柱体。物体材质多样，部分为金属光泽（如红球、紫",
+        "CLEVR_train_014168.png": "画面中展示多个几何体置于浅灰色平面上，包括一个大灰色圆柱、一个红色哑光立方体、一个金色金属立方体、一个红色金属立方体、一个青色金属小立方体、一个蓝色金属球体、两个灰色小球、一个青色",
+        "CLEVR_train_011597.png": "画面中展示多个几何体置于浅灰色平面上，包括一个红色金属质感立方体、一个蓝色哑光立方体、一个蓝色金属质感立方体、一个灰色哑光立方体、一个蓝色金属质感大球体、一个蓝色金属质感中等球体、",
+        "CLEVR_train_042006.png": "画面中展示多个几何体置于浅灰色平面上，包括一个大灰圆柱、一个紫立方体、一个红立方体、一个小红立方体、一个黄球、一个蓝球、一个绿球、一个蓝小圆柱和一个绿小圆柱。物体材质多样，有哑光、",
+        "CLEVR_train_027845.png": "画面中展示多个几何体，包括红色、绿色、蓝色、棕色、黄色的立方体，其中部分表面有金属光泽；还有绿色、青色的球体，以及一个绿色圆柱体。物体大小不一，材质多样，有哑光和高光表面。它们散落",
+        "CLEVR_train_059970.png": "画面中展示多个几何体，包括一个紫色哑光正方体、一个红色金属质感圆柱体、一个青色金属质感小正方体、一个红色金属质感小正方体、一个黄色哑光圆柱体、一个绿色金属质感小正方体、一个青色金属",
+        "CLEVR_train_043605.png": "画面中展示六个几何体，置于浅灰色背景上。左侧有一个小的浅蓝色球体，其旁是一个较大的紫色金属光泽立方体。中央偏下是一个高大的青绿色金属圆柱体。右侧有一个红色金属光泽球体，其后方是一个",
+        "CLEVR_train_023386.png": "画面中展示了七个几何体，置于浅灰色平面上。前景左侧有一个大的金色金属球，其后方是一个蓝色金属球。中间偏右有一个青绿色立方体，其后方有一个半透明的浅蓝色球体。右侧有一个黄色球体和一个",
+        "CLEVR_train_023249.png": "画面中展示多个几何体，前景有两个大小相近的红色立方体，表面呈金属光泽。左侧有一个较大的红色立方体，表面哑光；右侧一个较小的红色立方体，表面高光反射。背景散布着蓝色球体、金色金属球、"
+      }
+    },
+    {
+      "id": "gal_qa_C04",
+      "question": "只出现圆柱、没有立方的照片有吗？",
+      "answer_type": "qa_boolean",
+      "answer": "是",
+      "risk": "medium",
+      "n_gt": 62,
+      "K": 100,
+      "category": "C",
+      "why_hard": "「只有圆柱、没有立方」的否定组合，caption 召回为 0。",
+      "metrics_summary": {
+        "caption_pool_recall": 0.0,
+        "gate_pool_recall": 0.177,
+        "visual_token_pool_recall": 0.968
+      },
+      "caption": {
+        "K": 100,
+        "pool_recall": 0.0,
+        "n_hit": 0,
+        "n_gt": 62,
+        "n_miss": 62,
+        "n_fp": 100,
+        "first_gt_rank": 668,
+        "top": [
+          {
+            "id": "CLEVR_train_010037.png",
+            "rank": 1,
+            "score": 0.5123,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002795.png",
+            "rank": 2,
+            "score": 0.5099,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_068286.png",
+            "rank": 3,
+            "score": 0.5058,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_022446.png",
+            "rank": 4,
+            "score": 0.5057,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_016291.png",
+            "rank": 5,
+            "score": 0.505,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_036136.png",
+            "rank": 6,
+            "score": 0.5048,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_003527.png",
+            "rank": 7,
+            "score": 0.5047,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002497.png",
+            "rank": 8,
+            "score": 0.5042,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_007031.png",
+            "rank": 9,
+            "score": 0.5038,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_049235.png",
+            "rank": 10,
+            "score": 0.5028,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_037783.png",
+            "rank": 11,
+            "score": 0.5025,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_055820.png",
+            "rank": 12,
+            "score": 0.5022,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_034137.png",
+            "rank": 13,
+            "score": 0.5013,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_062492.png",
+            "rank": 14,
+            "score": 0.5013,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_024280.png",
+            "rank": 15,
+            "score": 0.5008,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_067226.png",
+            "rank": 16,
+            "score": 0.5007,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_061795.png",
+            "rank": 17,
+            "score": 0.5007,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_039972.png",
+            "rank": 18,
+            "score": 0.5005,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_049729.png",
+            "rank": 19,
+            "score": 0.5003,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033717.png",
+            "rank": 20,
+            "score": 0.5002,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_020138.png",
+            "rank": 21,
+            "score": 0.5002,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_035139.png",
+            "rank": 22,
+            "score": 0.5001,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_058408.png",
+            "rank": 23,
+            "score": 0.4999,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033459.png",
+            "rank": 24,
+            "score": 0.4997,
+            "label": "noise"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_019950.png",
+            "rank": 668,
+            "score": 0.3815
+          },
+          {
+            "id": "CLEVR_train_006935.png",
+            "rank": 671,
+            "score": 0.3795
+          },
+          {
+            "id": "CLEVR_train_001105.png",
+            "rank": 673,
+            "score": 0.3791
+          },
+          {
+            "id": "CLEVR_train_044265.png",
+            "rank": 675,
+            "score": 0.3779
+          },
+          {
+            "id": "CLEVR_train_000530.png",
+            "rank": 677,
+            "score": 0.3764
+          },
+          {
+            "id": "CLEVR_train_009610.png",
+            "rank": 680,
+            "score": 0.3738
+          },
+          {
+            "id": "CLEVR_train_011793.png",
+            "rank": 681,
+            "score": 0.3738
+          },
+          {
+            "id": "CLEVR_train_008315.png",
+            "rank": 690,
+            "score": 0.3727
+          },
+          {
+            "id": "CLEVR_train_039977.png",
+            "rank": 691,
+            "score": 0.3723
+          },
+          {
+            "id": "CLEVR_train_007933.png",
+            "rank": 696,
+            "score": 0.3716
+          },
+          {
+            "id": "CLEVR_train_000523.png",
+            "rank": 700,
+            "score": 0.3708
+          },
+          {
+            "id": "CLEVR_train_052758.png",
+            "rank": 705,
+            "score": 0.3691
+          }
+        ]
+      },
+      "visual_token": {
+        "K": 100,
+        "pool_recall": 0.968,
+        "n_hit": 60,
+        "n_gt": 62,
+        "n_miss": 2,
+        "n_fp": 40,
+        "first_gt_rank": 1,
+        "top": [
+          {
+            "id": "CLEVR_train_009610.png",
+            "rank": 1,
+            "score": 4.8309,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_044265.png",
+            "rank": 2,
+            "score": 4.8125,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_007933.png",
+            "rank": 3,
+            "score": 4.8029,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_019950.png",
+            "rank": 4,
+            "score": 4.7245,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_040966.png",
+            "rank": 5,
+            "score": 4.6718,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_008315.png",
+            "rank": 6,
+            "score": 4.6282,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_031925.png",
+            "rank": 7,
+            "score": 4.5987,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_000523.png",
+            "rank": 8,
+            "score": 4.476,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_006935.png",
+            "rank": 9,
+            "score": 4.3049,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_039977.png",
+            "rank": 10,
+            "score": 4.292,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_001105.png",
+            "rank": 11,
+            "score": 4.2856,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_002378.png",
+            "rank": 12,
+            "score": 4.2296,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_000530.png",
+            "rank": 13,
+            "score": 4.221,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_012152.png",
+            "rank": 14,
+            "score": 4.1415,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_035297.png",
+            "rank": 15,
+            "score": 4.1374,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_011237.png",
+            "rank": 16,
+            "score": 4.1271,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_059598.png",
+            "rank": 17,
+            "score": 4.1084,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_009214.png",
+            "rank": 18,
+            "score": 4.0801,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_052758.png",
+            "rank": 19,
+            "score": 4.0798,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_039805.png",
+            "rank": 20,
+            "score": 4.0773,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_011793.png",
+            "rank": 21,
+            "score": 4.0772,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_066916.png",
+            "rank": 22,
+            "score": 4.0617,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_000537.png",
+            "rank": 23,
+            "score": 4.0574,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_047904.png",
+            "rank": 24,
+            "score": 4.0554,
+            "label": "hit"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_069321.png",
+            "rank": 160,
+            "score": 3.0075
+          },
+          {
+            "id": "CLEVR_train_052128.png",
+            "rank": 210,
+            "score": 2.8879
+          }
+        ]
+      },
+      "captions_snippet": {
+        "CLEVR_train_007933.png": "画面中展示了六个不同大小和颜色的圆柱体，置于浅灰色平面上。从左至右依次为：一个绿色小圆柱、一个红色中等圆柱、一个棕色中等圆柱、一个青绿色大圆柱、一个棕色小圆柱和一个金属质感的青蓝色",
+        "CLEVR_train_008315.png": "画面中展示了七个不同大小和颜色的圆柱体，散落在浅灰色平面上。中央是一个较大的灰色哑光圆柱体，其周围分布着其他圆柱体：一个高大的紫色金属光泽圆柱体，两个绿色圆柱体（一个较大、一个较小",
+        "CLEVR_train_040966.png": "画面中展示了六个不同大小和颜色的圆柱体，置于浅灰色背景上。从左至右依次为：一个灰色小圆柱、一个棕色小圆柱、一个绿色中等圆柱、一个蓝色中等圆柱、一个青色细长圆柱和一个紫色大圆柱。所有",
+        "CLEVR_train_036136.png": "画面中展示多个几何体，包括大小不一的圆柱体和立方体，散落在浅灰色平面上。前景有一个大紫色圆柱体，其后方有绿色、青色金属质感立方体，右侧有一个金色金属立方体和一个紫色小立方体。背景可",
+        "CLEVR_train_002795.png": "画面中展示多个几何体，包括大小不一的立方体、圆柱体和球体，散落在浅灰色平面上。左侧有一个较大的金色金属立方体，前方有一个棕色圆柱体。中央偏右是一个绿色立方体，其后方有一个紫色圆柱体",
+        "CLEVR_train_010037.png": "画面中展示多个几何体，包括大小不一的圆柱体和一个立方体。圆柱体颜色有青绿色、蓝色、金色、紫色，部分表面光滑反光，材质似金属或塑料。立方体为金色，表面高光反射。另有两个小球体，一蓝一",
+        "CLEVR_train_022446.png": "画面中展示多个几何体，包括大小不一的立方体、圆柱体和一个球体，散落在浅灰色平面上。物体颜色丰富，有金属质感的蓝色大圆柱、金色立方体、绿色立方体、紫色圆柱和立方体、银灰色小立方体，以",
+        "CLEVR_train_019950.png": "画面中展示了七个不同颜色和大小的圆柱体，散落在浅灰色背景上。前景有一个较大的红色圆柱体，其左侧是一个黄色圆柱体，旁边还有一个小号红色圆柱体。后方从左至右依次为一个紫色金属质感圆柱体",
+        "CLEVR_train_009610.png": "画面中展示了七个不同大小和颜色的圆柱体，散落在浅灰色平面上。其中三个较大的圆柱体呈金属质感，分别为亮紫色、亮蓝色和青绿色；另有三个较小的圆柱体，两个为紫色（一个金属光泽，一个哑光）",
+        "CLEVR_train_068286.png": "画面中展示多个几何体，包括一个蓝色圆柱、一个金色球体、一个蓝色球体、一个绿色金属立方体、一个蓝色金属立方体、两个紫色立方体、一个棕色小圆柱和一个棕色小圆柱。物体表面光滑，具有金属光",
+        "CLEVR_train_044265.png": "画面中展示了七个不同大小和颜色的圆柱体，散落在浅灰色平面上。其中两个较大的红色圆柱体表面光滑且具有金属光泽，一个紫色圆柱体表面呈哑光质感，一个黄色圆柱体表面为哑光材质，一个青色圆柱",
+        "CLEVR_train_016291.png": "画面中展示多个几何体，包括蓝色、黄色、棕色的圆柱体，黄色、蓝色、红色的球体，以及蓝色、紫色、灰色的立方体。一个紫色立方体表面有金属光泽，红色球体表面光滑反光。物体大小不一，材质呈现"
+      }
+    },
+    {
+      "id": "gal_qa_A01",
+      "question": "相册里有没有同时出现红立方和青圆柱的图？",
+      "answer_type": "qa_boolean",
+      "answer": "是",
+      "risk": "medium",
+      "n_gt": 60,
+      "K": 100,
+      "category": "A",
+      "why_hard": "常见双物体共现，但 caption 仍漏掉大量相关图。",
+      "metrics_summary": {
+        "caption_pool_recall": 0.267,
+        "gate_pool_recall": 0.6,
+        "visual_token_pool_recall": 0.917
+      },
+      "caption": {
+        "K": 100,
+        "pool_recall": 0.267,
+        "n_hit": 16,
+        "n_gt": 60,
+        "n_miss": 44,
+        "n_fp": 84,
+        "first_gt_rank": 8,
+        "top": [
+          {
+            "id": "CLEVR_train_002497.png",
+            "rank": 1,
+            "score": 0.5004,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_049235.png",
+            "rank": 2,
+            "score": 0.4928,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_042102.png",
+            "rank": 3,
+            "score": 0.4923,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_036136.png",
+            "rank": 4,
+            "score": 0.4886,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_002795.png",
+            "rank": 5,
+            "score": 0.4883,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_053765.png",
+            "rank": 6,
+            "score": 0.4881,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033717.png",
+            "rank": 7,
+            "score": 0.4878,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_006177.png",
+            "rank": 8,
+            "score": 0.4865,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_056027.png",
+            "rank": 9,
+            "score": 0.4864,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_010037.png",
+            "rank": 10,
+            "score": 0.4851,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_045959.png",
+            "rank": 11,
+            "score": 0.4847,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_036094.png",
+            "rank": 12,
+            "score": 0.4846,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_062492.png",
+            "rank": 13,
+            "score": 0.4845,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_067226.png",
+            "rank": 14,
+            "score": 0.4843,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_003306.png",
+            "rank": 15,
+            "score": 0.4843,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_023249.png",
+            "rank": 16,
+            "score": 0.4839,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_034137.png",
+            "rank": 17,
+            "score": 0.4835,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_068992.png",
+            "rank": 18,
+            "score": 0.483,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_014790.png",
+            "rank": 19,
+            "score": 0.4821,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_034253.png",
+            "rank": 20,
+            "score": 0.4821,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_058408.png",
+            "rank": 21,
+            "score": 0.4818,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_031961.png",
+            "rank": 22,
+            "score": 0.4815,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_069893.png",
+            "rank": 23,
+            "score": 0.4806,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_018650.png",
+            "rank": 24,
+            "score": 0.4806,
+            "label": "noise"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_061551.png",
+            "rank": 110,
+            "score": 0.4697
+          },
+          {
+            "id": "CLEVR_train_035638.png",
+            "rank": 112,
+            "score": 0.4696
+          },
+          {
+            "id": "CLEVR_train_069336.png",
+            "rank": 117,
+            "score": 0.4695
+          },
+          {
+            "id": "CLEVR_train_014168.png",
+            "rank": 126,
+            "score": 0.4691
+          },
+          {
+            "id": "CLEVR_train_034541.png",
+            "rank": 128,
+            "score": 0.4691
+          },
+          {
+            "id": "CLEVR_train_044759.png",
+            "rank": 136,
+            "score": 0.4687
+          },
+          {
+            "id": "CLEVR_train_011331.png",
+            "rank": 137,
+            "score": 0.4684
+          },
+          {
+            "id": "CLEVR_train_009005.png",
+            "rank": 142,
+            "score": 0.4679
+          },
+          {
+            "id": "CLEVR_train_062354.png",
+            "rank": 148,
+            "score": 0.4674
+          },
+          {
+            "id": "CLEVR_train_063059.png",
+            "rank": 158,
+            "score": 0.4667
+          },
+          {
+            "id": "CLEVR_train_002835.png",
+            "rank": 163,
+            "score": 0.4666
+          },
+          {
+            "id": "CLEVR_train_010695.png",
+            "rank": 164,
+            "score": 0.4666
+          }
+        ]
+      },
+      "visual_token": {
+        "K": 100,
+        "pool_recall": 0.917,
+        "n_hit": 55,
+        "n_gt": 60,
+        "n_miss": 5,
+        "n_fp": 45,
+        "first_gt_rank": 1,
+        "top": [
+          {
+            "id": "CLEVR_train_015297.png",
+            "rank": 1,
+            "score": 3.9841,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_034541.png",
+            "rank": 2,
+            "score": 3.984,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_034253.png",
+            "rank": 3,
+            "score": 3.9766,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_037336.png",
+            "rank": 4,
+            "score": 3.9727,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_062354.png",
+            "rank": 5,
+            "score": 3.965,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_029513.png",
+            "rank": 6,
+            "score": 3.9639,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_002078.png",
+            "rank": 7,
+            "score": 3.9612,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_042980.png",
+            "rank": 8,
+            "score": 3.9523,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_057534.png",
+            "rank": 9,
+            "score": 3.952,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_065752.png",
+            "rank": 10,
+            "score": 3.9498,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_018000.png",
+            "rank": 11,
+            "score": 3.9493,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_061551.png",
+            "rank": 12,
+            "score": 3.9394,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_041203.png",
+            "rank": 13,
+            "score": 3.939,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_065773.png",
+            "rank": 14,
+            "score": 3.9373,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_034243.png",
+            "rank": 15,
+            "score": 3.9335,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_054889.png",
+            "rank": 16,
+            "score": 3.9325,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_019466.png",
+            "rank": 17,
+            "score": 3.9275,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_008198.png",
+            "rank": 18,
+            "score": 3.8819,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_035571.png",
+            "rank": 19,
+            "score": 3.8735,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_059970.png",
+            "rank": 20,
+            "score": 3.8683,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_064219.png",
+            "rank": 21,
+            "score": 3.8578,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_045959.png",
+            "rank": 22,
+            "score": 3.8402,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_017596.png",
+            "rank": 23,
+            "score": 3.8291,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_035638.png",
+            "rank": 24,
+            "score": 3.8129,
+            "label": "hit"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_039708.png",
+            "rank": 112,
+            "score": 2.98
+          },
+          {
+            "id": "CLEVR_train_002835.png",
+            "rank": 129,
+            "score": 2.8602
+          },
+          {
+            "id": "CLEVR_train_030768.png",
+            "rank": 135,
+            "score": 2.8121
+          },
+          {
+            "id": "CLEVR_train_054999.png",
+            "rank": 157,
+            "score": 2.692
+          },
+          {
+            "id": "CLEVR_train_003585.png",
+            "rank": 168,
+            "score": 2.619
+          }
+        ]
+      },
+      "captions_snippet": {
+        "CLEVR_train_037336.png": "画面中展示多个几何体置于浅灰色平面上，包括一个中心偏下的红色金属立方体，其表面有高光反射。周围散布着不同大小和颜色的圆柱体：有紫色、蓝色、棕色、青色、金色和银色，部分为金属材质，部",
+        "CLEVR_train_034253.png": "画面中展示多个几何体，包括一个大型青绿色金属圆柱体、一个红色金属立方体、一个蓝色半透明球体、一个金色金属球体、一个灰色小立方体、一个红色小圆柱体、一个紫色金属小圆柱体、一个金色小圆",
+        "CLEVR_train_002497.png": "画面中展示了多个几何体，包括不同大小和颜色的立方体、圆柱体和一个球体。左侧有一个较大的棕色立方体，旁边有小的青色和银色立方体。中间偏右有一个红色圆柱体、一个银色立方体、一个紫色小圆",
+        "CLEVR_train_049235.png": "画面中展示了多个几何体，包括不同大小的圆柱体、立方体和球体，散落在浅灰色平面上。左侧有一个大紫色圆柱体，中间偏左是一个红色金属质感立方体，其前方有一个黄色小球和一个紫色金属小球。右",
+        "CLEVR_train_015297.png": "画面中展示了多个几何体，包括绿色圆柱、蓝色立方体、绿色球体、灰色立方体、银色圆柱、青色金属圆柱、红色金属小立方体、黄色小圆柱、黄色金属小立方体和黄色小球。物体材质多样，有哑光塑料质",
+        "CLEVR_train_036136.png": "画面中展示多个几何体，包括大小不一的圆柱体和立方体，散落在浅灰色平面上。前景有一个大紫色圆柱体，其后方有绿色、青色金属质感立方体，右侧有一个金色金属立方体和一个紫色小立方体。背景可",
+        "CLEVR_train_002795.png": "画面中展示多个几何体，包括大小不一的立方体、圆柱体和球体，散落在浅灰色平面上。左侧有一个较大的金色金属立方体，前方有一个棕色圆柱体。中央偏右是一个绿色立方体，其后方有一个紫色圆柱体",
+        "CLEVR_train_034541.png": "画面中展示多个几何体，包括一个绿色球体、一个蓝色球体、一个银色金属小球、一个红色立方体、一个灰色立方体、一个青色圆柱体、一个黄色小圆柱体、一个红色小圆柱体，以及两个小型金属立方体（",
+        "CLEVR_train_029513.png": "画面中展示多个几何体，包括一个大型青绿色金属质感圆柱、一个黄色哑光圆柱、一个紫色小圆柱、一个蓝色半透明球体、一个银色金属小球、一个红色金属小球，以及多个彩色金属立方体（红色、绿色、",
+        "CLEVR_train_062354.png": "画面中展示多个几何体置于浅灰色平面上，包括三个红色立方体（一个表面金属光泽）、一个棕色立方体、两个青绿色圆柱体、一个绿色金属小球和一个粉色小球。物体大小不一，材质多样，有哑光、金属",
+        "CLEVR_train_042102.png": "画面中展示了七个几何体，置于浅灰色背景上。前景有两个紫色立方体，表面光滑，大小相近。左侧有一个较大的青绿色金属质感圆柱体，右侧有一个较小的同色圆柱体。后方有一个紫色立方体。右下角有",
+        "CLEVR_train_053765.png": "画面中展示多个几何体，包括两个青绿色金属立方体、一个蓝色金属圆柱、一个银灰色金属圆柱、一个红色金属小圆柱、一个绿色金属小圆柱、一个绿色小立方体、一个金色金属小球、一个青绿色大球体和"
+      }
+    },
+    {
+      "id": "gal_qa_C03",
+      "question": "绿金属圆柱最后一次跟紫球一起，是哪张？",
+      "answer_type": "qa_locate",
+      "answer": "CLEVR_train_069199.png",
+      "risk": "medium",
+      "n_gt": 37,
+      "K": 100,
+      "category": "C",
+      "why_hard": "需要在共现集合里精确定位，依赖视觉证据排序。",
+      "metrics_summary": {
+        "caption_pool_recall": 0.243,
+        "gate_pool_recall": 0.568,
+        "visual_token_pool_recall": 0.946
+      },
+      "caption": {
+        "K": 100,
+        "pool_recall": 0.243,
+        "n_hit": 9,
+        "n_gt": 37,
+        "n_miss": 28,
+        "n_fp": 91,
+        "first_gt_rank": 6,
+        "top": [
+          {
+            "id": "CLEVR_train_006831.png",
+            "rank": 1,
+            "score": 0.4605,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_017841.png",
+            "rank": 2,
+            "score": 0.4467,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_049235.png",
+            "rank": 3,
+            "score": 0.4429,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_067703.png",
+            "rank": 4,
+            "score": 0.4404,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_012682.png",
+            "rank": 5,
+            "score": 0.4372,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_027222.png",
+            "rank": 6,
+            "score": 0.436,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_014610.png",
+            "rank": 7,
+            "score": 0.4353,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_023503.png",
+            "rank": 8,
+            "score": 0.4345,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_001483.png",
+            "rank": 9,
+            "score": 0.4343,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_001105.png",
+            "rank": 10,
+            "score": 0.4343,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_068495.png",
+            "rank": 11,
+            "score": 0.4332,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_048707.png",
+            "rank": 12,
+            "score": 0.4316,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_029443.png",
+            "rank": 13,
+            "score": 0.4313,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_044095.png",
+            "rank": 14,
+            "score": 0.4308,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_030618.png",
+            "rank": 15,
+            "score": 0.4308,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_068704.png",
+            "rank": 16,
+            "score": 0.4305,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_000628.png",
+            "rank": 17,
+            "score": 0.4294,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_053765.png",
+            "rank": 18,
+            "score": 0.429,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_035274.png",
+            "rank": 19,
+            "score": 0.4288,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_057567.png",
+            "rank": 20,
+            "score": 0.4287,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_013459.png",
+            "rank": 21,
+            "score": 0.4279,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_051141.png",
+            "rank": 22,
+            "score": 0.4279,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_041236.png",
+            "rank": 23,
+            "score": 0.4278,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_031961.png",
+            "rank": 24,
+            "score": 0.4276,
+            "label": "noise"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_068033.png",
+            "rank": 114,
+            "score": 0.4153
+          },
+          {
+            "id": "CLEVR_train_006613.png",
+            "rank": 116,
+            "score": 0.4153
+          },
+          {
+            "id": "CLEVR_train_043568.png",
+            "rank": 120,
+            "score": 0.4152
+          },
+          {
+            "id": "CLEVR_train_019375.png",
+            "rank": 131,
+            "score": 0.4142
+          },
+          {
+            "id": "CLEVR_train_001947.png",
+            "rank": 133,
+            "score": 0.4141
+          },
+          {
+            "id": "CLEVR_train_010325.png",
+            "rank": 157,
+            "score": 0.4131
+          },
+          {
+            "id": "CLEVR_train_012912.png",
+            "rank": 159,
+            "score": 0.413
+          },
+          {
+            "id": "CLEVR_train_064917.png",
+            "rank": 194,
+            "score": 0.4114
+          },
+          {
+            "id": "CLEVR_train_035872.png",
+            "rank": 201,
+            "score": 0.4112
+          },
+          {
+            "id": "CLEVR_train_039744.png",
+            "rank": 202,
+            "score": 0.4111
+          },
+          {
+            "id": "CLEVR_train_014681.png",
+            "rank": 222,
+            "score": 0.4101
+          },
+          {
+            "id": "CLEVR_train_004570.png",
+            "rank": 228,
+            "score": 0.4097
+          }
+        ]
+      },
+      "visual_token": {
+        "K": 100,
+        "pool_recall": 0.946,
+        "n_hit": 35,
+        "n_gt": 37,
+        "n_miss": 2,
+        "n_fp": 65,
+        "first_gt_rank": 1,
+        "top": [
+          {
+            "id": "CLEVR_train_064917.png",
+            "rank": 1,
+            "score": 3.2188,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_045933.png",
+            "rank": 2,
+            "score": 3.1144,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_029443.png",
+            "rank": 3,
+            "score": 3.0176,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_030596.png",
+            "rank": 4,
+            "score": 3.01,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_043219.png",
+            "rank": 5,
+            "score": 2.9975,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_062148.png",
+            "rank": 6,
+            "score": 2.962,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_021514.png",
+            "rank": 7,
+            "score": 2.9201,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033919.png",
+            "rank": 8,
+            "score": 2.8996,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_013459.png",
+            "rank": 9,
+            "score": 2.8384,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_004570.png",
+            "rank": 10,
+            "score": 2.8317,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_031426.png",
+            "rank": 11,
+            "score": 2.8264,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_006613.png",
+            "rank": 12,
+            "score": 2.8145,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_025215.png",
+            "rank": 13,
+            "score": 2.7837,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_010325.png",
+            "rank": 14,
+            "score": 2.7766,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_035350.png",
+            "rank": 15,
+            "score": 2.7715,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_050979.png",
+            "rank": 16,
+            "score": 2.7038,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_043973.png",
+            "rank": 17,
+            "score": 2.6933,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_010186.png",
+            "rank": 18,
+            "score": 2.6827,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_017898.png",
+            "rank": 19,
+            "score": 2.6668,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_009629.png",
+            "rank": 20,
+            "score": 2.6521,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_005568.png",
+            "rank": 21,
+            "score": 2.6279,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_025389.png",
+            "rank": 22,
+            "score": 2.6064,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_018647.png",
+            "rank": 23,
+            "score": 2.5959,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_035297.png",
+            "rank": 24,
+            "score": 2.5876,
+            "label": "hit"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_033779.png",
+            "rank": 104,
+            "score": 1.5476
+          },
+          {
+            "id": "CLEVR_train_048707.png",
+            "rank": 212,
+            "score": 0.0702
+          }
+        ]
+      },
+      "captions_snippet": {
+        "CLEVR_train_017841.png": "画面中展示六个几何体，置于浅灰色背景上。左侧有一个高大的紫色金属质感圆柱体，前方是一个较大的黄色哑光球体。其后方是一个绿色哑光立方体，旁边有一个小号紫色球体。右侧有两个金色金属质感",
+        "CLEVR_train_045933.png": "画面中展示多个几何体，包括一个橙色哑光大立方体、一个红色小立方体、一个紫色金属光泽球体、一个黄色小圆柱体、一个蓝色小圆柱体、一个青绿色金属光泽大圆柱体、一个绿色金属光泽大圆柱体、一",
+        "CLEVR_train_006831.png": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的立方体（紫色、绿色、青色、黄色、棕色）、球体（红色、紫色、银色、蓝色）和一个红色圆柱体。物体材质多样，部分为金属光泽（如红球、紫",
+        "CLEVR_train_043219.png": "画面中展示多个几何体置于浅灰色平面上，包括一个大号绿色金属球、一个大号绿色金属圆柱、一个红色哑光圆柱、一个紫色金属小圆柱、一个紫色哑光立方体、一个绿色哑光立方体、一个棕色金属小立方",
+        "CLEVR_train_049235.png": "画面中展示了多个几何体，包括不同大小的圆柱体、立方体和球体，散落在浅灰色平面上。左侧有一个大紫色圆柱体，中间偏左是一个红色金属质感立方体，其前方有一个黄色小球和一个紫色金属小球。右",
+        "CLEVR_train_067703.png": "画面中展示多个几何体置于浅灰色背景上，包含大小不一的球体（有大灰球、中等棕色球、小棕色球、小紫球）、立方体（有金色、铜色、红色金属质感）和圆柱体（有灰色、金色）。物体材质多样，部分",
+        "CLEVR_train_030596.png": "画面中展示多个几何体置于浅灰色平面上，包括一个大的绿色金属质感圆柱体、一个蓝色金属小圆柱体、一个黄色小球体、一个棕色金属球体、一个蓝色哑光立方体、一个青色金属立方体、一个紫色金属小",
+        "CLEVR_train_062148.png": "画面中展示多个几何体置于浅灰色平面上，包括一个红色金属球、一个紫色哑光球、一个金色金属球、一个青色半透明球、一个绿色哑光球、一个绿色金属圆柱、一个灰色小圆柱、一个棕色小球和一个金色",
+        "CLEVR_train_027222.png": "画面中展示多个几何体，包括紫色、红色、银色、绿色的金属光泽立方体，紫色、绿色、蓝色的金属光泽圆柱体，以及绿色、蓝色的金属光泽球体。还有一个紫色半透明球体和一个蓝色小圆柱体。所有物体",
+        "CLEVR_train_029443.png": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的球体与圆柱体。左侧有一个大紫色哑光球，前方有一个小红色球；中央偏右有一个大紫色金属光泽球，其后方是一个棕色圆柱体；右侧有一个高大",
+        "CLEVR_train_012682.png": "画面中展示多个几何体，包括一个大的紫色金属立方体、一个灰色圆柱体、一个棕色小立方体、一个蓝色小圆柱体、一个绿色金属小立方体、一个蓝色金属小球、一个金色金属小球、一个金色金属大球，以",
+        "CLEVR_train_064917.png": "画面中展示多个几何体置于浅灰色平面上，包括一个大的蓝色半透明球体、一个较小的紫色金属球、一个棕色小球、一个绿色大圆柱、一个金色小圆柱、一个铜色小圆柱、一个青色小圆柱、一个紫色小立方"
+      }
+    },
+    {
+      "id": "gal_qa_B02",
+      "question": "又有绿球又有紫圆柱的，一共几张？",
+      "answer_type": "qa_count",
+      "answer": "{'number': 66}",
+      "risk": "medium",
+      "n_gt": 66,
+      "K": 100,
+      "category": "B",
+      "why_hard": "计数依赖高召回；caption 漏检会直接导致数字错。",
+      "metrics_summary": {
+        "caption_pool_recall": 0.273,
+        "gate_pool_recall": 0.591,
+        "visual_token_pool_recall": 0.894
+      },
+      "caption": {
+        "K": 100,
+        "pool_recall": 0.273,
+        "n_hit": 18,
+        "n_gt": 66,
+        "n_miss": 48,
+        "n_fp": 82,
+        "first_gt_rank": 3,
+        "top": [
+          {
+            "id": "CLEVR_train_042006.png",
+            "rank": 1,
+            "score": 0.6399,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_031961.png",
+            "rank": 2,
+            "score": 0.4968,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_027222.png",
+            "rank": 3,
+            "score": 0.4944,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_040089.png",
+            "rank": 4,
+            "score": 0.4922,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_057567.png",
+            "rank": 5,
+            "score": 0.4908,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_029443.png",
+            "rank": 6,
+            "score": 0.4907,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_053765.png",
+            "rank": 7,
+            "score": 0.4901,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_066033.png",
+            "rank": 8,
+            "score": 0.4889,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_046838.png",
+            "rank": 9,
+            "score": 0.4886,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_033569.png",
+            "rank": 10,
+            "score": 0.4876,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_049235.png",
+            "rank": 11,
+            "score": 0.4876,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_003527.png",
+            "rank": 12,
+            "score": 0.4871,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_035572.png",
+            "rank": 13,
+            "score": 0.4869,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_014610.png",
+            "rank": 14,
+            "score": 0.4868,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_054030.png",
+            "rank": 15,
+            "score": 0.4865,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_051141.png",
+            "rank": 16,
+            "score": 0.4858,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_034253.png",
+            "rank": 17,
+            "score": 0.4855,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_023124.png",
+            "rank": 18,
+            "score": 0.4855,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_059835.png",
+            "rank": 19,
+            "score": 0.4854,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_053515.png",
+            "rank": 20,
+            "score": 0.4853,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_017841.png",
+            "rank": 21,
+            "score": 0.4853,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_057581.png",
+            "rank": 22,
+            "score": 0.4852,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_001483.png",
+            "rank": 23,
+            "score": 0.4846,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_068704.png",
+            "rank": 24,
+            "score": 0.4842,
+            "label": "hit"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_047863.png",
+            "rank": 107,
+            "score": 0.473
+          },
+          {
+            "id": "CLEVR_train_028761.png",
+            "rank": 113,
+            "score": 0.4727
+          },
+          {
+            "id": "CLEVR_train_029146.png",
+            "rank": 114,
+            "score": 0.4726
+          },
+          {
+            "id": "CLEVR_train_042737.png",
+            "rank": 116,
+            "score": 0.4725
+          },
+          {
+            "id": "CLEVR_train_068181.png",
+            "rank": 129,
+            "score": 0.471
+          },
+          {
+            "id": "CLEVR_train_018792.png",
+            "rank": 140,
+            "score": 0.4701
+          },
+          {
+            "id": "CLEVR_train_043973.png",
+            "rank": 145,
+            "score": 0.4698
+          },
+          {
+            "id": "CLEVR_train_035872.png",
+            "rank": 154,
+            "score": 0.4693
+          },
+          {
+            "id": "CLEVR_train_011932.png",
+            "rank": 155,
+            "score": 0.4693
+          },
+          {
+            "id": "CLEVR_train_049212.png",
+            "rank": 156,
+            "score": 0.4692
+          },
+          {
+            "id": "CLEVR_train_063003.png",
+            "rank": 162,
+            "score": 0.469
+          },
+          {
+            "id": "CLEVR_train_033333.png",
+            "rank": 168,
+            "score": 0.4687
+          }
+        ]
+      },
+      "visual_token": {
+        "K": 100,
+        "pool_recall": 0.894,
+        "n_hit": 59,
+        "n_gt": 66,
+        "n_miss": 7,
+        "n_fp": 41,
+        "first_gt_rank": 1,
+        "top": [
+          {
+            "id": "CLEVR_train_003455.png",
+            "rank": 1,
+            "score": 4.0006,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_066033.png",
+            "rank": 2,
+            "score": 3.9986,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_068181.png",
+            "rank": 3,
+            "score": 3.9976,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_039498.png",
+            "rank": 4,
+            "score": 3.9961,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_027372.png",
+            "rank": 5,
+            "score": 3.9957,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_035872.png",
+            "rank": 6,
+            "score": 3.9955,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_041586.png",
+            "rank": 7,
+            "score": 3.9954,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_028487.png",
+            "rank": 8,
+            "score": 3.9937,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_019072.png",
+            "rank": 9,
+            "score": 3.9928,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_033919.png",
+            "rank": 10,
+            "score": 3.9919,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_030596.png",
+            "rank": 11,
+            "score": 3.9916,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_048590.png",
+            "rank": 12,
+            "score": 3.9907,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_048847.png",
+            "rank": 13,
+            "score": 3.9882,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_030324.png",
+            "rank": 14,
+            "score": 3.9876,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_034334.png",
+            "rank": 15,
+            "score": 3.9839,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_039805.png",
+            "rank": 16,
+            "score": 3.9831,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_027222.png",
+            "rank": 17,
+            "score": 3.9831,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_032665.png",
+            "rank": 18,
+            "score": 3.9826,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_049212.png",
+            "rank": 19,
+            "score": 3.9822,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_068704.png",
+            "rank": 20,
+            "score": 3.9821,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_054030.png",
+            "rank": 21,
+            "score": 3.982,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_055516.png",
+            "rank": 22,
+            "score": 3.9813,
+            "label": "noise"
+          },
+          {
+            "id": "CLEVR_train_018792.png",
+            "rank": 23,
+            "score": 3.9812,
+            "label": "hit"
+          },
+          {
+            "id": "CLEVR_train_005667.png",
+            "rank": 24,
+            "score": 3.9805,
+            "label": "hit"
+          }
+        ],
+        "missed": [
+          {
+            "id": "CLEVR_train_002795.png",
+            "rank": 103,
+            "score": 3.4262
+          },
+          {
+            "id": "CLEVR_train_066916.png",
+            "rank": 114,
+            "score": 3.3098
+          },
+          {
+            "id": "CLEVR_train_014976.png",
+            "rank": 121,
+            "score": 3.2188
+          },
+          {
+            "id": "CLEVR_train_061914.png",
+            "rank": 129,
+            "score": 3.2109
+          },
+          {
+            "id": "CLEVR_train_043973.png",
+            "rank": 177,
+            "score": 2.9743
+          },
+          {
+            "id": "CLEVR_train_017898.png",
+            "rank": 291,
+            "score": 2.3518
+          },
+          {
+            "id": "CLEVR_train_011932.png",
+            "rank": 356,
+            "score": 2.1825
+          }
+        ]
+      },
+      "captions_snippet": {
+        "CLEVR_train_027372.png": "画面中展示多个几何体置于浅灰色平面上，包括一个红色金属质感的圆柱体、一个紫色哑光圆柱体、一个蓝色金属质感圆柱体、一个金色金属质感小圆柱体、一个绿色金属质感球体、一个蓝色哑光小球体，",
+        "CLEVR_train_035872.png": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的圆柱体、球体和立方体。前景有一个大的紫色哑光圆柱体，其后方是一个高大的青绿色金属质感圆柱体。周围散落着绿色、紫色、蓝色的圆柱体和",
+        "CLEVR_train_066033.png": "画面中展示多个几何体，包括一个前景的绿色球体、一个紫色圆柱体、一个紫色立方体、一个黄色小立方体、一个蓝色金属球、一个青色金属圆柱、一个棕色圆柱、一个灰色立方体和一个棕色立方体。物体",
+        "CLEVR_train_040089.png": "画面中展示多个几何体，包括不同大小和颜色的圆柱体、立方体和球体，散落在浅灰色平面上。可见物体有：一个大灰色圆柱、一个大青绿色金属圆柱、一个棕色圆柱、一个紫色小圆柱、一个绿色小圆柱、",
+        "CLEVR_train_042006.png": "画面中展示多个几何体置于浅灰色平面上，包括一个大灰圆柱、一个紫立方体、一个红立方体、一个小红立方体、一个黄球、一个蓝球、一个绿球、一个蓝小圆柱和一个绿小圆柱。物体材质多样，有哑光、",
+        "CLEVR_train_031961.png": "画面中展示多个几何体，包括一个大的青绿色立方体、一个大的青绿色金属球、一个大的紫色圆柱体、一个大的金色圆柱体，以及若干小尺寸的物体：一个银色金属球、一个绿色金属立方体、一个紫色金属",
+        "CLEVR_train_057567.png": "画面中展示了多个几何体，包括一个红色圆柱、一个金色金属球、一个蓝色小球、一个紫色金属大圆柱、一个紫色大立方体、一个紫色小立方体、一个棕色小圆柱、一个紫色小圆柱，以及一个紫色中等大小",
+        "CLEVR_train_068181.png": "画面中展示多个几何体置于浅灰色背景上，包含一个大型蓝色金属质感圆柱体，一个绿色哑光球体，两个棕色小球体，一个蓝色金属小球体，一个紫色金属小圆柱体，以及一个金色金属小立方体。物体大小",
+        "CLEVR_train_003455.png": "画面中展示五个金属质感的几何体，置于浅灰色平面上。左侧有一个小号金色球体，中间偏后是一个较大的银灰色立方体，其右侧是一个大号绿色球体。前景中央是一个紫色圆柱体，其后方是一个小号金色",
+        "CLEVR_train_027222.png": "画面中展示多个几何体，包括紫色、红色、银色、绿色的金属光泽立方体，紫色、绿色、蓝色的金属光泽圆柱体，以及绿色、蓝色的金属光泽球体。还有一个紫色半透明球体和一个蓝色小圆柱体。所有物体",
+        "CLEVR_train_029443.png": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的球体与圆柱体。左侧有一个大紫色哑光球，前方有一个小红色球；中央偏右有一个大紫色金属光泽球，其后方是一个棕色圆柱体；右侧有一个高大",
+        "CLEVR_train_039498.png": "画面中展示多个几何体，包括两个绿色金属球、一个红色金属圆柱、一个绿色金属圆柱、一个蓝色金属小圆柱、两个紫色圆柱、一个紫色立方体和一个绿色立方体。所有物体表面光滑反光，置于浅灰色背景"
+      }
+    }
+  ]
+}
