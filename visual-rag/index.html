@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Visual Token vs Caption | Huayu Chen</title>
-  <meta name="description" content="Interactive demo: visual-token retrieval vs caption retrieval on an open CLEVR gallery." />
+  <meta name="description" content="Interactive demo: visual-token vs caption on retrieval and answering for open-gallery CLEVR QA." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -15,24 +15,32 @@
     <header class="topbar">
       <a class="back" href="../">← Huayu Chen</a>
       <div class="topbar-meta">
-        <span class="pill">CLEVR open gallery · 842 images</span>
+        <span class="pill">CLEVR open gallery</span>
         <span class="pill muted">precomputed demo</span>
       </div>
     </header>
 
     <section class="hero">
-      <p class="eyebrow">Interactive Retrieval Demo</p>
+      <p class="eyebrow">Interactive Demo</p>
       <h1>Visual Token <span class="vs">vs</span> Caption</h1>
       <p class="lede">
-        选一道图库问题，并排查看 Caption 检索漏掉了哪些相关图，以及 Visual Token 方法如何把它们找回来。
+        不只看检索召回：也可以进入答题阶段，看 Caption 漏掉哪些图、选错哪些图，以及 caption 文本本身丢掉了什么信息。
       </p>
+      <div class="mode-tabs" role="tablist" aria-label="Demo mode">
+        <button type="button" class="mode-tab active" data-mode="retrieve" role="tab" aria-selected="true">① 检索对比</button>
+        <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">② 答题对比</button>
+      </div>
       <div class="overall" id="overall-stats" aria-live="polite"></div>
     </section>
 
     <section class="picker">
       <div class="picker-head">
-        <h2>选择问题</h2>
-        <p>8 道代表性题目，来自 Gallery QA v1（全库 24 题评测子集）。</p>
+        <h2 id="picker-title">选择问题</h2>
+        <p id="picker-desc"></p>
+      </div>
+      <div class="subtabs" id="answer-subtabs" hidden>
+        <button type="button" class="subtab active" data-sub="list">开放图库选图答题</button>
+        <button type="button" class="subtab" data-sub="locate">定唯一图再答题</button>
       </div>
       <div class="q-list" id="q-list" role="listbox" aria-label="Questions"></div>
     </section>
@@ -45,31 +53,16 @@
         </div>
         <h2 id="q-text"></h2>
         <p class="why" id="why"></p>
-        <div class="q-meta">
-          <div><label>标准答案</label><strong id="answer"></strong></div>
-          <div><label>相关图 |E*|</label><strong id="n-gt"></strong></div>
-          <div><label>候选池 K</label><strong id="k-val"></strong></div>
-        </div>
+        <div class="q-meta" id="q-meta"></div>
         <div class="delta-bar" id="delta-bar"></div>
       </div>
 
-      <div class="legend">
-        <span><i class="swatch hit"></i> 相关图（命中）</span>
-        <span><i class="swatch noise"></i> 无关图（噪声）</span>
-        <span><i class="swatch miss"></i> 相关但未进池（漏检）</span>
-      </div>
-
-      <div class="compare">
-        <article class="panel caption-panel" id="panel-caption"></article>
-        <article class="panel token-panel" id="panel-token"></article>
-      </div>
+      <div class="legend" id="legend"></div>
+      <div id="stage-body"></div>
     </section>
 
     <footer class="foot">
-      <p>
-        指标为 pool recall：候选池前 K 张中命中的相关图比例。
-        Visual Token 对应全库 Rel tok/2；评测均值 Caption 0.311 → Visual Token 0.823（24 题）。
-      </p>
+      <p id="foot-note"></p>
       <p><a href="../">返回主页</a></p>
     </footer>
   </div>
