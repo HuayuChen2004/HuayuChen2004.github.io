@@ -875,25 +875,27 @@
       sel: "#q-list",
       title: "先选一道案例",
       text: "这里有多道题（定图失败、碰巧对、读 caption 仍错…）。点卡片切换题目，引导会停在当前题上。",
-      place: "bottom",
+      place: "auto",
+      maxHoleH: 180,
     },
     {
       sel: ".j-pin-q",
       title: "题目一直钉在上面",
       text: "展开后面步骤时，问题不会消失。随时能对照「现在在回答什么」。",
-      place: "bottom",
+      place: "auto",
     },
     {
-      sel: ".j-timeline",
+      sel: "#j-beat-0",
       title: "内容往下堆叠",
-      text: "第 1 步、第 2 步、第 3 步…都留在同一页。左右两列分别是 Caption 路径和 Visual Token 路径。",
-      place: "top",
+      text: "每展开一步，新内容接在下面（不会盖掉上面）。左右两列对照 Caption 与 Visual Token。",
+      place: "auto",
+      maxHoleH: 220,
     },
     {
       sel: "#j-next",
       title: "点这里继续展开",
       text: "每点一次「下一步」，新内容接在下面出现，不会盖掉上面的步骤。也可以「收回一步 / 从头重来」。",
-      place: "top",
+      place: "auto",
       clickHint: true,
     },
     {
@@ -931,20 +933,58 @@
     const pad = 14;
     const cw = card.offsetWidth;
     const ch = card.offsetHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
     let top;
     let left;
+
+    const clamp = (t, l) => ({
+      top: Math.min(Math.max(pad, t), Math.max(pad, vh - ch - pad)),
+      left: Math.min(Math.max(pad, l), Math.max(pad, vw - cw - pad)),
+    });
+
     if (place === "center" || !holeRect) {
-      top = Math.max(pad, (window.innerHeight - ch) / 2);
-      left = Math.max(pad, (window.innerWidth - cw) / 2);
-    } else if (place === "top") {
-      top = Math.max(pad, holeRect.top - ch - 16);
-      left = Math.min(Math.max(pad, holeRect.left), window.innerWidth - cw - pad);
+      ({ top, left } = clamp((vh - ch) / 2, (vw - cw) / 2));
     } else {
-      top = Math.min(window.innerHeight - ch - pad, holeRect.bottom + 16);
-      left = Math.min(Math.max(pad, holeRect.left), window.innerWidth - cw - pad);
+      const spaceBelow = vh - holeRect.bottom;
+      const spaceAbove = holeRect.top;
+      let prefer = place;
+      if (prefer === "auto") {
+        prefer = spaceBelow >= ch + 24 || spaceBelow >= spaceAbove ? "bottom" : "top";
+      }
+      if (prefer === "top" && spaceAbove >= ch + 20) {
+        ({ top, left } = clamp(holeRect.top - ch - 16, holeRect.left));
+      } else if (prefer === "bottom" && spaceBelow >= ch + 20) {
+        ({ top, left } = clamp(holeRect.bottom + 16, holeRect.left));
+      } else {
+        // Not enough room above/below: park card on the side or center of viewport
+        const sideLeft = holeRect.right + 16;
+        if (sideLeft + cw + pad <= vw) {
+          ({ top, left } = clamp(holeRect.top, sideLeft));
+        } else if (holeRect.left - cw - 16 >= pad) {
+          ({ top, left } = clamp(holeRect.top, holeRect.left - cw - 16));
+        } else {
+          ({ top, left } = clamp((vh - ch) / 2, (vw - cw) / 2));
+        }
+      }
     }
     card.style.top = `${top}px`;
     card.style.left = `${left}px`;
+  }
+
+  function clampHoleRect(rect, step) {
+    const pad = 8;
+    const maxH = step.maxHoleH || Math.min(280, window.innerHeight * 0.42);
+    const maxW = step.maxHoleW || window.innerWidth - 24;
+    let top = rect.top - pad;
+    let left = rect.left - pad;
+    let width = rect.width + pad * 2;
+    let height = Math.min(rect.height + pad * 2, maxH);
+    width = Math.min(width, maxW);
+    // keep inside viewport
+    top = Math.min(Math.max(6, top), window.innerHeight - height - 6);
+    left = Math.min(Math.max(6, left), window.innerWidth - width - 6);
+    return { top, left, width, height, bottom: top + height, right: left + width };
   }
 
   function renderTourStep() {
@@ -985,18 +1025,18 @@
     const cursor = $("#tour-cursor");
 
     requestAnimationFrame(() => {
-      let rect = null;
+      let holeRect = null;
       if (el) {
-        rect = el.getBoundingClientRect();
-        const pad = 8;
+        const raw = el.getBoundingClientRect();
+        holeRect = clampHoleRect(raw, step);
         hole.style.opacity = "1";
-        hole.style.top = `${Math.max(6, rect.top - pad)}px`;
-        hole.style.left = `${Math.max(6, rect.left - pad)}px`;
-        hole.style.width = `${Math.min(window.innerWidth - 12, rect.width + pad * 2)}px`;
-        hole.style.height = `${Math.min(window.innerHeight - 12, rect.height + pad * 2)}px`;
+        hole.style.top = `${holeRect.top}px`;
+        hole.style.left = `${holeRect.left}px`;
+        hole.style.width = `${holeRect.width}px`;
+        hole.style.height = `${holeRect.height}px`;
         cursor.hidden = false;
-        cursor.style.top = `${rect.top + Math.min(36, rect.height * 0.35)}px`;
-        cursor.style.left = `${rect.left + Math.min(48, rect.width * 0.45)}px`;
+        cursor.style.top = `${holeRect.top + Math.min(36, holeRect.height * 0.35)}px`;
+        cursor.style.left = `${holeRect.left + Math.min(48, holeRect.width * 0.45)}px`;
         if (step.clickHint) {
           cursor.classList.remove("is-click");
           void cursor.offsetWidth;
@@ -1010,7 +1050,7 @@
         hole.style.height = "20%";
         cursor.hidden = true;
       }
-      positionTourCard(card, rect, step.place || "bottom");
+      positionTourCard(card, holeRect, step.place || "auto");
     });
 
     root.querySelectorAll("[data-tour-skip]").forEach((b) =>
@@ -1144,10 +1184,10 @@
 
   async function main() {
     const [rRes, qRes, oRes, jRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807d"),
-      fetch("./data/qa_demo.json?v=20260807d"),
-      fetch("./data/overview.json?v=20260807d"),
-      fetch("./data/journey.json?v=20260807d"),
+      fetch("./data/demo.json?v=20260807e"),
+      fetch("./data/qa_demo.json?v=20260807e"),
+      fetch("./data/overview.json?v=20260807e"),
+      fetch("./data/journey.json?v=20260807e"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
