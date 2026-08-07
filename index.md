@@ -13,7 +13,7 @@ I’m Huayu Chen, a sophomore in Department of Automation, Tsinghua University. 
 
 ## Projects
 
-- **[Visual Token vs Caption](/visual-rag/)** — Interactive demo with overview metrics, retrieval cases, and answering-stage caption failures.
+- **[Visual Token vs Caption](/visual-rag/)** — Interactive demo: overview metrics, step-by-step pipeline walkthrough, retrieval and answering cases.
 
 <!-- ## News -->
 

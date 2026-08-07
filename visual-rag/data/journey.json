@@ -1,0 +1,506 @@
+{
+  "title": "端到端逐步对照",
+  "intro": "选一道题，点「下一步」逐步展开：从输入问题到最终答案。左右两列同步推进，对比 Caption 与 Visual Token。",
+  "journeys": [
+    {
+      "id": "locate_spatial",
+      "badge": "定图失败链",
+      "title": "多物体空间关系：Caption 定错图",
+      "blurb": "同一候选池里定唯一图再答题。Caption 被局部关键词带走；视觉 token Rel 定对并答对。",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有灰色圆柱体和青色球体和红色球体的图片里，绿色圆柱体相对于灰色圆柱体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
+      "gt_answer": "水平方向在右侧，深度方向在后方。",
+      "why": "定图要靠「灰圆柱 + 青球 + 红球」共现，但最终还要答左右/前后。Caption 对物体有无写得模糊，对相对位置更常缺失，于是 hybrid 分数被更靠前的局部相似噪声图抢走。",
+      "analysis": {
+        "title": "空间关系几乎不进 caption",
+        "summary": "定图要靠「灰圆柱 + 青球 + 红球」共现，但最终还要答左右/前后。Caption 对物体有无写得模糊，对相对位置更常缺失，于是 hybrid 分数被更靠前的局部相似噪声图抢走。",
+        "bullets": [
+          "题干同时要求多物体共现 + 空间关系，caption 通常只枚举物体，很少写「A 在 B 左侧」。",
+          "Caption 选中的图往往只部分命中颜色/形状关键词，却排在真正唯一图前面。",
+          "Visual Token Rel 直接对图像证据打相关性分，能把唯一图顶到 #1。"
+        ],
+        "tags": [
+          "空间关系缺失",
+          "关键词局部匹配",
+          "定图被噪声带走"
+        ]
+      },
+      "steps": [
+        {
+          "key": "ask",
+          "title": "输入问题",
+          "narrator": "用户提出同一道题。两边的方法从这里分叉。",
+          "layout": "shared",
+          "shared": {
+            "type": "question",
+            "text": "在本题检索得到的候选图片中，唯一一张同时具有灰色圆柱体和青色球体和红色球体的图片里，绿色圆柱体相对于灰色圆柱体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
+            "meta": "题型：空间关系 · 标准答案稍后揭晓"
+          }
+        },
+        {
+          "key": "encode",
+          "title": "准备证据形态",
+          "narrator": "Caption 路径把图压成文字；Visual Token 路径保留图像特征块。",
+          "layout": "dual",
+          "left": {
+            "title": "Caption 路径",
+            "type": "encode_caption",
+            "points": [
+              "候选池里每张图先写成一段自然语言",
+              "之后检索/定图只看这段文字",
+              "左右、前后等关系常常写不全"
+            ],
+            "sample_label": "金标图被写成的 caption（节选）",
+            "sample_text": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的圆柱体、立方体和球体。前景有银灰色与青绿色金属质感圆柱，中景有青绿色金属圆柱、青色金属小立方体、银灰色金属立方体及青色球体，右侧有红色小球和红色小圆柱。物体表面光滑反光，材质呈现金属或塑料质感，整体布局分散，背景简洁。"
+          },
+          "right": {
+            "title": "Visual Token 路径",
+            "type": "encode_token",
+            "points": [
+              "不经 caption 压缩，保留 visual tokens",
+              "用问题对图像做相关性（Rel）打分",
+              "外观与空间线索仍留在视觉证据里"
+            ],
+            "sample_label": "同一张金标图",
+            "image_id": "CLEVR_train_024365.png",
+            "sample_note": "后续步骤直接在视觉 token 上打分与作答"
+          }
+        },
+        {
+          "key": "rank",
+          "title": "池内打分排序",
+          "narrator": "协议：同一候选池 → 按分数取第 1 名作为「唯一证据图」。",
+          "layout": "dual",
+          "left": {
+            "title": "Caption 混合打分",
+            "type": "rank",
+            "rank": 14,
+            "rank_label": "真正唯一图的名次",
+            "rank_note": "金标图只排到 #14，前面被局部相似噪声图占满。",
+            "status": "bad"
+          },
+          "right": {
+            "title": "视觉 token Rel",
+            "type": "rank",
+            "rank": 1,
+            "rank_label": "真正唯一图的名次",
+            "rank_note": "金标图排到 #1，可以直接定图。",
+            "status": "ok"
+          }
+        },
+        {
+          "key": "pick",
+          "title": "定图（取 top-1）",
+          "narrator": "看两边各自选中了哪张图，再对照标准唯一图。",
+          "layout": "dual",
+          "left": {
+            "title": "Caption 选中",
+            "type": "pick",
+            "selected_id": "CLEVR_train_056027.png",
+            "anchor_id": "CLEVR_train_024365.png",
+            "match": false,
+            "caption": "画面中展示了多个几何体，包括大小不一的球体、圆柱体和立方体，散落在浅灰色背景上。可见一个黄色球体、一个棕色球体、一个青色小球；两个绿色圆柱体，一个红色金属质感圆柱体；一个大型青色金属立方体、一个红色小立方体、一个灰色金属小立方体、一个青色小立方体。物体表面材质多样，有哑光、金属反光等，颜色丰富，包括黄、棕、绿、红、青、灰。",
+            "cues": [
+              {
+                "cue": "灰色",
+                "present": true
+              },
+              {
+                "cue": "青色",
+                "present": true
+              },
+              {
+                "cue": "红色",
+                "present": true
+              },
+              {
+                "cue": "绿色",
+                "present": true
+              },
+              {
+                "cue": "圆柱",
+                "present": true
+              },
+              {
+                "cue": "球体",
+                "present": true
+              },
+              {
+                "cue": "左",
+                "present": false
+              },
+              {
+                "cue": "右",
+                "present": false
+              }
+            ]
+          },
+          "right": {
+            "title": "Visual Token 选中",
+            "type": "pick",
+            "selected_id": "CLEVR_train_024365.png",
+            "anchor_id": "CLEVR_train_024365.png",
+            "match": true
+          }
+        },
+        {
+          "key": "answer",
+          "title": "基于选中图作答",
+          "narrator": "模型只在各自定到的那张图上回答。定错图时，答案建立在错误场景上。",
+          "layout": "dual",
+          "left": {
+            "title": "Caption 作答",
+            "type": "answer",
+            "pred": "水平左侧，深度前方",
+            "correct": false,
+            "note": "在错误图上推测左右/前后"
+          },
+          "right": {
+            "title": "Visual Token 作答",
+            "type": "answer",
+            "pred": "水平右侧，深度后方",
+            "correct": true,
+            "note": "在正确唯一图上读空间关系"
+          }
+        },
+        {
+          "key": "verdict",
+          "title": "对照标准答案",
+          "narrator": "定图是否命中，比「碰巧答对」更重要。",
+          "layout": "verdict",
+          "gt_answer": "水平方向在右侧，深度方向在后方。",
+          "left": {
+            "title": "Caption",
+            "locate_ok": false,
+            "answer_ok": false,
+            "pred": "水平左侧，深度前方",
+            "tag": "定错 · 答错"
+          },
+          "right": {
+            "title": "Visual Token",
+            "locate_ok": true,
+            "answer_ok": true,
+            "pred": "水平右侧，深度后方",
+            "tag": "定对 · 答对"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lucky_material",
+      "badge": "碰巧对",
+      "title": "材质题：定错图却蒙对答案",
+      "blurb": "只看答题准确率会高估 Caption。这道题 Caption 定错图，却碰巧答对「金属」。",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有蓝色球体和青色立方体和棕色球体的图片里，其中的蓝色球体是金属材质还是橡胶材质？",
+      "gt_answer": "金属材质。",
+      "why": "即便最终答案只问材质，Caption 仍可能选错图；若碰巧答对，属于 lucky correct，不能说明它真的定位到了证据图。",
+      "analysis": {
+        "title": "材质题也会定错图",
+        "summary": "即便最终答案只问材质，Caption 仍可能选错图；若碰巧答对，属于 lucky correct，不能说明它真的定位到了证据图。",
+        "bullets": [
+          "定图失败时，模型是在错误图像的 caption 上猜测材质。",
+          "池里很多图都有金属/橡胶物体，材质答案很容易碰巧对。",
+          "因此需要同时看「定图是否命中 anchor」，不能只看答题准确率。"
+        ],
+        "tags": [
+          "lucky correct",
+          "定图≠答对",
+          "材质词可蒙"
+        ]
+      },
+      "steps": [
+        {
+          "key": "ask",
+          "title": "输入问题",
+          "narrator": "表面只问材质，但必须先定对唯一证据图。",
+          "layout": "shared",
+          "shared": {
+            "type": "question",
+            "text": "在本题检索得到的候选图片中，唯一一张同时具有蓝色球体和青色立方体和棕色球体的图片里，其中的蓝色球体是金属材质还是橡胶材质？",
+            "meta": "题型：材质 · 陷阱：答对 ≠ 定对"
+          }
+        },
+        {
+          "key": "encode",
+          "title": "准备证据形态",
+          "narrator": "Caption 仍靠文字关键词；视觉 token 直接看外观材质线索。",
+          "layout": "dual",
+          "left": {
+            "title": "Caption 路径",
+            "type": "encode_caption",
+            "points": [
+              "用 caption 相似度在池内选图",
+              "材质词可能缺失或含混",
+              "局部颜色/形状词容易抢走排名"
+            ],
+            "sample_label": "金标图 caption",
+            "sample_text": "画面中展示多个几何体置于浅灰色平面上，包括一个大的青绿色哑光立方体、一个金色金属球、一个蓝色金属球、一个绿色金属球、一个银色金属球、一个小型青绿色金属立方体、一个黄色金属圆柱、一个浅蓝色圆柱、一个红色圆柱、一个灰色圆柱。物体大小不一，材质有金属光泽和哑光质感，整体布局分散，背景为纯色。"
+          },
+          "right": {
+            "title": "Visual Token 路径",
+            "type": "encode_token",
+            "points": [
+              "Rel 对图像证据打相关性分",
+              "金属高光等外观不必先写成词",
+              "定图与答题共用同一视觉证据"
+            ],
+            "sample_label": "金标图",
+            "image_id": "CLEVR_train_055302.png",
+            "sample_note": "直接读图上的材质外观"
+          }
+        },
+        {
+          "key": "rank",
+          "title": "池内打分排序",
+          "narrator": "看金标图在两边排到第几。",
+          "layout": "dual",
+          "left": {
+            "title": "Caption",
+            "type": "rank",
+            "rank": 148,
+            "rank_label": "金标图名次",
+            "rank_note": "金标图 #148，定图失败。",
+            "status": "bad"
+          },
+          "right": {
+            "title": "Visual Token Rel",
+            "type": "rank",
+            "rank": 1,
+            "rank_label": "金标图名次",
+            "rank_note": "金标图 #1。",
+            "status": "ok"
+          }
+        },
+        {
+          "key": "pick",
+          "title": "定图（取 top-1）",
+          "narrator": "Caption 选中了别的图；Visual Token 选中金标图。",
+          "layout": "dual",
+          "left": {
+            "title": "Caption 选中（错）",
+            "type": "pick",
+            "selected_id": "CLEVR_train_001024.png",
+            "anchor_id": "CLEVR_train_055302.png",
+            "match": false,
+            "caption": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的球体和立方体。前景有红色立方体、绿色金属球、金色金属球和棕色小金属球；中景有蓝色立方体、红色立方体和青色金属立方体；背景有蓝色大立方体和青色小金属球。物体表面材质多样，有金属光泽和哑光质感，颜色涵盖红、蓝、绿、金、棕、青等。",
+            "cues": [
+              {
+                "cue": "青色",
+                "present": true
+              },
+              {
+                "cue": "蓝色",
+                "present": true
+              },
+              {
+                "cue": "棕色",
+                "present": true
+              },
+              {
+                "cue": "球体",
+                "present": true
+              },
+              {
+                "cue": "立方",
+                "present": true
+              },
+              {
+                "cue": "金属",
+                "present": true
+              },
+              {
+                "cue": "橡胶",
+                "present": false
+              }
+            ]
+          },
+          "right": {
+            "title": "Visual Token 选中（对）",
+            "type": "pick",
+            "selected_id": "CLEVR_train_055302.png",
+            "anchor_id": "CLEVR_train_055302.png",
+            "match": true
+          }
+        },
+        {
+          "key": "answer",
+          "title": "基于选中图作答",
+          "narrator": "两边都答出「金属」——但 Caption 是在错误图上碰巧对的。",
+          "layout": "dual",
+          "left": {
+            "title": "Caption 作答",
+            "type": "answer",
+            "pred": "metal",
+            "correct": true,
+            "lucky": true,
+            "note": "答对了，但图是错的 → lucky correct"
+          },
+          "right": {
+            "title": "Visual Token 作答",
+            "type": "answer",
+            "pred": "metal",
+            "correct": true,
+            "note": "定对图后再答对，证据链完整"
+          }
+        },
+        {
+          "key": "verdict",
+          "title": "对照标准答案",
+          "narrator": "所以评测要同时看定图准确率，不能只看答题准确率。",
+          "layout": "verdict",
+          "gt_answer": "金属材质。",
+          "left": {
+            "title": "Caption",
+            "locate_ok": false,
+            "answer_ok": true,
+            "pred": "metal",
+            "tag": "定错 · 碰巧答对"
+          },
+          "right": {
+            "title": "Visual Token",
+            "locate_ok": true,
+            "answer_ok": true,
+            "pred": "metal",
+            "tag": "定对 · 答对"
+          }
+        }
+      ]
+    },
+    {
+      "id": "read_count",
+      "badge": "读 caption 仍错",
+      "title": "图已选对：Caption 仍把紫色球数错",
+      "blurb": "跳过检索与定图，金标图直接给定。只换证据形态：读 caption 文本 vs 读视觉 token。",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有大号灰色金属球体和大号紫色橡胶球体和大号灰色橡胶球体的图片里，一共有几个紫色球体？",
+      "gt_answer": "一共有3个。",
+      "why": "图已经是正确唯一图，但 caption 把紫色球体说成「三个紫色球，其中一个是红色金属球」这种自相矛盾描述，模型按文本计数得到 2，而真实是 3。",
+      "analysis": {
+        "title": "颜色/属性绑定写乱，导致少计",
+        "summary": "图已经是正确唯一图，但 caption 把紫色球体说成「三个紫色球，其中一个是红色金属球」这种自相矛盾描述，模型按文本计数得到 2，而真实是 3。",
+        "bullets": [
+          "Caption 先写「右侧有三个紫色球体」，紧接着又说其中一个是「小号红色金属光泽球」——颜色标签互相打架。",
+          "左侧还有「淡紫色」球；模型若只信「两个中等紫色哑光」，就会少算。",
+          "Visual Token 直接看图计数，不受这段含混文本影响，答对 3。"
+        ],
+        "tags": [
+          "属性绑定错误",
+          "颜色混淆",
+          "计数依赖不可靠文本"
+        ],
+        "caption_issues": [
+          {
+            "quote": "右侧有三个紫色球体，其中两个为中等大小哑光材质，一个为小号红色金属光泽球",
+            "problem": "同一物体既被算进紫色，又被写成红色，计数边界被文本搞乱。"
+          },
+          {
+            "quote": "左侧有一个小号淡紫色哑光球",
+            "problem": "若模型不把「淡紫色」稳定映射为紫色，还会进一步漏计。"
+          }
+        ]
+      },
+      "steps": [
+        {
+          "key": "ask",
+          "title": "输入问题",
+          "narrator": "这道题问的是紫色球体个数。",
+          "layout": "shared",
+          "shared": {
+            "type": "question",
+            "text": "在本题检索得到的候选图片中，唯一一张同时具有大号灰色金属球体和大号紫色橡胶球体和大号灰色橡胶球体的图片里，一共有几个紫色球体？",
+            "meta": "题型：计数 · 协议：金标图已给定（oracle）"
+          }
+        },
+        {
+          "key": "gold",
+          "title": "给定正确唯一图",
+          "narrator": "选图错误已被排除。两边看到的是同一张正确图，差别只在「读什么证据」。",
+          "layout": "shared",
+          "shared": {
+            "type": "gold_image",
+            "image_id": "CLEVR_train_022058.png",
+            "label": "金标唯一图（两边相同）"
+          }
+        },
+        {
+          "key": "encode",
+          "title": "喂给模型的证据",
+          "narrator": "左边只读 caption 文字；右边读视觉 token。注意 caption 里颜色绑定已经打架。",
+          "layout": "dual",
+          "left": {
+            "title": "只读 Caption",
+            "type": "encode_caption",
+            "points": [
+              "模型看不到像素，只看到这段文字",
+              "文中把紫色与红色绑在同一物体上",
+              "计数边界被文本描述搞乱"
+            ],
+            "sample_label": "模型看到的 caption",
+            "sample_text": "画面中展示七个不同大小和材质的球体，置于浅灰色平面上。左侧有一个小号淡紫色哑光球；中间偏左是一个中等大小的灰色哑光球；中央是一个大号银色金属光泽球，表面有明显高光反射；右侧有三个紫色球体，其中两个为中等大小哑光材质，一个为小号红色金属光泽球；前景还有一个小号红色哑光球。整体光线柔和，阴影清晰。",
+            "issues": [
+              {
+                "quote": "右侧有三个紫色球体，其中两个为中等大小哑光材质，一个为小号红色金属光泽球",
+                "problem": "同一物体既被算进紫色，又被写成红色，计数边界被文本搞乱。"
+              },
+              {
+                "quote": "左侧有一个小号淡紫色哑光球",
+                "problem": "若模型不把「淡紫色」稳定映射为紫色，还会进一步漏计。"
+              }
+            ]
+          },
+          "right": {
+            "title": "读 Visual Token",
+            "type": "encode_token",
+            "points": [
+              "同一张图的 cached visual tokens",
+              "不依赖含混的颜色转写",
+              "直接从视觉证据计数"
+            ],
+            "sample_label": "同一张金标图",
+            "image_id": "CLEVR_train_022058.png",
+            "sample_note": "绕过 caption 压缩损失"
+          }
+        },
+        {
+          "key": "answer",
+          "title": "模型给出回答",
+          "narrator": "Caption 路径按混乱文本数出 2；视觉 token 数出 3。",
+          "layout": "dual",
+          "left": {
+            "title": "Caption 作答",
+            "type": "answer",
+            "pred": "2",
+            "correct": false,
+            "note": "文本自相矛盾 → 少计"
+          },
+          "right": {
+            "title": "Visual Token 作答",
+            "type": "answer",
+            "pred": "3",
+            "correct": true,
+            "note": "看图计数"
+          }
+        },
+        {
+          "key": "verdict",
+          "title": "对照标准答案",
+          "narrator": "即便检索与定图都对了，caption 证据仍可能单独把题答错。",
+          "layout": "verdict",
+          "gt_answer": "一共有3个。",
+          "left": {
+            "title": "Caption",
+            "locate_ok": true,
+            "answer_ok": false,
+            "pred": "2",
+            "tag": "图对 · 读文本答错"
+          },
+          "right": {
+            "title": "Visual Token",
+            "locate_ok": true,
+            "answer_ok": true,
+            "pred": "3",
+            "tag": "图对 · 答对"
+          }
+        }
+      ]
+    }
+  ]
+}

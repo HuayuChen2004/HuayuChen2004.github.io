@@ -28,8 +28,9 @@
       </p>
       <div class="mode-tabs" role="tablist" aria-label="Demo mode">
         <button type="button" class="mode-tab active" data-mode="overview" role="tab" aria-selected="true">① 总览证据</button>
-        <button type="button" class="mode-tab" data-mode="retrieve" role="tab" aria-selected="false">② 检索对比</button>
-        <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">③ 答题对比</button>
+        <button type="button" class="mode-tab" data-mode="journey" role="tab" aria-selected="false">② 全程逐步</button>
+        <button type="button" class="mode-tab" data-mode="retrieve" role="tab" aria-selected="false">③ 检索对比</button>
+        <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">④ 答题对比</button>
       </div>
       <div class="overall" id="overall-stats" aria-live="polite"></div>
     </section>
@@ -63,6 +64,7 @@
     </section>
 
     <section id="overview-root" class="overview-root" hidden></section>
+    <section id="journey-root" class="journey-root" hidden></section>
 
     <footer class="foot">
       <p id="foot-note"></p>

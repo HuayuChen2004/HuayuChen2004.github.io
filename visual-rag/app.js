@@ -6,9 +6,28 @@
   let retrieveData = null;
   let qaData = null;
   let overviewData = null;
-  let mode = "overview"; // overview | retrieve | answer
+  let journeyData = null;
+  let mode = "overview"; // overview | journey | retrieve | answer
   let answerSub = "select"; // select | read
   let activeId = null;
+  let journeyStep = 0;
+
+  function fmtAns(a) {
+    if (a == null) return "—";
+    if (typeof a === "boolean") return a ? "是" : "否";
+    if (typeof a === "object") return JSON.stringify(a);
+    return String(a);
+  }
+
+  function hideAllStages() {
+    $("#overview-root").hidden = true;
+    $("#overview-root").innerHTML = "";
+    $("#journey-root").hidden = true;
+    $("#journey-root").innerHTML = "";
+    $("#picker-section").hidden = true;
+    $("#active-q").hidden = true;
+    $("#answer-subtabs").hidden = true;
+  }
 
   function tileHTML(item, kind) {
     const label =
@@ -328,6 +347,10 @@
     if (target === "retrieve") {
       mode = "retrieve";
       activeId = null;
+    } else if (target === "journey") {
+      mode = "journey";
+      activeId = null;
+      journeyStep = 0;
     } else if (target.startsWith("answer:")) {
       mode = "answer";
       answerSub = target.split(":")[1] || "select";
@@ -353,6 +376,8 @@
     $("#picker-section").hidden = true;
     $("#active-q").hidden = true;
     $("#answer-subtabs").hidden = true;
+    $("#journey-root").hidden = true;
+    $("#journey-root").innerHTML = "";
     const root = $("#overview-root");
     root.hidden = false;
 
@@ -459,8 +484,9 @@
 
       <div class="ov-block">
         <h2>三条失败路径</h2>
-        <p class="setting">点卡片可跳进交互案例：Caption 压缩成文字后，会在找图、选图、读文字答题上连续失手。</p>
+        <p class="setting">点卡片可跳进分阶段案例；想看「提问 → 作答」全过程，用「② 全程逐步」点一步出一步。</p>
         <div class="story-grid">${story}</div>
+        <button type="button" class="journey-cta" data-jump="journey">打开全程逐步对照 →</button>
       </div>
 
       <div class="ov-block">
@@ -518,12 +544,259 @@
     });
 
     $("#foot-note").textContent =
-      "数字来自开放图库检索评测（Gallery QA）、Expand-150 对照、定图协议与单图金标对比。更细的词义见上方「读懂这些词」；交互案例见「检索对比 / 答题对比」。";
+      "数字来自开放图库检索评测（Gallery QA）、Expand-150 对照、定图协议与单图金标对比。更细的词义见上方「读懂这些词」；想看全过程请用「全程逐步」。";
+  }
+
+  function journeySideHTML(side, tone) {
+    if (!side) return `<div class="j-empty">本步暂无内容</div>`;
+    const toneCls = tone === "caption" ? "caption-panel" : "token-panel";
+
+    if (side.type === "encode_caption") {
+      const issues = (side.issues || [])
+        .map((it) => `<div class="issue"><q>「${it.quote}」</q><div>${it.problem}</div></div>`)
+        .join("");
+      return `
+        <article class="panel ${toneCls} j-reveal">
+          <div class="panel-head"><div><h3>${side.title}</h3></div></div>
+          <ul class="j-points">${(side.points || []).map((p) => `<li>${p}</li>`).join("")}</ul>
+          ${side.sample_text ? `<p class="section-label">${side.sample_label || "文本"}</p><p class="cap-text">${side.sample_text}</p>` : ""}
+          ${issues ? `<div class="issue-list">${issues}</div>` : ""}
+        </article>`;
+    }
+
+    if (side.type === "encode_token") {
+      return `
+        <article class="panel ${toneCls} j-reveal">
+          <div class="panel-head"><div><h3>${side.title}</h3></div></div>
+          <ul class="j-points">${(side.points || []).map((p) => `<li>${p}</li>`).join("")}</ul>
+          ${side.image_id ? `<div class="slot" style="margin-top:0.6rem"><label>${side.sample_label || "图像"}</label><img src="${thumb(side.image_id)}" alt="" /></div>` : ""}
+          ${side.sample_note ? `<div class="empty-miss" style="margin-top:0.7rem">${side.sample_note}</div>` : ""}
+        </article>`;
+    }
+
+    if (side.type === "rank") {
+      const rankPct = Math.max(8, 100 - (Number(side.rank) - 1) * 6);
+      return `
+        <article class="panel ${toneCls} j-reveal">
+          <div class="panel-head"><div><h3>${side.title}</h3></div>
+            <div class="verdict ${side.status === "ok" ? "ok" : "bad"}">#${side.rank}</div>
+          </div>
+          <p class="section-label">${side.rank_label || "名次"}</p>
+          <div class="j-rank-meter"><div class="fill ${side.status}" style="width:${rankPct}%"></div></div>
+          <p class="j-note">${side.rank_note || ""}</p>
+        </article>`;
+    }
+
+    if (side.type === "pick") {
+      return `
+        <article class="panel ${toneCls} j-reveal">
+          <div class="panel-head">
+            <div><h3>${side.title}</h3></div>
+            <div class="verdict ${side.match ? "ok" : "bad"}">${side.match ? "定对" : "定错"}</div>
+          </div>
+          <div class="pair-imgs">
+            <div class="slot"><label>选中图</label><img src="${thumb(side.selected_id)}" alt="" /></div>
+            <div class="slot"><label>标准唯一图</label><img src="${thumb(side.anchor_id)}" alt="" /></div>
+          </div>
+          ${side.caption ? `<p class="section-label" style="margin-top:0.75rem">选中图 caption</p><p class="cap-text">${side.caption}</p>` : ""}
+          ${cueHTML(side.cues)}
+        </article>`;
+    }
+
+    if (side.type === "answer") {
+      return `
+        <article class="panel ${toneCls} j-reveal">
+          <div class="panel-head">
+            <div><h3>${side.title}</h3></div>
+            <div class="verdict ${side.correct ? (side.lucky ? "warn" : "ok") : "bad"}">${
+              side.lucky ? "碰巧对" : side.correct ? "答对" : "答错"
+            }</div>
+          </div>
+          <div class="j-answer-bubble">${fmtAns(side.pred)}</div>
+          <p class="j-note">${side.note || ""}</p>
+        </article>`;
+    }
+
+    return `<article class="panel ${toneCls}"><pre>${JSON.stringify(side, null, 2)}</pre></article>`;
+  }
+
+  function journeySharedHTML(shared) {
+    if (!shared) return "";
+    if (shared.type === "question") {
+      return `
+        <div class="j-shared j-reveal">
+          <div class="j-shared-label">用户问题</div>
+          <h3 class="j-q">${shared.text}</h3>
+          ${shared.meta ? `<p class="j-meta">${shared.meta}</p>` : ""}
+        </div>`;
+    }
+    if (shared.type === "gold_image") {
+      return `
+        <div class="j-shared j-reveal">
+          <div class="j-shared-label">${shared.label || "金标图"}</div>
+          <img class="j-gold" src="${thumb(shared.image_id)}" alt="" />
+        </div>`;
+    }
+    return "";
+  }
+
+  function journeyVerdictHTML(step, journey) {
+    return `
+      <div class="j-verdict-wrap j-reveal">
+        <div class="j-gt"><span>标准答案</span><strong>${step.gt_answer || journey.gt_answer}</strong></div>
+        <div class="j-verdict-grid">
+          <div class="j-verdict-card caption">
+            <h3>${step.left.title}</h3>
+            <div class="flags">
+              <span class="${step.left.locate_ok ? "ok" : "bad"}">定图 ${step.left.locate_ok ? "✓" : "✗"}</span>
+              <span class="${step.left.answer_ok ? "ok" : "bad"}">答题 ${step.left.answer_ok ? "✓" : "✗"}</span>
+            </div>
+            <div class="pred">预测：${fmtAns(step.left.pred)}</div>
+            <div class="tag">${step.left.tag}</div>
+          </div>
+          <div class="j-verdict-card token">
+            <h3>${step.right.title}</h3>
+            <div class="flags">
+              <span class="${step.right.locate_ok ? "ok" : "bad"}">定图 ${step.right.locate_ok ? "✓" : "✗"}</span>
+              <span class="${step.right.answer_ok ? "ok" : "bad"}">答题 ${step.right.answer_ok ? "✓" : "✗"}</span>
+            </div>
+            <div class="pred">预测：${fmtAns(step.right.pred)}</div>
+            <div class="tag">${step.right.tag}</div>
+          </div>
+        </div>
+        ${analysisHTML(journey.analysis)}
+      </div>`;
+  }
+
+  function renderJourney() {
+    hideAllStages();
+    $("#picker-section").hidden = false;
+    $("#answer-subtabs").hidden = true;
+
+    const journeys = journeyData.journeys;
+    if (!journeys.some((j) => j.id === activeId)) {
+      activeId = journeys[0].id;
+      journeyStep = 0;
+    }
+    const journey = journeys.find((j) => j.id === activeId);
+    const steps = journey.steps;
+    if (journeyStep < 0) journeyStep = 0;
+    if (journeyStep >= steps.length) journeyStep = steps.length - 1;
+    const step = steps[journeyStep];
+    const atEnd = journeyStep === steps.length - 1;
+    const atStart = journeyStep === 0;
+
+    $("#overall-stats").innerHTML = `
+      <div class="stat"><label>当前案例</label><strong style="font-size:1.05rem">${journey.badge}</strong></div>
+      <div class="stat token"><label>进度</label><strong>${journeyStep + 1} / ${steps.length}</strong></div>
+      <div class="stat caption"><label>操作</label><strong style="font-size:1.05rem">点下一步展开</strong></div>`;
+    $("#picker-title").textContent = "选择全程案例";
+    $("#picker-desc").textContent = journeyData.intro;
+    $("#foot-note").textContent =
+      "全程逐步为预计算轨迹回放：点「下一步」同步展开 Caption 与 Visual Token 两条路径。数据来自定图协议与单图金标对比。";
+
+    const list = $("#q-list");
+    list.innerHTML = "";
+    journeys.forEach((j) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `q-btn${j.id === activeId ? " active" : ""}`;
+      btn.innerHTML = `
+        <div class="row"><span>${j.badge}</span><span>${j.steps.length} 步</span></div>
+        <div class="title">${j.title}</div>
+        <div class="scores"><span class="t">${j.blurb}</span></div>`;
+      btn.addEventListener("click", () => {
+        activeId = j.id;
+        journeyStep = 0;
+        refresh();
+      });
+      list.appendChild(btn);
+    });
+
+    const stepper = steps
+      .map(
+        (s, i) => `
+      <button type="button" class="j-step ${i === journeyStep ? "current" : i < journeyStep ? "done" : ""}" data-step="${i}">
+        <span class="n">${i + 1}</span><span class="t">${s.title}</span>
+      </button>`
+      )
+      .join("");
+
+    let body = "";
+    if (step.layout === "shared") {
+      body = journeySharedHTML(step.shared);
+    } else if (step.layout === "verdict") {
+      body = journeyVerdictHTML(step, journey);
+    } else {
+      body = `
+        <div class="j-dual">
+          <div class="j-col">
+            <div class="j-col-label caption">Caption 路径</div>
+            ${journeySideHTML(step.left, "caption")}
+          </div>
+          <div class="j-col">
+            <div class="j-col-label token">Visual Token 路径</div>
+            ${journeySideHTML(step.right, "token")}
+          </div>
+        </div>`;
+    }
+
+    const root = $("#journey-root");
+    root.hidden = false;
+    root.innerHTML = `
+      <div class="j-shell">
+        <div class="j-head">
+          <div>
+            <div class="j-badge">${journey.badge}</div>
+            <h2>${journey.title}</h2>
+            <p class="j-blurb">${journey.blurb}</p>
+          </div>
+        </div>
+        <div class="j-stepper">${stepper}</div>
+        <div class="j-narrator">
+          <div class="j-step-title">第 ${journeyStep + 1} 步 · ${step.title}</div>
+          <p>${step.narrator || ""}</p>
+        </div>
+        <div class="j-body">${body}</div>
+        <div class="j-controls">
+          <button type="button" class="j-btn ghost" id="j-prev" ${atStart ? "disabled" : ""}>← 上一步</button>
+          <button type="button" class="j-btn ghost" id="j-reset">重来</button>
+          <button type="button" class="j-btn primary" id="j-next">${atEnd ? "已到最后一步" : "下一步 →"}</button>
+        </div>
+      </div>`;
+
+    root.querySelectorAll("[data-step]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = Number(btn.dataset.step);
+        // only allow going to already revealed steps or next one
+        if (target <= journeyStep + 1) {
+          journeyStep = target;
+          refresh();
+        }
+      });
+    });
+    $("#j-prev")?.addEventListener("click", () => {
+      if (journeyStep > 0) {
+        journeyStep -= 1;
+        refresh();
+      }
+    });
+    $("#j-reset")?.addEventListener("click", () => {
+      journeyStep = 0;
+      refresh();
+    });
+    $("#j-next")?.addEventListener("click", () => {
+      if (journeyStep < steps.length - 1) {
+        journeyStep += 1;
+        refresh();
+      }
+    });
   }
 
   function syncHash() {
     const parts = [`mode=${mode}`];
     if (mode === "answer") parts.push(`sub=${answerSub}`);
+    if (mode === "journey") parts.push(`step=${journeyStep}`);
     if (mode !== "overview" && activeId) parts.push(`q=${encodeURIComponent(activeId)}`);
     history.replaceState(null, "", `#${parts.join("&")}`);
   }
@@ -537,11 +810,13 @@
         return [k, decodeURIComponent(v || "")];
       })
     );
-    if (map.mode === "overview" || map.mode === "retrieve" || map.mode === "answer") mode = map.mode;
+    if (map.mode === "overview" || map.mode === "journey" || map.mode === "retrieve" || map.mode === "answer") {
+      mode = map.mode;
+    }
     if (map.sub === "select" || map.sub === "read") answerSub = map.sub;
-    // backward compat
     if (map.sub === "locate" || map.sub === "list") answerSub = "select";
     if (map.q) activeId = map.q;
+    if (map.step != null && map.step !== "") journeyStep = Math.max(0, Number(map.step) || 0);
   }
 
   function refresh() {
@@ -556,9 +831,10 @@
 
     if (mode === "overview") {
       renderOverview();
+    } else if (mode === "journey") {
+      renderJourney();
     } else if (mode === "retrieve") {
-      $("#overview-root").hidden = true;
-      $("#overview-root").innerHTML = "";
+      hideAllStages();
       $("#picker-section").hidden = false;
       renderRetrieveOverall();
       const qs = retrieveData.questions;
@@ -569,8 +845,7 @@
       });
       renderRetrieveQuestion(qs.find((q) => q.id === activeId));
     } else {
-      $("#overview-root").hidden = true;
-      $("#overview-root").innerHTML = "";
+      hideAllStages();
       $("#picker-section").hidden = false;
       renderAnswerOverall();
       const qs = answerSub === "select" ? qaData.select_questions : qaData.read_questions;
@@ -587,20 +862,23 @@
   }
 
   async function main() {
-    const [rRes, qRes, oRes] = await Promise.all([
+    const [rRes, qRes, oRes, jRes] = await Promise.all([
       fetch("./data/demo.json"),
       fetch("./data/qa_demo.json"),
       fetch("./data/overview.json"),
+      fetch("./data/journey.json"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
     overviewData = await oRes.json();
+    journeyData = await jRes.json();
     parseHash();
 
     document.querySelectorAll(".mode-tab").forEach((btn) => {
       btn.addEventListener("click", () => {
         mode = btn.dataset.mode;
         activeId = null;
+        journeyStep = 0;
         refresh();
       });
     });
