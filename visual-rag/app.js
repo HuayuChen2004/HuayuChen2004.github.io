@@ -7,7 +7,7 @@
   let qaData = null;
   let overviewData = null;
   let journeyData = null;
-  let mode = "overview"; // overview | journey | retrieve | answer
+  let mode = "journey"; // journey | overview | retrieve | answer
   let answerSub = "select"; // select | read
   let activeId = null;
   let journeyStep = 0;
@@ -485,9 +485,9 @@
 
       <div class="ov-block">
         <h2>三条失败路径</h2>
-        <p class="setting">点卡片可跳进分阶段案例；想看「提问 → 作答」全过程，用「② 全程逐步」点一步出一步。</p>
+        <p class="setting">想看数字阶梯与术语表可留在本页；最直观的「提问→作答」请回「① 全程逐步」。</p>
         <div class="story-grid">${story}</div>
-        <button type="button" class="journey-cta" data-jump="journey">打开全程逐步对照 →</button>
+        <button type="button" class="journey-cta" data-jump="journey">回到全程逐步对照 →</button>
       </div>
 
       <div class="ov-block">
