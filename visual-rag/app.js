@@ -109,9 +109,12 @@
       </div>`;
   }
 
-  function cueHTML(cues) {
+  function cueHTML(cues, { withLegend = false } = {}) {
     if (!cues || !cues.length) return "";
-    return `<div class="cue-row">${cues
+    const legend = withLegend
+      ? `<p class="cue-legend">关键词检查：题目里提到的颜色/形状等，在这段 caption 文字里有没有写到。<span class="cue ok">绿勾 ✓</span> = 写到了；<span class="cue bad">红叉 ✗</span> = 没写到（文字证据缺了这层信息）。</p>`
+      : "";
+    return `${legend}<div class="cue-row">${cues
       .map((c) => `<span class="cue ${c.present ? "ok" : "bad"}">${c.cue}${c.present ? " ✓" : " ✗"}</span>`)
       .join("")}</div>`;
   }
@@ -679,7 +682,7 @@
             <div class="slot"><label>标准唯一图</label><img src="${thumb(side.anchor_id)}" alt="" /></div>
           </div>
           ${side.caption ? `<p class="section-label" style="margin-top:0.75rem">选中图 caption</p><p class="cap-text">${side.caption}</p>` : ""}
-          ${cueHTML(side.cues)}
+          ${cueHTML(side.cues, { withLegend: true })}
         </article>`;
     }
 
@@ -827,10 +830,6 @@
       .slice(0, journeyStep + 1)
       .map((s, i) => {
         const isLatest = i === journeyStep;
-        const body =
-          s.layout === "shared" && s.shared?.type === "question"
-            ? `<div class="j-shared j-shared-mini"><p class="j-meta">题目已固定在上方；下面继续看两边怎么处理这道题。</p></div>`
-            : journeyBeatBody(s, journey);
         return `
         <section class="j-beat${isLatest ? " j-reveal is-latest" : ""}" id="j-beat-${i}" data-beat="${i}">
           <div class="j-beat-rail" aria-hidden="true"></div>
@@ -839,7 +838,7 @@
             <h3>${s.title}</h3>
             <p>${s.narrator || ""}</p>
           </div>
-          <div class="j-beat-body">${body}</div>
+          <div class="j-beat-body">${journeyBeatBody(s, journey)}</div>
         </section>`;
       })
       .join("");
@@ -1265,10 +1264,10 @@
 
   async function main() {
     const [rRes, qRes, oRes, jRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807i"),
-      fetch("./data/qa_demo.json?v=20260807i"),
-      fetch("./data/overview.json?v=20260807i"),
-      fetch("./data/journey.json?v=20260807i"),
+      fetch("./data/demo.json?v=20260807j"),
+      fetch("./data/qa_demo.json?v=20260807j"),
+      fetch("./data/overview.json?v=20260807j"),
+      fetch("./data/journey.json?v=20260807j"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
