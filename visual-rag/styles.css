@@ -650,6 +650,39 @@ details.glossary[open] > summary::before { content: "▾ "; }
   color: var(--token);
   font-size: 0.9rem;
 }
+.ov-explain {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin-top: 0.95rem;
+}
+.ov-explain-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.85rem 0.95rem;
+}
+.ov-explain-card h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.92rem;
+  letter-spacing: -0.01em;
+}
+.ov-explain-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+.ov-explain-card.howto {
+  border-color: rgba(37, 99, 235, 0.22);
+  background: rgba(239, 246, 255, 0.65);
+}
+.ov-explain-card.howto h4 { color: #1d4ed8; }
+.ov-explain-card.analysis {
+  border-color: rgba(11, 110, 79, 0.25);
+  background: rgba(227, 245, 238, 0.55);
+}
+.ov-explain-card.analysis h4 { color: var(--token); }
 .story-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -801,7 +834,7 @@ details.glossary[open] > summary::before { content: "▾ "; }
 
 @media (max-width: 900px) {
   .overall, .q-list, .compare, .q-meta, .delta-bar, .pair-imgs, .stage-split,
-  .story-grid, .kind-grid, .cost-grid, .gloss-grid, .j-dual, .j-verdict-grid { grid-template-columns: 1fr; }
+  .story-grid, .kind-grid, .cost-grid, .gloss-grid, .j-dual, .j-verdict-grid, .ov-explain { grid-template-columns: 1fr; }
   .bar-row { grid-template-columns: 1fr; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .j-stepper { flex-direction: column; }

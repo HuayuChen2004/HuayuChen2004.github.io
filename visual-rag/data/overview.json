@@ -156,19 +156,48 @@
         "role": "upper",
         "blurb": "对全库做视觉 token 相关性打分（上界，更贵）"
       }
-    ]
+    ],
+    "howto": "实验做法：在开放图库（842 张 CLEVR 图）上评测 Gallery QA v1 的 24 道题。每道题有一组「相关证据图」。各方法把图库排序后取前 K 张作为候选池，统计：① 池内召回率——相关图有多少进了池；② 名次比——进池相关图是否挤在最前面（越接近 1 越好）；③ 每题耗时。对照从弱到强：Caption 混合检索 → Visual RAG（整图向量）→ Multi-view 粗召 → 门控 + tok/2 → 全库 Rel tok/2（上界）。",
+    "analysis": "结果分析：Caption 池内召回只有约 31%，大量相关图根本进不了后续答题；整图 Visual RAG 略好但仍弱。Multi-view 把召回抬到 43%，说明多视角/改写有帮助，但名次比仍偏大。本方法门控 + tok/2 把召回提到 58%、名次比降到 2.78，说明「只对不确定子集跑视觉 token Rel」能明显捞回漏检并改善排序。全库 Rel 召回 82%、名次比最好，是质量上界，但约 25s/题，约为门控方案的 3 倍多——所以门控是质量与成本的折中，而不是无脑全上 Rel。"
   },
   "ladder_expand150": {
     "name": "同一粗召池上的排序对照（Expand-150）",
     "setting": "150 题 · 图库 842。先固定粗召候选池（平均约 120 张），再比「池内排序好不好」。召回率相同只说明覆盖一样，packing 越小说明相关图排得越靠前。",
     "methods": [
-      { "name": "Caption", "pool_recall": 0.348, "packing": 5.074, "role": "baseline" },
-      { "name": "Visual RAG", "pool_recall": 0.382, "packing": 5.9, "role": "mid" },
-      { "name": "Multi-view 粗召", "pool_recall": 0.412, "packing": 4.716, "role": "mid" },
-      { "name": "门控 gate@50 + tok/2", "pool_recall": 0.412, "packing": 3.43, "role": "ours" },
-      { "name": "全池 Rel（上界）", "pool_recall": 0.412, "packing": 1.231, "role": "upper" }
+      {
+        "name": "Caption",
+        "pool_recall": 0.348,
+        "packing": 5.074,
+        "role": "baseline"
+      },
+      {
+        "name": "Visual RAG",
+        "pool_recall": 0.382,
+        "packing": 5.9,
+        "role": "mid"
+      },
+      {
+        "name": "Multi-view 粗召",
+        "pool_recall": 0.412,
+        "packing": 4.716,
+        "role": "mid"
+      },
+      {
+        "name": "门控 gate@50 + tok/2",
+        "pool_recall": 0.412,
+        "packing": 3.43,
+        "role": "ours"
+      },
+      {
+        "name": "全池 Rel（上界）",
+        "pool_recall": 0.412,
+        "packing": 1.231,
+        "role": "upper"
+      }
     ],
-    "note": "粗召池相同时，门控 + tok/2 主要改善排序；Caption 连覆盖都更差。"
+    "note": "粗召池相同时，门控 + tok/2 主要改善排序；Caption 连覆盖都更差。",
+    "howto": "实验做法：把题量扩到 Expand-150（150 题，同一 842 图库）。关键设计是「先固定粗召候选池」：多数方法共享相近的粗召覆盖（平均约保留 120 张），再只比较池内精排。主指标 packing：相关图在池内排得有多紧凑，越小越好。若两方法池内召回相同，差别就主要来自排序质量，而不是「有没有召进来」。",
+    "analysis": "结果分析：Multi-view、门控、全池 Rel 的池内召回都是 0.412，说明粗召覆盖已被对齐；此时 packing 从 4.72→3.43→1.23，清楚显示视觉 token Rel 主要在改善排序：相关图被推到更前面，后面定图更容易。Caption / Visual RAG 召回更低（0.35 / 0.38），连覆盖都不够，排序指标也更差——所以在扩大题集上，结论与 Gallery QA 一致：只靠文字或整图向量不够；门控 Rel 在同一粗召池上用更少算力逼近全池排序收益。"
   },
   "locate_vs_answer": {
     "name": "定图准不准 vs 答题准不准",
@@ -193,7 +222,9 @@
         "lucky_note": "15/15 定对且答对，无碰巧对"
       }
     ],
-    "takeaway": "只看答题准确率会高估 Caption；是否定对唯一证据图才是硬指标。"
+    "takeaway": "只看答题准确率会高估 Caption；是否定对唯一证据图才是硬指标。",
+    "howto": "实验做法：15 道需要「唯一证据图」的题。统一协议——先给同一候选池，用不同打分函数（Caption hybrid / Visual RAG / 视觉 token Rel）给池内图打分，只取 top-1 作为定图结果，再只在这张图上让模型答题。同时记录：定图是否命中金标唯一图（定图准确率），以及最终答案是否对（答题准确率）。若定错图却答对，记为碰巧对（lucky correct）。",
+    "analysis": "结果分析：Caption 定图准确率 0/15，但答题准确率仍有 66.7%——答对的题全部是定错图后碰巧对，说明「只看答题准确率」会严重高估 Caption：它并没有找到真正证据，只是蒙对了答案。Visual RAG 定对 3 题（20%），整体仍弱。视觉 token Rel 则 15/15 定对且答对，没有碰巧对。结论：开放图库问答里，定图是否命中唯一证据图才是硬指标；答题数字必须和定图一起看。"
   },
   "single_image_oracle": {
     "name": "图已给定：只比证据形态",
@@ -202,11 +233,25 @@
     "em_visual": 0.875,
     "n": 160,
     "by_kind": [
-      { "kind": "是否题 yes/no", "cap": 0.657, "vis": 0.929 },
-      { "kind": "计数题 number", "cap": 0.053, "vis": 0.684 },
-      { "kind": "属性题 attribute", "cap": 0.481, "vis": 0.942 }
+      {
+        "kind": "是否题 yes/no",
+        "cap": 0.657,
+        "vis": 0.929
+      },
+      {
+        "kind": "计数题 number",
+        "cap": 0.053,
+        "vis": 0.684
+      },
+      {
+        "kind": "属性题 attribute",
+        "cap": 0.481,
+        "vis": 0.942
+      }
     ],
-    "takeaway": "连检索都拿掉，纯比「读文字 vs 读视觉 token」：视觉 token 仍大幅更强，计数题差距尤其大。"
+    "takeaway": "连检索都拿掉，纯比「读文字 vs 读视觉 token」：视觉 token 仍大幅更强，计数题差距尤其大。",
+    "howto": "实验做法：160 道官方风格单图题，完全不做检索。每道题直接给定正确金标图（oracle），同一 consumer 模型分别只接收两种证据：① 该图的一段 caption 文本；② 该图的 visual tokens（可经轻量转写）。用完全匹配（EM）算准确率，并按是否题 / 计数题 / 属性题分组，用来隔离「证据形态」本身的影响。",
+    "analysis": "结果分析：整体 EM 从 Caption 的 45.6% 升到视觉 token 的 87.5%（约 +42 个百分点）。分题型看：是否题 65.7%→92.9%；属性题 48.1%→94.2%；计数题差距最大——Caption 仅 5.3%，视觉 token 68.4%。这说明即使图已经选对，把图压成文字仍会丢失颜色绑定、数量边界等细节；计数尤其依赖细粒度视觉证据，caption 一写乱就会系统性少计/错计。因此「读 caption 作答」本身就是一条独立失败路径，不只是检索/定图的问题。"
   },
   "cost_panel": {
     "name": "质量与耗时（同一粗召池上精排）",
@@ -245,6 +290,8 @@
         "note": "排序最好，大约贵 2.5 倍"
       }
     ],
-    "takeaway": "不必对每张图都跑最贵的 Rel：门控 + tok/2 大约用全池 Rel 四成的时间，换来明显更好的排序；相对 Caption，则是用可接受延迟换召回与证据质量。"
+    "takeaway": "不必对每张图都跑最贵的 Rel：门控 + tok/2 大约用全池 Rel 四成的时间，换来明显更好的排序；相对 Caption，则是用可接受延迟换召回与证据质量。",
+    "howto": "实验做法：仍在 Expand-150 设定下，粗召统一用 Multi-view 得到候选池，再比较不同精排策略的质量与端到端耗时（秒/题）。Caption 作为「极便宜的文字基线」；「仅 Multi-view」表示不做视觉 token 精排；本方法 gate@50 + tok/2 只对不确定子集跑半精度 Rel；全池 Rel 是把池内图都跑一遍的质量上界。",
+    "analysis": "结果分析：Caption 极快（约 0.05s/题），但召回与 packing 都最差，省时间换不来可用证据。仅 Multi-view 把召回抬到 0.412，耗时约 2s，但 packing 仍一般（4.72）。门控 + tok/2 保持同样召回，packing 降到 3.43，约 5.3s/题；全池 Rel  packing 最好（1.23），但约 12.9s/题。门控方案大约只要全池 Rel 四成时间，就拿到大部分排序收益——相对 Caption，则是用可接受延迟换回覆盖与证据质量。结论：Visual Token 不是越全越好，门控是可部署的甜点。"
   }
 }

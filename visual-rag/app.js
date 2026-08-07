@@ -368,6 +368,18 @@
     return "mid";
   }
 
+  function ovExplainHTML(block) {
+    if (!block) return "";
+    const howto = block.howto || "";
+    const analysis = block.analysis || block.takeaway || block.note || "";
+    if (!howto && !analysis) return "";
+    return `
+      <div class="ov-explain">
+        ${howto ? `<div class="ov-explain-card howto"><h4>实验做法</h4><p>${howto}</p></div>` : ""}
+        ${analysis ? `<div class="ov-explain-card analysis"><h4>结果分析</h4><p>${analysis}</p></div>` : ""}
+      </div>`;
+  }
+
   function renderOverview() {
     const d = overviewData;
     $("#overall-stats").innerHTML = `
@@ -492,8 +504,9 @@
 
       <div class="ov-block">
         <h2>${ladder.name}</h2>
-        <p class="setting">${ladder.setting} ${ladder.note}</p>
+        <p class="setting">${ladder.setting}</p>
         <div class="bar-rows">${bars}</div>
+        ${ovExplainHTML(ladder)}
       </div>
 
       <div class="ov-block">
@@ -503,7 +516,7 @@
           <thead><tr><th>方法</th><th>池内召回率 ↑</th><th>排序 packing ↓</th></tr></thead>
           <tbody>${e150rows}</tbody>
         </table>
-        <p class="ov-takeaway">${e150.note}</p>
+        ${ovExplainHTML(e150)}
       </div>
 
       <div class="ov-block">
@@ -513,7 +526,7 @@
           <thead><tr><th>方法</th><th>定图准确率</th><th>答题准确率</th><th>备注</th></tr></thead>
           <tbody>${locRows}</tbody>
         </table>
-        <p class="ov-takeaway">${loc.takeaway}</p>
+        ${ovExplainHTML(loc)}
       </div>
 
       <div class="ov-block">
@@ -530,14 +543,14 @@
           </div>
         </div>
         <div class="kind-grid">${kinds}</div>
-        <p class="ov-takeaway">${ora.takeaway}</p>
+        ${ovExplainHTML(ora)}
       </div>
 
       <div class="ov-block">
         <h2>${cost.name}</h2>
         <p class="setting">${cost.setting}</p>
         <div class="cost-grid">${costCards}</div>
-        <p class="ov-takeaway">${cost.takeaway}</p>
+        ${ovExplainHTML(cost)}
       </div>`;
 
     root.querySelectorAll("[data-jump]").forEach((btn) => {
@@ -1184,10 +1197,10 @@
 
   async function main() {
     const [rRes, qRes, oRes, jRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807e"),
-      fetch("./data/qa_demo.json?v=20260807e"),
-      fetch("./data/overview.json?v=20260807e"),
-      fetch("./data/journey.json?v=20260807e"),
+      fetch("./data/demo.json?v=20260807f"),
+      fetch("./data/qa_demo.json?v=20260807f"),
+      fetch("./data/overview.json?v=20260807f"),
+      fetch("./data/journey.json?v=20260807f"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
