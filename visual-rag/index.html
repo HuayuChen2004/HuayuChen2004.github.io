@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=20260807k" />
+  <link rel="stylesheet" href="./styles.css?v=20260807m" />
 </head>
 <body>
   <div class="page">
@@ -24,13 +24,14 @@
       <p class="eyebrow">Interactive Demo</p>
       <h1>Visual Token <span class="vs">vs</span> Caption</h1>
       <p class="lede">
-        给领导/客户看的对照页：先看 30 秒结论与一张「失败→挽回」例子，再点「全程逐步」自己展开。
+        最直观：先玩「小图库例子」——只有几张图、几道简单题，左右完整走完文字方案和看图方案，看错在哪一步。
       </p>
       <div class="mode-tabs" role="tablist" aria-label="Demo mode">
-        <button type="button" class="mode-tab active" data-mode="journey" role="tab" aria-selected="true">① 全程逐步</button>
-        <button type="button" class="mode-tab" data-mode="overview" role="tab" aria-selected="false">② 总览证据</button>
-        <button type="button" class="mode-tab" data-mode="retrieve" role="tab" aria-selected="false">③ 检索对比</button>
-        <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">④ 答题对比</button>
+        <button type="button" class="mode-tab active" data-mode="mini" role="tab" aria-selected="true">① 小图库例子</button>
+        <button type="button" class="mode-tab" data-mode="journey" role="tab" aria-selected="false">② 全程逐步</button>
+        <button type="button" class="mode-tab" data-mode="overview" role="tab" aria-selected="false">③ 总览证据</button>
+        <button type="button" class="mode-tab" data-mode="retrieve" role="tab" aria-selected="false">④ 检索对比</button>
+        <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">⑤ 答题对比</button>
       </div>
       <div class="overall" id="overall-stats" aria-live="polite"></div>
     </section>
@@ -67,6 +68,7 @@
 
     <section id="overview-root" class="overview-root" hidden></section>
     <section id="journey-root" class="journey-root" hidden></section>
+    <section id="mini-root" class="mini-root" hidden></section>
 
     <button type="button" class="tour-help-btn" id="tour-help" title="播放使用引导">怎么用?</button>
     <div id="tour-root" class="tour-root" hidden></div>
@@ -76,6 +78,6 @@
       <p><a href="../">返回主页</a></p>
     </footer>
   </div>
-  <script src="./app.js?v=20260807k"></script>
+  <script src="./app.js?v=20260807m"></script>
 </body>
 </html>

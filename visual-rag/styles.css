@@ -1448,3 +1448,137 @@ details.glossary[open] > summary::before { content: "▾ "; }
 @media (max-width: 900px) {
   .pitch-shell, .snap-grid, .pitch-stats { grid-template-columns: 1fr; }
 }
+
+/* —— mini gallery playground —— */
+.mini-root { margin-top: 0.5rem; }
+.mini-shell {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 2px);
+  box-shadow: var(--shadow);
+  padding: 1.15rem 1.2rem 5rem;
+  position: relative;
+}
+.mini-intro h2 { margin: 0 0 0.3rem; font-size: 1.2rem; }
+.mini-intro p { margin: 0 0 0.9rem; color: var(--muted); }
+.mini-gallery-wrap { margin-bottom: 0.9rem; }
+.mini-gallery {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+.mini-gal-item {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+}
+.mini-gal-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.mini-gal-item span {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--muted);
+  padding: 0.25rem 0.2rem 0.35rem;
+}
+.mini-q-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+.mini-q {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mini-q.active {
+  border-color: var(--token);
+  background: var(--token-soft);
+  color: var(--token);
+  box-shadow: 0 0 0 3px rgba(11, 110, 79, 0.1);
+}
+.mini-dual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.mini-note {
+  margin: 0 0 0.55rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.mini-rank-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.mini-tile {
+  position: relative;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+.mini-tile img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.mini-tile .mini-mark, .mini-tile .mini-score {
+  position: absolute;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 0.12rem 0.3rem;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.92);
+}
+.mini-tile .mini-mark { top: 0.3rem; left: 0.3rem; }
+.mini-tile .mini-score { bottom: 0.3rem; right: 0.3rem; color: var(--muted); }
+.mini-tile.is-gold { border-color: rgba(14, 165, 233, 0.55); }
+.mini-tile.pick-ok { border-color: var(--token); box-shadow: 0 0 0 2px rgba(11,110,79,0.15); }
+.mini-tile.pick-bad { border-color: var(--caption); box-shadow: 0 0 0 2px rgba(180,35,24,0.12); }
+.mini-cap-list { display: grid; gap: 0.45rem; max-height: 280px; overflow: auto; }
+.mini-cap-item {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.45rem;
+}
+.mini-cap-item img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; }
+.mini-cap-item b { display: block; font-size: 0.82rem; margin-bottom: 0.15rem; }
+.mini-cap-item p { margin: 0; font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+.mini-cap-item.tokenish { border-color: rgba(11, 110, 79, 0.25); background: rgba(227,245,238,0.35); }
+.mini-fail-banner {
+  margin: 0 0 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  background: var(--caption-soft);
+  color: var(--caption);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.mini-col.is-fail-step { box-shadow: 0 0 0 2px rgba(180, 35, 24, 0.18); }
+.j-beat.mini-beat-fail .j-beat-n { color: var(--caption); }
+.j-step.fail-step { border-color: rgba(180, 35, 24, 0.35); color: var(--caption); }
+.mini-verdict-line {
+  display: flex;
+  gap: 0.7rem;
+  margin: 0.55rem 0;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+@media (max-width: 900px) {
+  .mini-gallery { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .mini-dual, .mini-rank-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .mini-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mini-dual { grid-template-columns: 1fr; }
+}

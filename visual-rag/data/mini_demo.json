@@ -1,0 +1,188 @@
+{
+  "title": "小图库互动例子",
+  "intro": "下面只有 8 张图、3 道简单题。选一道题后，左右同时走完「只靠文字」和「直接看图」两条路，看答案差在哪一步。",
+  "gallery": [
+    {
+      "id": "CLEVR_train_022058.png",
+      "short": "多紫球",
+      "caption": "画面里有好几个球体。右侧有两个紫色球，其中一个其实更像红色金属小球；左边还有一个淡紫色球。"
+    },
+    {
+      "id": "CLEVR_train_002234.png",
+      "short": "黄方块场景",
+      "caption": "有一个黄色立方体、一个棕色球、一个绿色圆柱，还有一个金色金属球体。"
+    },
+    {
+      "id": "CLEVR_train_055302.png",
+      "short": "青绿大立方",
+      "caption": "一个大的青绿色立方体，周围有金色球、蓝色球、绿色球和银色球。"
+    },
+    {
+      "id": "CLEVR_train_001024.png",
+      "short": "红绿金球",
+      "caption": "前景有红色立方体、绿色金属球、金色金属球；还有蓝色立方体。"
+    },
+    {
+      "id": "CLEVR_train_056027.png",
+      "short": "黄棕青球",
+      "caption": "有黄色球体、棕色球体、青色小球，还有绿色圆柱和红色金属圆柱。"
+    },
+    {
+      "id": "CLEVR_train_035872.png",
+      "short": "紫圆柱",
+      "caption": "前景是一个大的紫色圆柱体，旁边有青绿色金属圆柱和一些小球。"
+    },
+    {
+      "id": "CLEVR_train_066033.png",
+      "short": "绿球紫柱",
+      "caption": "前景绿色球体，旁边紫色圆柱、紫色立方体，还有黄色小立方体。"
+    },
+    {
+      "id": "CLEVR_train_047690.png",
+      "short": "蓝金属立方",
+      "caption": "一个蓝色金属立方体、灰色立方体，以及红色、棕色、青色圆柱。"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_count_purple",
+      "label": "紫色球有几个？",
+      "question": "这 8 张图里，请找到「紫色球最多」的那一张：上面一共有几个紫色球？",
+      "hint": "题很简单：先找对图，再数紫色球。",
+      "gt_answer": "3",
+      "gold_id": "CLEVR_train_022058.png",
+      "fail_step": "read",
+      "fail_plain": "Caption 找到的图其实对了，但文字把颜色写乱了，数球数错。",
+      "caption": {
+        "ranks": [
+          { "id": "CLEVR_train_022058.png", "score": 0.91, "role": "gold" },
+          { "id": "CLEVR_train_035872.png", "score": 0.72, "role": "noise" },
+          { "id": "CLEVR_train_066033.png", "score": 0.61, "role": "noise" },
+          { "id": "CLEVR_train_056027.png", "score": 0.4, "role": "noise" },
+          { "id": "CLEVR_train_002234.png", "score": 0.22, "role": "noise" },
+          { "id": "CLEVR_train_001024.png", "score": 0.18, "role": "noise" },
+          { "id": "CLEVR_train_055302.png", "score": 0.15, "role": "noise" },
+          { "id": "CLEVR_train_047690.png", "score": 0.11, "role": "noise" }
+        ],
+        "selected_id": "CLEVR_train_022058.png",
+        "selected_ok": true,
+        "pred_answer": "2",
+        "correct": false,
+        "read_note": "文字写「右侧两个紫色球，其中一个更像红色」，模型按文字只敢数 2；图里其实是 3 个紫色球。"
+      },
+      "ours": {
+        "ranks": [
+          { "id": "CLEVR_train_022058.png", "score": 0.96, "role": "gold" },
+          { "id": "CLEVR_train_035872.png", "score": 0.55, "role": "noise" },
+          { "id": "CLEVR_train_066033.png", "score": 0.48, "role": "noise" },
+          { "id": "CLEVR_train_056027.png", "score": 0.31, "role": "noise" },
+          { "id": "CLEVR_train_002234.png", "score": 0.2, "role": "noise" },
+          { "id": "CLEVR_train_001024.png", "score": 0.16, "role": "noise" },
+          { "id": "CLEVR_train_055302.png", "score": 0.14, "role": "noise" },
+          { "id": "CLEVR_train_047690.png", "score": 0.1, "role": "noise" }
+        ],
+        "selected_id": "CLEVR_train_022058.png",
+        "selected_ok": true,
+        "pred_answer": "3",
+        "correct": true,
+        "read_note": "直接看图数紫色球，不受「写成红色」的文字干扰，答对 3。"
+      }
+    },
+    {
+      "id": "q_exists_yellow",
+      "label": "有没有黄球？",
+      "question": "请找到同时有「绿色圆柱」和「黄色立方体」的那张图：这张图里有没有黄色的球？",
+      "hint": "只要判断有没有黄球，不要被「金色」这种别名骗到。",
+      "gt_answer": "有",
+      "gold_id": "CLEVR_train_002234.png",
+      "fail_step": "read",
+      "fail_plain": "Caption 选对了图，但文字把黄球写成「金色金属球体」，存在性判断变成「没有」。",
+      "caption": {
+        "ranks": [
+          { "id": "CLEVR_train_002234.png", "score": 0.88, "role": "gold" },
+          { "id": "CLEVR_train_056027.png", "score": 0.7, "role": "noise" },
+          { "id": "CLEVR_train_001024.png", "score": 0.52, "role": "noise" },
+          { "id": "CLEVR_train_055302.png", "score": 0.41, "role": "noise" },
+          { "id": "CLEVR_train_066033.png", "score": 0.33, "role": "noise" },
+          { "id": "CLEVR_train_047690.png", "score": 0.25, "role": "noise" },
+          { "id": "CLEVR_train_035872.png", "score": 0.2, "role": "noise" },
+          { "id": "CLEVR_train_022058.png", "score": 0.12, "role": "noise" }
+        ],
+        "selected_id": "CLEVR_train_002234.png",
+        "selected_ok": true,
+        "pred_answer": "没有",
+        "correct": false,
+        "read_note": "Caption 明确写了「黄色立方体」和「金色金属球体」，字面上没有稳定的「黄色球体」，于是答「没有」。"
+      },
+      "ours": {
+        "ranks": [
+          { "id": "CLEVR_train_002234.png", "score": 0.94, "role": "gold" },
+          { "id": "CLEVR_train_056027.png", "score": 0.58, "role": "noise" },
+          { "id": "CLEVR_train_001024.png", "score": 0.44, "role": "noise" },
+          { "id": "CLEVR_train_055302.png", "score": 0.36, "role": "noise" },
+          { "id": "CLEVR_train_066033.png", "score": 0.28, "role": "noise" },
+          { "id": "CLEVR_train_047690.png", "score": 0.22, "role": "noise" },
+          { "id": "CLEVR_train_035872.png", "score": 0.18, "role": "noise" },
+          { "id": "CLEVR_train_022058.png", "score": 0.1, "role": "noise" }
+        ],
+        "selected_id": "CLEVR_train_002234.png",
+        "selected_ok": true,
+        "pred_answer": "有",
+        "correct": true,
+        "read_note": "看图像素：图里确实有黄色球体，答「有」。"
+      }
+    },
+    {
+      "id": "q_pick_metal",
+      "label": "大立方体是金属吗？",
+      "question": "请找到「有一个很大的青绿色立方体」的那张图：这个大立方体是金属材质吗？",
+      "hint": "关键是先选对那张有青绿大立方体的图，不要被别的金属球吸走。",
+      "gt_answer": "不是（哑光/橡胶）",
+      "gold_id": "CLEVR_train_055302.png",
+      "fail_step": "select",
+      "fail_plain": "Caption 被「金属球」关键词吸走，选错了图，后面答案建立在错误场景上。",
+      "caption": {
+        "ranks": [
+          { "id": "CLEVR_train_001024.png", "score": 0.86, "role": "wrong" },
+          { "id": "CLEVR_train_055302.png", "score": 0.79, "role": "gold" },
+          { "id": "CLEVR_train_047690.png", "score": 0.64, "role": "noise" },
+          { "id": "CLEVR_train_002234.png", "score": 0.5, "role": "noise" },
+          { "id": "CLEVR_train_056027.png", "score": 0.37, "role": "noise" },
+          { "id": "CLEVR_train_066033.png", "score": 0.29, "role": "noise" },
+          { "id": "CLEVR_train_035872.png", "score": 0.21, "role": "noise" },
+          { "id": "CLEVR_train_022058.png", "score": 0.14, "role": "noise" }
+        ],
+        "selected_id": "CLEVR_train_001024.png",
+        "selected_ok": false,
+        "pred_answer": "是金属",
+        "correct": false,
+        "read_note": "选中的图里金属球很多，文字也强调金属，于是答「是金属」——但那根本不是青绿大立方体那张图。"
+      },
+      "ours": {
+        "ranks": [
+          { "id": "CLEVR_train_055302.png", "score": 0.95, "role": "gold" },
+          { "id": "CLEVR_train_001024.png", "score": 0.57, "role": "noise" },
+          { "id": "CLEVR_train_047690.png", "score": 0.46, "role": "noise" },
+          { "id": "CLEVR_train_002234.png", "score": 0.33, "role": "noise" },
+          { "id": "CLEVR_train_056027.png", "score": 0.28, "role": "noise" },
+          { "id": "CLEVR_train_066033.png", "score": 0.22, "role": "noise" },
+          { "id": "CLEVR_train_035872.png", "score": 0.17, "role": "noise" },
+          { "id": "CLEVR_train_022058.png", "score": 0.11, "role": "noise" }
+        ],
+        "selected_id": "CLEVR_train_055302.png",
+        "selected_ok": true,
+        "pred_answer": "不是（哑光）",
+        "correct": true,
+        "read_note": "选中青绿大立方体那张图后，从外观判断它是哑光而非金属，答对。"
+      }
+    }
+  ],
+  "steps": [
+    { "key": "ask", "title": "提出问题" },
+    { "key": "gallery", "title": "面对小图库" },
+    { "key": "rank", "title": "给图打分排序" },
+    { "key": "select", "title": "选定要看的图" },
+    { "key": "read", "title": "读证据作答" },
+    { "key": "verdict", "title": "对照结果" }
+  ]
+}

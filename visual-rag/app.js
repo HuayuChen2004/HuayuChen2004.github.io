@@ -7,7 +7,9 @@
   let qaData = null;
   let overviewData = null;
   let journeyData = null;
-  let mode = "journey"; // journey | overview | retrieve | answer
+  let miniData = null;
+  let miniStep = 0;
+  let mode = "mini"; // mini | journey | overview | retrieve | answer
   let answerSub = "select"; // select | read
   let activeId = null;
   let journeyStep = 0;
@@ -25,6 +27,8 @@
     $("#overview-root").innerHTML = "";
     $("#journey-root").hidden = true;
     $("#journey-root").innerHTML = "";
+    $("#mini-root").hidden = true;
+    $("#mini-root").innerHTML = "";
     $("#picker-section").hidden = true;
     $("#active-q").hidden = true;
     $("#answer-subtabs").hidden = true;
@@ -1192,10 +1196,274 @@
   }
 
 
+
+  function galleryMap() {
+    const map = {};
+    (miniData.gallery || []).forEach((g) => {
+      map[g.id] = g;
+    });
+    return map;
+  }
+
+  function miniRankGrid(ranks, selectedId, goldId, revealSelected) {
+    return `<div class="mini-rank-grid">${ranks
+      .map((r, i) => {
+        const cls =
+          revealSelected && r.id === selectedId
+            ? r.id === goldId
+              ? "pick-ok"
+              : "pick-bad"
+            : r.role === "gold"
+              ? "is-gold"
+              : "";
+        const mark =
+          revealSelected && r.id === selectedId
+            ? r.id === goldId
+              ? "选中✓"
+              : "选中✗"
+            : `#${i + 1}`;
+        return `<div class="mini-tile ${cls}" title="${r.id}">
+          <img src="${thumb(r.id)}" alt="" loading="lazy" />
+          <span class="mini-mark">${mark}</span>
+          <span class="mini-score">${Number(r.score).toFixed(2)}</span>
+        </div>`;
+      })
+      .join("")}</div>`;
+  }
+
+  function miniPathColumn(q, sideKey, stepKey, gmap) {
+    const path = q[sideKey];
+    const isCap = sideKey === "caption";
+    const title = isCap ? "只靠文字（Caption）" : "我们的方法（看图）";
+    const tone = isCap ? "caption" : "token";
+    const failHere = isCap && q.fail_step === stepKey;
+    const failBanner = failHere
+      ? `<div class="mini-fail-banner">⚠ 问题出在这一步：${q.fail_plain}</div>`
+      : "";
+
+    let body = "";
+    if (stepKey === "ask") {
+      body = `<div class="j-shared"><div class="j-shared-label">同一道题</div><h3 class="j-q">${q.question}</h3><p class="j-meta">${q.hint || ""}</p></div>`;
+    } else if (stepKey === "gallery") {
+      body = `<p class="mini-note">${
+        isCap
+          ? "Caption 路径：每张图先被写成一段短文字，后面主要靠这些文字找图、答题。"
+          : "看图路径：保留视觉特征，后面用「问题和图像有多相关」来打分，不只看文字。"
+      }</p>
+      <div class="mini-cap-list">${miniData.gallery
+        .map((g) => {
+          if (isCap) {
+            return `<div class="mini-cap-item"><img src="${thumb(g.id)}" alt="" /><div><b>${g.short}</b><p>${g.caption}</p></div></div>`;
+          }
+          return `<div class="mini-cap-item tokenish"><img src="${thumb(g.id)}" alt="" /><div><b>${g.short}</b><p>保留 visual tokens（示意）：不经文字压缩，细粒度外观仍可用。</p></div></div>`;
+        })
+        .join("")}</div>`;
+    } else if (stepKey === "rank") {
+      body = `<p class="mini-note">按与问题的相关程度排序（分数越高越靠前）。</p>${miniRankGrid(
+        path.ranks,
+        path.selected_id,
+        q.gold_id,
+        false
+      )}`;
+    } else if (stepKey === "select") {
+      body = `${failBanner}<p class="mini-note">取排序第 1 名作为要看的图。</p>${miniRankGrid(
+        path.ranks,
+        path.selected_id,
+        q.gold_id,
+        true
+      )}
+      <div class="pair-imgs" style="margin-top:0.75rem">
+        <div class="slot"><label>该方法选中</label><img src="${thumb(path.selected_id)}" alt="" /></div>
+        <div class="slot"><label>标准关键图</label><img src="${thumb(q.gold_id)}" alt="" /></div>
+      </div>
+      <div class="verdict ${path.selected_ok ? "ok" : "bad"}" style="margin-top:0.55rem">${
+        path.selected_ok ? "选对了" : "选错了"
+      }</div>`;
+    } else if (stepKey === "read") {
+      const g = gmap[path.selected_id] || {};
+      body = `${failBanner}<div class="pair-imgs">
+        <div class="slot"><label>正在读的图</label><img src="${thumb(path.selected_id)}" alt="" /></div>
+      </div>
+      <p class="section-label" style="margin-top:0.7rem">${isCap ? "模型看到的文字" : "模型使用的证据"}</p>
+      <p class="cap-text">${isCap ? g.caption || "" : "同一张图的视觉 token（不依赖上面那段易错文字）。"}</p>
+      <p class="mini-note">${path.read_note || ""}</p>
+      <div class="j-answer-bubble" style="margin-top:0.55rem">${path.pred_answer}</div>`;
+    } else if (stepKey === "verdict") {
+      body = `<div class="j-gt"><span>标准答案</span><strong>${q.gt_answer}</strong></div>
+      <div class="mini-verdict-line">
+        <span>选图 ${path.selected_ok ? "✓" : "✗"}</span>
+        <span>答题 ${path.correct ? "✓" : "✗"}</span>
+      </div>
+      <div class="j-answer-bubble">${path.pred_answer}</div>
+      <p class="mini-note">${
+        isCap
+          ? `Caption 最终答错。关键失误步骤：${
+              { select: "选定要看的图", read: "读证据作答", rank: "排序", retrieve: "找图" }[q.fail_step] || q.fail_step
+            }。`
+          : "我们的方法选对图且答对。"
+      }</p>`;
+    }
+
+    return `<article class="panel ${tone}-panel mini-col ${failHere ? "is-fail-step" : ""}">
+      <div class="panel-head"><div><h3>${title}</h3></div>
+        <div class="verdict ${path.correct ? "ok" : "bad"}">${path.correct ? "最终会答对" : "最终会答错"}</div>
+      </div>
+      ${body}
+    </article>`;
+  }
+
+  function renderMini() {
+    hideAllStages();
+    $("#picker-section").hidden = true;
+    const root = $("#mini-root");
+    root.hidden = false;
+
+    const qs = miniData.questions;
+    if (!qs.some((q) => q.id === activeId)) {
+      activeId = qs[0].id;
+      miniStep = 0;
+    }
+    const q = qs.find((x) => x.id === activeId);
+    const steps = miniData.steps;
+    if (miniStep < 0) miniStep = 0;
+    if (miniStep >= steps.length) miniStep = steps.length - 1;
+    const step = steps[miniStep];
+    const gmap = galleryMap();
+    const atEnd = miniStep === steps.length - 1;
+    const atStart = miniStep === 0;
+
+    $("#overall-stats").innerHTML = `
+      <div class="stat"><label>小图库</label><strong>${miniData.gallery.length} 张图</strong></div>
+      <div class="stat token"><label>当前题</label><strong style="font-size:1.05rem">${q.label}</strong></div>
+      <div class="stat caption"><label>Caption 错在</label><strong style="font-size:1.05rem">${
+        { select: "选图", read: "读文字", rank: "排序" }[q.fail_step] || q.fail_step
+      }</strong></div>`;
+
+    $("#foot-note").textContent =
+      "小图库例子为示意性预计算轨迹：题更简单、图更少，方便一眼看清 Caption 在哪一步翻车、看图方法如何走通。";
+
+    const qbtns = qs
+      .map(
+        (item) =>
+          `<button type="button" class="mini-q ${item.id === activeId ? "active" : ""}" data-mini-q="${item.id}">${item.label}</button>`
+      )
+      .join("");
+
+    const gal = miniData.gallery
+      .map(
+        (g) =>
+          `<div class="mini-gal-item"><img src="${thumb(g.id)}" alt="" loading="lazy" /><span>${g.short}</span></div>`
+      )
+      .join("");
+
+    const stepper = steps
+      .map((s, i) => {
+        const fail = i <= miniStep && s.key === q.fail_step;
+        return `<button type="button" class="j-step ${i === miniStep ? "current" : i < miniStep ? "done" : ""} ${
+          fail ? "fail-step" : ""
+        }" data-mini-step="${i}" ${i > miniStep + 1 ? "disabled" : ""}>
+          <span class="n">${i + 1}</span><span class="t">${s.title}${fail ? " · 翻车点" : ""}</span>
+        </button>`;
+      })
+      .join("");
+
+    // accumulate revealed beats
+    const timeline = steps
+      .slice(0, miniStep + 1)
+      .map((s, i) => {
+        const isLatest = i === miniStep;
+        const failAt = s.key === q.fail_step;
+        return `<section class="j-beat${isLatest ? " j-reveal is-latest" : ""}${failAt ? " mini-beat-fail" : ""}" id="mini-beat-${i}">
+          <div class="j-beat-rail" aria-hidden="true"></div>
+          <div class="j-beat-head">
+            <span class="j-beat-n">第 ${i + 1} 步 · ${s.title}${failAt ? "（Caption 在这步出错）" : ""}</span>
+            <h3>${s.title}</h3>
+          </div>
+          <div class="mini-dual">
+            ${miniPathColumn(q, "caption", s.key, gmap)}
+            ${miniPathColumn(q, "ours", s.key, gmap)}
+          </div>
+        </section>`;
+      })
+      .join("");
+
+    root.innerHTML = `
+      <div class="mini-shell">
+        <div class="mini-intro">
+          <h2>${miniData.title}</h2>
+          <p>${miniData.intro}</p>
+        </div>
+        <div class="mini-gallery-wrap">
+          <div class="section-label">本例子的小图库（共 ${miniData.gallery.length} 张）</div>
+          <div class="mini-gallery">${gal}</div>
+        </div>
+        <div class="mini-q-row">${qbtns}</div>
+        <div class="j-pin-q">
+          <div class="j-shared-label">当前问题</div>
+          <h3 class="j-q">${q.question}</h3>
+          <p class="j-meta">标准答案：${q.gt_answer} · Caption 会在「${
+            { select: "选定要看的图", read: "读证据作答" }[q.fail_step] || q.fail_step
+          }」这一步出问题</p>
+        </div>
+        <div class="j-stepper">${stepper}</div>
+        <div class="j-timeline">${timeline}</div>
+        <div class="j-controls">
+          <button type="button" class="j-btn ghost" id="mini-prev" ${atStart ? "disabled" : ""}>收回一步</button>
+          <button type="button" class="j-btn ghost" id="mini-reset">从头重来</button>
+          <button type="button" class="j-btn primary" id="mini-next" ${atEnd ? "disabled" : ""}>${
+            atEnd ? "已全部展开" : "下一步（左右一起推进） →"
+          }</button>
+        </div>
+      </div>`;
+
+    root.querySelectorAll("[data-mini-q]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeId = btn.dataset.miniQ;
+        miniStep = 0;
+        refresh();
+      });
+    });
+    root.querySelectorAll("[data-mini-step]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const t = Number(btn.dataset.miniStep);
+        if (t <= miniStep) {
+          document.getElementById(`mini-beat-${t}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } else if (t === miniStep + 1) {
+          miniStep = t;
+          refresh();
+          requestAnimationFrame(() =>
+            document.getElementById(`mini-beat-${miniStep}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+          );
+        }
+      });
+    });
+    $("#mini-prev")?.addEventListener("click", () => {
+      if (miniStep > 0) {
+        miniStep -= 1;
+        refresh();
+      }
+    });
+    $("#mini-reset")?.addEventListener("click", () => {
+      miniStep = 0;
+      refresh();
+    });
+    $("#mini-next")?.addEventListener("click", () => {
+      if (miniStep < steps.length - 1) {
+        miniStep += 1;
+        refresh();
+        requestAnimationFrame(() =>
+          document.getElementById(`mini-beat-${miniStep}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+        );
+      }
+    });
+  }
+
+
   function syncHash() {
     const parts = [`mode=${mode}`];
     if (mode === "answer") parts.push(`sub=${answerSub}`);
     if (mode === "journey") parts.push(`step=${journeyStep}`);
+    if (mode === "mini") parts.push(`step=${miniStep}`);
     if (mode !== "overview" && activeId) parts.push(`q=${encodeURIComponent(activeId)}`);
     history.replaceState(null, "", `#${parts.join("&")}`);
   }
@@ -1209,13 +1477,17 @@
         return [k, decodeURIComponent(v || "")];
       })
     );
-    if (map.mode === "overview" || map.mode === "journey" || map.mode === "retrieve" || map.mode === "answer") {
+    if (map.mode === "overview" || map.mode === "journey" || map.mode === "retrieve" || map.mode === "answer" || map.mode === "mini") {
       mode = map.mode;
     }
     if (map.sub === "select" || map.sub === "read") answerSub = map.sub;
     if (map.sub === "locate" || map.sub === "list") answerSub = "select";
     if (map.q) activeId = map.q;
-    if (map.step != null && map.step !== "") journeyStep = Math.max(0, Number(map.step) || 0);
+    if (map.step != null && map.step !== "") {
+      const n = Math.max(0, Number(map.step) || 0);
+      if (mode === "mini") miniStep = n;
+      else journeyStep = n;
+    }
   }
 
   function refresh() {
@@ -1230,7 +1502,9 @@
 
     if (overviewData) renderPitch();
 
-    if (mode === "overview") {
+    if (mode === "mini") {
+      renderMini();
+    } else if (mode === "overview") {
       renderOverview();
     } else if (mode === "journey") {
       renderJourney();
@@ -1263,16 +1537,18 @@
   }
 
   async function main() {
-    const [rRes, qRes, oRes, jRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807k"),
-      fetch("./data/qa_demo.json?v=20260807k"),
-      fetch("./data/overview.json?v=20260807k"),
-      fetch("./data/journey.json?v=20260807k"),
+    const [rRes, qRes, oRes, jRes, mRes] = await Promise.all([
+      fetch("./data/demo.json?v=20260807m"),
+      fetch("./data/qa_demo.json?v=20260807m"),
+      fetch("./data/overview.json?v=20260807m"),
+      fetch("./data/journey.json?v=20260807m"),
+      fetch("./data/mini_demo.json?v=20260807m"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
     overviewData = await oRes.json();
     journeyData = await jRes.json();
+    miniData = await mRes.json();
     parseHash();
 
     document.querySelectorAll(".mode-tab").forEach((btn) => {
@@ -1280,6 +1556,7 @@
         mode = btn.dataset.mode;
         activeId = null;
         journeyStep = 0;
+        miniStep = 0;
         endTour(false);
         refresh();
       });
