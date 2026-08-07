@@ -1,0 +1,164 @@
+{
+  "title": "Overview evidence",
+  "story": [
+    {
+      "step": "1",
+      "title": "检索漏检",
+      "text": "Caption 把相关图排到池外；Visual Token / 门控 Rel 拉回更多证据。",
+      "jump": "retrieve"
+    },
+    {
+      "step": "2",
+      "title": "选图定错",
+      "text": "Caption 在池内定唯一图 0/15；Visual Token Rel 15/15。答对也可能是碰巧。",
+      "jump": "answer:select"
+    },
+    {
+      "step": "3",
+      "title": "读 Caption 仍错",
+      "text": "即便金标图已给定，caption 文本仍可能颜色绑错、漏命名，导致答错。",
+      "jump": "answer:read"
+    }
+  ],
+  "ladder_gallery_qa": {
+    "name": "Gallery QA v1 · 检索阶梯",
+    "setting": "24 题 · 图库 842 · 相对证据集 E* 的 pool recall / 名次比",
+    "note": "名次比越接近 1 越好（进池相关图是否挤在最前面）。",
+    "methods": [
+      {
+        "id": "caption",
+        "name": "Caption hybrid",
+        "pool_recall": 0.311,
+        "rank_ratio_mean": 6.2,
+        "sec_per_q": 0.36,
+        "role": "baseline",
+        "blurb": "文本描述 + 关键词混合检索"
+      },
+      {
+        "id": "visual_rag",
+        "name": "Visual RAG",
+        "pool_recall": 0.358,
+        "rank_ratio_mean": 6.96,
+        "sec_per_q": 0.91,
+        "role": "mid",
+        "blurb": "整图 visual embedding"
+      },
+      {
+        "id": "multiview",
+        "name": "Multi-view",
+        "pool_recall": 0.43,
+        "rank_ratio_mean": 4.01,
+        "sec_per_q": 1.63,
+        "role": "mid",
+        "blurb": "多视角 + query rewrite"
+      },
+      {
+        "id": "gate_tok2",
+        "name": "本方法：门控组池 + tok/2",
+        "pool_recall": 0.583,
+        "rank_ratio_mean": 2.78,
+        "sec_per_q": 7.58,
+        "role": "ours",
+        "blurb": "不确定子集走 visual-token Rel"
+      },
+      {
+        "id": "full_tok2",
+        "name": "全库 Rel tok/2",
+        "pool_recall": 0.823,
+        "rank_ratio_mean": 1.76,
+        "sec_per_q": 25.54,
+        "role": "upper",
+        "blurb": "视觉 token 上界（更贵）"
+      }
+    ]
+  },
+  "ladder_expand150": {
+    "name": "Expand-150 · 粗召对照",
+    "setting": "150 题 · 图库 842 · 固定 risk-K（mean K=120）",
+    "methods": [
+      { "name": "Caption", "pool_recall": 0.348, "packing": 5.074, "role": "baseline" },
+      { "name": "Visual RAG", "pool_recall": 0.382, "packing": 5.9, "role": "mid" },
+      { "name": "Multi-view", "pool_recall": 0.412, "packing": 4.716, "role": "mid" },
+      { "name": "gate@50 + tok/2", "pool_recall": 0.412, "packing": 3.43, "role": "ours" },
+      { "name": "全池 full Rel", "pool_recall": 0.412, "packing": 1.231, "role": "upper" }
+    ],
+    "note": "同一粗召池上，gate+tok/2 主要改善排序（packing）；Caption 连覆盖都更差。"
+  },
+  "locate_vs_answer": {
+    "name": "定图准确率 vs 答题准确率",
+    "setting": "15 题 · 统一定图协议（池内打分→top-1 再答）",
+    "methods": [
+      {
+        "name": "Caption",
+        "locate_acc": 0.0,
+        "answer_acc": 0.667,
+        "lucky_note": "10/10 答对题都是定错图后碰巧对"
+      },
+      {
+        "name": "Visual RAG",
+        "locate_acc": 0.2,
+        "answer_acc": 0.467,
+        "lucky_note": "定对 3 题后答题全对；其余含碰巧对"
+      },
+      {
+        "name": "Visual Token Rel",
+        "locate_acc": 1.0,
+        "answer_acc": 1.0,
+        "lucky_note": "15/15 定对且答对，无碰巧对"
+      }
+    ],
+    "takeaway": "只看答题准确率会高估 Caption；定图是否命中唯一证据图才是硬指标。"
+  },
+  "single_image_oracle": {
+    "name": "单图证据形态：Caption vs Visual Token",
+    "setting": "160 道官方风格单图题 · 无检索 · 同一 consumer（译后 vis / 纯 caption）",
+    "em_caption": 0.456,
+    "em_visual": 0.875,
+    "n": 160,
+    "by_kind": [
+      { "kind": "yes/no", "cap": 0.657, "vis": 0.929 },
+      { "kind": "number", "cap": 0.053, "vis": 0.684 },
+      { "kind": "attribute", "cap": 0.481, "vis": 0.942 }
+    ],
+    "takeaway": "连检索都拿掉，纯比证据形态：visual tokens 仍大幅强于 caption，计数题差距尤其大。"
+  },
+  "cost_panel": {
+    "name": "质量–成本权衡（Expand-150 池内精排设定）",
+    "setting": "同一 Multi-view 粗召池上比较；Caption 为检索对照",
+    "rows": [
+      {
+        "name": "Caption",
+        "pool_recall": 0.348,
+        "packing": 5.074,
+        "sec_per_q": 0.05,
+        "role": "baseline",
+        "note": "极快，但召回与排序都弱"
+      },
+      {
+        "name": "仅 Multi-view",
+        "pool_recall": 0.412,
+        "packing": 4.716,
+        "sec_per_q": 2.02,
+        "role": "mid",
+        "note": "覆盖提升，排序仍一般"
+      },
+      {
+        "name": "本方法 gate@50 + tok/2",
+        "pool_recall": 0.412,
+        "packing": 3.43,
+        "sec_per_q": 5.26,
+        "role": "ours",
+        "note": "只对不确定子集跑 visual-token Rel"
+      },
+      {
+        "name": "全池 full Relevance",
+        "pool_recall": 0.412,
+        "packing": 1.231,
+        "sec_per_q": 12.94,
+        "role": "upper",
+        "note": "排序上界，约 2.5× 更贵"
+      }
+    ],
+    "takeaway": "Visual Token 不是无脑全上：门控 + tok/2 用约 40% 全池 Rel 的端到端时间，换来明显更好的排序；相对 Caption 则是用可接受延迟换召回与证据质量。"
+  }
+}

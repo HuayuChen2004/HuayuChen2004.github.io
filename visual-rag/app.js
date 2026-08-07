@@ -5,7 +5,8 @@
 
   let retrieveData = null;
   let qaData = null;
-  let mode = "retrieve"; // retrieve | answer
+  let overviewData = null;
+  let mode = "overview"; // overview | retrieve | answer
   let answerSub = "select"; // select | read
   let activeId = null;
 
@@ -321,10 +322,185 @@
       </div>`;
   }
 
+
+  function jumpFromOverview(target) {
+    if (target === "retrieve") {
+      mode = "retrieve";
+      activeId = null;
+    } else if (target.startsWith("answer:")) {
+      mode = "answer";
+      answerSub = target.split(":")[1] || "select";
+      activeId = null;
+    }
+    refresh();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function roleClass(role) {
+    if (role === "ours") return "ours";
+    if (role === "baseline") return "baseline";
+    if (role === "upper") return "upper";
+    return "mid";
+  }
+
+  function renderOverview() {
+    const d = overviewData;
+    $("#overall-stats").innerHTML = `
+      <div class="stat caption"><label>Caption → Visual Token（检索）</label><strong>31% → 82%</strong></div>
+      <div class="stat token"><label>单图 EM：cap → vis</label><strong>45.6% → 87.5%</strong></div>
+      <div class="stat"><label>定图：Caption / Rel</label><strong>0/15 · 15/15</strong></div>`;
+    $("#picker-section").hidden = true;
+    $("#active-q").hidden = true;
+    $("#answer-subtabs").hidden = true;
+    const root = $("#overview-root");
+    root.hidden = false;
+
+    const story = d.story
+      .map(
+        (s) => `
+      <button type="button" class="story-card" data-jump="${s.jump}">
+        <div class="step">路径 ${s.step}</div>
+        <h3>${s.title}</h3>
+        <p>${s.text}</p>
+      </button>`
+      )
+      .join("");
+
+    const ladder = d.ladder_gallery_qa;
+    const maxR = Math.max(...ladder.methods.map((m) => m.pool_recall));
+    const bars = ladder.methods
+      .map((m) => {
+        const w = Math.max(4, (m.pool_recall / maxR) * 100);
+        return `
+        <div class="bar-row">
+          <div class="name">${m.name}<span class="blurb">${m.blurb}</span></div>
+          <div class="bar-track"><div class="bar-fill ${roleClass(m.role)}" style="width:${w}%"></div></div>
+          <div class="bar-meta">${fmtPct(m.pool_recall)} · 名次比 ${m.rank_ratio_mean.toFixed(2)} · ${m.sec_per_q}s</div>
+        </div>`;
+      })
+      .join("");
+
+    const e150 = d.ladder_expand150;
+    const e150rows = e150.methods
+      .map(
+        (m) => `
+      <tr class="${roleClass(m.role)}">
+        <td>${m.name}</td>
+        <td>${fmtPct(m.pool_recall)}</td>
+        <td>${m.packing.toFixed(3)}</td>
+      </tr>`
+      )
+      .join("");
+
+    const loc = d.locate_vs_answer;
+    const locRows = loc.methods
+      .map(
+        (m) => `
+      <tr class="${m.name.includes("Rel") ? "ours" : m.name === "Caption" ? "baseline" : ""}">
+        <td>${m.name}</td>
+        <td>${fmtPct(m.locate_acc)}</td>
+        <td>${fmtPct(m.answer_acc)}</td>
+        <td>${m.lucky_note}</td>
+      </tr>`
+      )
+      .join("");
+
+    const ora = d.single_image_oracle;
+    const kinds = ora.by_kind
+      .map(
+        (k) => `
+      <div class="kind-card">
+        <label>${k.kind}</label>
+        <div class="nums"><span class="c">cap ${fmtPct(k.cap)}</span> → <span class="t">vis ${fmtPct(k.vis)}</span></div>
+      </div>`
+      )
+      .join("");
+
+    const cost = d.cost_panel;
+    const costCards = cost.rows
+      .map(
+        (r) => `
+      <div class="cost-card ${roleClass(r.role)}">
+        <h3>${r.name}</h3>
+        <div class="cost-kpis">
+          <div><span>pool recall</span><b>${fmtPct(r.pool_recall)}</b></div>
+          <div><span>packing↓</span><b>${r.packing.toFixed(2)}</b></div>
+          <div><span>秒/题</span><b>${r.sec_per_q}</b></div>
+        </div>
+        <p class="note">${r.note}</p>
+      </div>`
+      )
+      .join("");
+
+    root.innerHTML = `
+      <div class="ov-block">
+        <h2>三条失败路径</h2>
+        <p class="setting">从总览跳进交互案例：Caption 会在压缩证据后，于检索、选图、读文本作答上连续失手。</p>
+        <div class="story-grid">${story}</div>
+      </div>
+
+      <div class="ov-block">
+        <h2>${ladder.name}</h2>
+        <p class="setting">${ladder.setting}. ${ladder.note}</p>
+        <div class="bar-rows">${bars}</div>
+      </div>
+
+      <div class="ov-block">
+        <h2>${e150.name}</h2>
+        <p class="setting">${e150.setting}</p>
+        <table class="ov-table">
+          <thead><tr><th>方法</th><th>pool recall↑</th><th>packing↓</th></tr></thead>
+          <tbody>${e150rows}</tbody>
+        </table>
+        <p class="ov-takeaway">${e150.note}</p>
+      </div>
+
+      <div class="ov-block">
+        <h2>${loc.name}</h2>
+        <p class="setting">${loc.setting}</p>
+        <table class="ov-table">
+          <thead><tr><th>方法</th><th>定图准确率</th><th>答题准确率</th><th>备注</th></tr></thead>
+          <tbody>${locRows}</tbody>
+        </table>
+        <p class="ov-takeaway">${loc.takeaway}</p>
+      </div>
+
+      <div class="ov-block">
+        <h2>${ora.name}</h2>
+        <p class="setting">${ora.setting}</p>
+        <div class="dual-bars">
+          <div class="dual-item">
+            <div class="labs"><span>Caption EM</span><span class="c" style="color:var(--caption);font-weight:700">${fmtPct(ora.em_caption)}</span></div>
+            <div class="bar-track"><div class="bar-fill baseline" style="width:${ora.em_caption * 100}%"></div></div>
+          </div>
+          <div class="dual-item">
+            <div class="labs"><span>Visual Token EM</span><span style="color:var(--token);font-weight:700">${fmtPct(ora.em_visual)}</span></div>
+            <div class="bar-track"><div class="bar-fill ours" style="width:${ora.em_visual * 100}%"></div></div>
+          </div>
+        </div>
+        <div class="kind-grid">${kinds}</div>
+        <p class="ov-takeaway">${ora.takeaway}</p>
+      </div>
+
+      <div class="ov-block">
+        <h2>${cost.name}</h2>
+        <p class="setting">${cost.setting}</p>
+        <div class="cost-grid">${costCards}</div>
+        <p class="ov-takeaway">${cost.takeaway}</p>
+      </div>`;
+
+    root.querySelectorAll("[data-jump]").forEach((btn) => {
+      btn.addEventListener("click", () => jumpFromOverview(btn.dataset.jump));
+    });
+
+    $("#foot-note").textContent =
+      "总览数字来自 Gallery QA v1、Expand-150、qa_score_top1 与 Capsule C0 单图评测；交互案例见「检索对比 / 答题对比」。";
+  }
+
   function syncHash() {
     const parts = [`mode=${mode}`];
     if (mode === "answer") parts.push(`sub=${answerSub}`);
-    if (activeId) parts.push(`q=${encodeURIComponent(activeId)}`);
+    if (mode !== "overview" && activeId) parts.push(`q=${encodeURIComponent(activeId)}`);
     history.replaceState(null, "", `#${parts.join("&")}`);
   }
 
@@ -337,7 +513,7 @@
         return [k, decodeURIComponent(v || "")];
       })
     );
-    if (map.mode === "retrieve" || map.mode === "answer") mode = map.mode;
+    if (map.mode === "overview" || map.mode === "retrieve" || map.mode === "answer") mode = map.mode;
     if (map.sub === "select" || map.sub === "read") answerSub = map.sub;
     // backward compat
     if (map.sub === "locate" || map.sub === "list") answerSub = "select";
@@ -354,7 +530,12 @@
       b.classList.toggle("active", b.dataset.sub === answerSub);
     });
 
-    if (mode === "retrieve") {
+    if (mode === "overview") {
+      renderOverview();
+    } else if (mode === "retrieve") {
+      $("#overview-root").hidden = true;
+      $("#overview-root").innerHTML = "";
+      $("#picker-section").hidden = false;
       renderRetrieveOverall();
       const qs = retrieveData.questions;
       if (!qs.some((q) => q.id === activeId)) activeId = qs[0].id;
@@ -364,6 +545,9 @@
       });
       renderRetrieveQuestion(qs.find((q) => q.id === activeId));
     } else {
+      $("#overview-root").hidden = true;
+      $("#overview-root").innerHTML = "";
+      $("#picker-section").hidden = false;
       renderAnswerOverall();
       const qs = answerSub === "select" ? qaData.select_questions : qaData.read_questions;
       if (!qs.some((q) => q.id === activeId)) activeId = qs[0].id;
@@ -379,9 +563,14 @@
   }
 
   async function main() {
-    const [rRes, qRes] = await Promise.all([fetch("./data/demo.json"), fetch("./data/qa_demo.json")]);
+    const [rRes, qRes, oRes] = await Promise.all([
+      fetch("./data/demo.json"),
+      fetch("./data/qa_demo.json"),
+      fetch("./data/overview.json"),
+    ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
+    overviewData = await oRes.json();
     parseHash();
 
     document.querySelectorAll(".mode-tab").forEach((btn) => {

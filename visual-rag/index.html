@@ -24,16 +24,17 @@
       <p class="eyebrow">Interactive Demo</p>
       <h1>Visual Token <span class="vs">vs</span> Caption</h1>
       <p class="lede">
-        不只看检索召回：也可以进入答题阶段，看 Caption 漏掉哪些图、选错哪些图，以及 caption 文本本身丢掉了什么信息。
+        从总览数字到逐题案例：Caption 在检索、选图、读文本作答上会系统性丢信息；Visual Token 更贴图像证据，并用门控控制成本。
       </p>
       <div class="mode-tabs" role="tablist" aria-label="Demo mode">
-        <button type="button" class="mode-tab active" data-mode="retrieve" role="tab" aria-selected="true">① 检索对比</button>
-        <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">② 答题对比</button>
+        <button type="button" class="mode-tab" data-mode="overview" role="tab" aria-selected="false">① 总览证据</button>
+        <button type="button" class="mode-tab active" data-mode="retrieve" role="tab" aria-selected="true">② 检索对比</button>
+        <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">③ 答题对比</button>
       </div>
       <div class="overall" id="overall-stats" aria-live="polite"></div>
     </section>
 
-    <section class="picker">
+    <section class="picker" id="picker-section">
       <div class="picker-head">
         <h2 id="picker-title">选择问题</h2>
         <p id="picker-desc"></p>
@@ -60,6 +61,8 @@
       <div class="legend" id="legend"></div>
       <div id="stage-body"></div>
     </section>
+
+    <section id="overview-root" class="overview-root" hidden></section>
 
     <footer class="foot">
       <p id="foot-note"></p>
