@@ -410,6 +410,11 @@ body {
   flex-wrap: wrap;
   margin: 0 0 1rem;
 }
+.subtabs[hidden],
+.active-q[hidden],
+[hidden] {
+  display: none !important;
+}
 .mode-tab, .subtab {
   border: 1px solid var(--line);
   background: rgba(255,255,255,0.7);
