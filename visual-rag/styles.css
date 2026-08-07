@@ -1321,3 +1321,119 @@ details.glossary[open] > summary::before { content: "▾ "; }
 @media (max-width: 560px) {
   .tour-help-btn { right: 0.75rem; bottom: 0.75rem; padding: 0.6rem 0.85rem; font-size: 0.85rem; }
 }
+
+/* —— elevator pitch + failure snapshot —— */
+.pitch-root { margin: 0.35rem 0 1.1rem; }
+.pitch-shell {
+  display: grid;
+  grid-template-columns: 0.95fr 1.15fr;
+  gap: 0.85rem;
+  align-items: stretch;
+}
+.pitch-elev, .pitch-snap {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 2px);
+  box-shadow: var(--shadow);
+  padding: 1.05rem 1.15rem 1.15rem;
+}
+.pitch-kicker {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--token);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.pitch-bullets {
+  margin: 0.2rem 0 0.85rem;
+  padding-left: 1.15rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.pitch-bullets li { margin: 0.35rem 0; }
+.pitch-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.pitch-stat {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.55rem 0.65rem;
+}
+.pitch-stat span {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 0.2rem;
+}
+.pitch-stat strong {
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+.pitch-stat.bad strong { color: var(--caption); }
+.pitch-stat.good strong { color: var(--token); }
+.pitch-snap h2 {
+  margin: 0 0 0.45rem;
+  font-size: 1.12rem;
+  letter-spacing: -0.02em;
+}
+.snap-q {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.snap-gt {
+  margin: 0.4rem 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.snap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+.snap-side {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.7rem 0.75rem 0.8rem;
+}
+.snap-side.caption { border-color: rgba(180, 35, 24, 0.28); }
+.snap-side.token { border-color: rgba(11, 110, 79, 0.3); }
+.snap-side-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.45rem;
+  align-items: center;
+  margin-bottom: 0.45rem;
+}
+.snap-side-top h4 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+.snap-pred {
+  margin-top: 0.55rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.snap-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.85rem;
+  flex-wrap: wrap;
+}
+.snap-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  flex: 1;
+  min-width: 180px;
+}
+@media (max-width: 900px) {
+  .pitch-shell, .snap-grid, .pitch-stats { grid-template-columns: 1fr; }
+}

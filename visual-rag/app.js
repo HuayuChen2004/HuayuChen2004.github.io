@@ -30,6 +30,72 @@
     $("#answer-subtabs").hidden = true;
   }
 
+  function renderPitch() {
+    const pitch = overviewData?.pitch;
+    const root = $("#pitch-root");
+    if (!root || !pitch) return;
+
+    const bullets = (pitch.bullets || []).map((b) => `<li>${b}</li>`).join("");
+    const stats = (pitch.stats || [])
+      .map(
+        (s) => `
+      <div class="pitch-stat ${s.tone || ""}">
+        <span>${s.label}</span>
+        <strong>${s.value}</strong>
+      </div>`
+      )
+      .join("");
+
+    const snap = pitch.snapshot;
+    const side = (s, tone) => `
+      <div class="snap-side ${tone}">
+        <div class="snap-side-top">
+          <h4>${s.label}</h4>
+          <span class="verdict ${s.locate_ok && s.answer_ok ? "ok" : "bad"}">${s.tag}</span>
+        </div>
+        <div class="pair-imgs">
+          <div class="slot"><label>选中图</label><img src="${thumb(s.selected_id)}" alt="" /></div>
+          <div class="slot"><label>标准关键图</label><img src="${thumb(s.anchor_id)}" alt="" /></div>
+        </div>
+        <div class="snap-pred">预测：${s.pred}</div>
+      </div>`;
+
+    root.innerHTML = `
+      <div class="pitch-shell">
+        <div class="pitch-elev">
+          <div class="pitch-kicker">${pitch.title}</div>
+          <ul class="pitch-bullets">${bullets}</ul>
+          <div class="pitch-stats">${stats}</div>
+        </div>
+        <div class="pitch-snap">
+          <div class="pitch-kicker">${snap.eyebrow}</div>
+          <h2>${snap.title}</h2>
+          <p class="snap-q">${snap.question}</p>
+          <p class="snap-gt">标准答案：${snap.gt_answer}</p>
+          <div class="snap-grid">
+            ${side(snap.caption, "caption")}
+            ${side(snap.ours, "token")}
+          </div>
+          <div class="snap-actions">
+            <p class="snap-note">${snap.footnote || ""}</p>
+            <button type="button" class="j-btn primary" id="pitch-open-journey">看这道题的全程逐步 →</button>
+          </div>
+        </div>
+      </div>`;
+
+    $("#pitch-open-journey")?.addEventListener("click", () => {
+      mode = "journey";
+      activeId = snap.journey_id;
+      journeyStep = 0;
+      journeyShouldScroll = false;
+      endTour(false);
+      refresh();
+      requestAnimationFrame(() => {
+        $("#journey-root")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }
+
   function tileHTML(item, kind) {
     const label =
       kind === "miss" ? "漏检" : kind === "wrong" ? "错选" : kind === "skip" ? "未选" : item.label === "hit" ? "命中" : item.label === "noise" ? "噪声" : "相关";
@@ -445,7 +511,7 @@
     const locRows = loc.methods
       .map(
         (m) => `
-      <tr class="${/我们的方法|看图/.test(m.name) ? "ours" : m.name === "Caption" ? "baseline" : ""}">
+      <tr class="${/我们的方法|看图/.test(m.name) ? "ours" : /Caption|文字/.test(m.name) ? "baseline" : ""}">
         <td>${m.name}</td>
         <td>${fmtPct(m.locate_acc)}</td>
         <td>${fmtPct(m.answer_acc)}</td>
@@ -1163,6 +1229,8 @@
       b.classList.toggle("active", b.dataset.sub === answerSub);
     });
 
+    if (overviewData) renderPitch();
+
     if (mode === "overview") {
       renderOverview();
     } else if (mode === "journey") {
@@ -1197,10 +1265,10 @@
 
   async function main() {
     const [rRes, qRes, oRes, jRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807h"),
-      fetch("./data/qa_demo.json?v=20260807h"),
-      fetch("./data/overview.json?v=20260807h"),
-      fetch("./data/journey.json?v=20260807h"),
+      fetch("./data/demo.json?v=20260807i"),
+      fetch("./data/qa_demo.json?v=20260807i"),
+      fetch("./data/overview.json?v=20260807i"),
+      fetch("./data/journey.json?v=20260807i"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=20260807h" />
+  <link rel="stylesheet" href="./styles.css?v=20260807i" />
 </head>
 <body>
   <div class="page">
@@ -24,7 +24,7 @@
       <p class="eyebrow">Interactive Demo</p>
       <h1>Visual Token <span class="vs">vs</span> Caption</h1>
       <p class="lede">
-        最直观的入口：同一道题，左右对照 Caption 与 Visual Token，点「下一步」在同一页从上往下展开。需要数字与术语解释时，再看「总览证据」。
+        给领导/客户看的对照页：先看 30 秒结论与一张「失败→挽回」例子，再点「全程逐步」自己展开。
       </p>
       <div class="mode-tabs" role="tablist" aria-label="Demo mode">
         <button type="button" class="mode-tab active" data-mode="journey" role="tab" aria-selected="true">① 全程逐步</button>
@@ -34,6 +34,8 @@
       </div>
       <div class="overall" id="overall-stats" aria-live="polite"></div>
     </section>
+
+    <section id="pitch-root" class="pitch-root" aria-label="Elevator pitch"></section>
 
     <section class="picker" id="picker-section">
       <div class="picker-head">
@@ -74,6 +76,6 @@
       <p><a href="../">返回主页</a></p>
     </footer>
   </div>
-  <script src="./app.js?v=20260807h"></script>
+  <script src="./app.js?v=20260807i"></script>
 </body>
 </html>
