@@ -701,16 +701,17 @@
     if (journeyStep >= steps.length) journeyStep = steps.length - 1;
     const atEnd = journeyStep === steps.length - 1;
     const atStart = journeyStep === 0;
+    const savedY = window.scrollY;
 
     $("#overall-stats").innerHTML = `
       <div class="stat"><label>当前案例</label><strong style="font-size:1.05rem">${journey.badge}</strong></div>
       <div class="stat token"><label>已展开</label><strong>${journeyStep + 1} / ${steps.length} 步</strong></div>
-      <div class="stat caption"><label>操作</label><strong style="font-size:1.05rem">向下追加展开</strong></div>`;
+      <div class="stat caption"><label>操作</label><strong style="font-size:1.05rem">同页向下追加</strong></div>`;
     $("#picker-title").textContent = "选择全程案例";
     $("#picker-desc").textContent =
-      "像看录像一样：点「下一步」会在下方追加新一幕，上面已展开的内容一直保留，整条链路可上下浏览。";
+      "题目始终留在上方。点「下一步」只在下面追加新内容，第 1、2、3… 步都留在同一页，可往上翻回看。";
     $("#foot-note").textContent =
-      "全程逐步为预计算轨迹回放：内容从上往下累积展开，左右对照 Caption 与 Visual Token。";
+      "全程逐步：同一页从上往下堆叠展开，前面步骤不会被替换掉。";
 
     const list = $("#q-list");
     list.innerHTML = "";
@@ -725,6 +726,7 @@
       btn.addEventListener("click", () => {
         activeId = j.id;
         journeyStep = 0;
+        journeyShouldScroll = false;
         refresh();
       });
       list.appendChild(btn);
@@ -733,7 +735,7 @@
     const stepper = steps
       .map(
         (s, i) => `
-      <button type="button" class="j-step ${i === journeyStep ? "current" : i < journeyStep ? "done" : ""}" data-step="${i}" ${
+      <button type="button" class="j-step ${i === journeyStep ? "current" : i < journeyStep ? "done" : i === journeyStep + 1 ? "nextable" : ""}" data-step="${i}" ${
           i > journeyStep + 1 ? "disabled" : ""
         }>
         <span class="n">${i + 1}</span><span class="t">${s.title}</span>
@@ -741,22 +743,35 @@
       )
       .join("");
 
+    // Stack every revealed step on one page (0 .. journeyStep)
     const timeline = steps
       .slice(0, journeyStep + 1)
       .map((s, i) => {
         const isLatest = i === journeyStep;
+        const body =
+          s.layout === "shared" && s.shared?.type === "question"
+            ? `<div class="j-shared j-shared-mini"><p class="j-meta">题目已固定在上方；下面继续看两边怎么处理这道题。</p></div>`
+            : journeyBeatBody(s, journey);
         return `
         <section class="j-beat${isLatest ? " j-reveal is-latest" : ""}" id="j-beat-${i}" data-beat="${i}">
           <div class="j-beat-rail" aria-hidden="true"></div>
           <div class="j-beat-head">
-            <span class="j-beat-n">第 ${i + 1} / ${steps.length} 步</span>
+            <span class="j-beat-n">第 ${i + 1} 步</span>
             <h3>${s.title}</h3>
             <p>${s.narrator || ""}</p>
           </div>
-          <div class="j-beat-body">${journeyBeatBody(s, journey)}</div>
+          <div class="j-beat-body">${body}</div>
         </section>`;
       })
       .join("");
+
+    const lockedHint =
+      journeyStep + 1 < steps.length
+        ? `<div class="j-locked-hint">未展开：${steps
+            .slice(journeyStep + 1)
+            .map((s) => s.title)
+            .join(" → ")}</div>`
+        : `<div class="j-locked-hint done">全部步骤已在本页展开，可向上滚动回顾整条链路。</div>`;
 
     const root = $("#journey-root");
     root.hidden = false;
@@ -767,13 +782,21 @@
           <h2>${journey.title}</h2>
           <p class="j-blurb">${journey.blurb}</p>
         </div>
+
+        <div class="j-pin-q">
+          <div class="j-shared-label">题目（全程固定可见）</div>
+          <h3 class="j-q">${journey.question}</h3>
+          <p class="j-meta">标准答案将在最后一步揭晓 · 已展开 ${journeyStep + 1}/${steps.length} 步</p>
+        </div>
+
         <div class="j-stepper" aria-label="进度">${stepper}</div>
         <div class="j-timeline">${timeline}</div>
+        ${lockedHint}
         <div class="j-controls">
           <button type="button" class="j-btn ghost" id="j-prev" ${atStart ? "disabled" : ""}>收回一步</button>
           <button type="button" class="j-btn ghost" id="j-reset">从头重来</button>
           <button type="button" class="j-btn primary" id="j-next" ${atEnd ? "disabled" : ""}>${
-            atEnd ? "已全部展开" : "下一步，向下展开 →"
+            atEnd ? "已全部展开" : "下一步（接在下面） →"
           }</button>
         </div>
       </div>`;
@@ -781,9 +804,11 @@
     root.querySelectorAll("[data-step]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const target = Number(btn.dataset.step);
-        if (target < journeyStep) {
-          // jump-scroll to an already revealed beat; keep later content
-          document.getElementById(`j-beat-${target}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (target <= journeyStep) {
+          document.getElementById(`j-beat-${target}`)?.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
           return;
         }
         if (target === journeyStep + 1) {
@@ -813,15 +838,18 @@
       }
     });
 
-    if (journeyShouldScroll) {
-      journeyShouldScroll = false;
-      requestAnimationFrame(() => {
+    // Do not jump the page to hide earlier steps; only nudge if needed
+    requestAnimationFrame(() => {
+      if (journeyShouldScroll) {
+        journeyShouldScroll = false;
         document.getElementById(`j-beat-${journeyStep}`)?.scrollIntoView({
           behavior: "smooth",
-          block: "start",
+          block: "nearest",
         });
-      });
-    }
+      } else {
+        window.scrollTo(0, savedY);
+      }
+    });
   }
 
   function syncHash() {
