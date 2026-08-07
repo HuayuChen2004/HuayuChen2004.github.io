@@ -837,6 +837,8 @@ details.glossary[open] > summary::before { content: "▾ "; }
   border-radius: calc(var(--radius) + 2px);
   box-shadow: var(--shadow);
   padding: 1.15rem 1.2rem 1.25rem;
+  position: relative;
+  padding-bottom: 5rem;
 }
 .j-badge {
   display: inline-block;
@@ -911,6 +913,57 @@ details.glossary[open] > summary::before { content: "▾ "; }
 }
 .j-narrator p { margin: 0; color: var(--muted); font-size: 0.9rem; }
 .j-body { min-height: 8rem; }
+.j-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0.35rem 0 0.5rem;
+}
+.j-beat {
+  position: relative;
+  padding: 0 0 1.25rem 1.15rem;
+  border-left: 2px solid rgba(148, 163, 184, 0.35);
+  scroll-margin-top: 5.5rem;
+}
+.j-beat:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0.35rem;
+}
+.j-beat-rail {
+  position: absolute;
+  left: -7px;
+  top: 0.35rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #94a3b8;
+}
+.j-beat.is-latest .j-beat-rail {
+  border-color: var(--token);
+  background: var(--token-soft);
+  box-shadow: 0 0 0 4px rgba(11, 110, 79, 0.12);
+}
+.j-beat-head h3 {
+  margin: 0.15rem 0 0.3rem;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+.j-beat-head p {
+  margin: 0 0 0.7rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.j-beat-n {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--token);
+  font-weight: 600;
+}
+.j-beat.is-latest .j-beat-head h3 {
+  color: var(--ink);
+}
 .j-shared {
   background: #fff;
   border: 1px solid var(--line);
@@ -1016,10 +1069,19 @@ details.glossary[open] > summary::before { content: "▾ "; }
 .j-verdict-card .pred { font-size: 0.92rem; margin-bottom: 0.35rem; }
 .j-verdict-card .tag { color: var(--muted); font-size: 0.84rem; }
 .j-controls {
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 5;
   display: flex;
   gap: 0.55rem;
-  margin-top: 1rem;
   align-items: center;
+  margin-top: 1rem;
+  padding: 0.65rem 0.75rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(8px);
 }
 .j-controls .j-btn.primary { margin-left: auto; }
 .j-btn {

@@ -1,6 +1,6 @@
 {
   "title": "端到端逐步对照",
-  "intro": "选一道题，点「下一步」逐步展开：从输入问题到最终答案。左右两列同步推进，对比 Caption 与 Visual Token。",
+  "intro": "像看录像一样点「下一步」：内容从上往下追加展开，已出现的步骤一直保留，整条 Caption vs Visual Token 链路可上下浏览。",
   "journeys": [
     {
       "id": "locate_spatial",

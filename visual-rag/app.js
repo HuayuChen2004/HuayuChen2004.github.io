@@ -11,6 +11,7 @@
   let answerSub = "select"; // select | read
   let activeId = null;
   let journeyStep = 0;
+  let journeyShouldScroll = false;
 
   function fmtAns(a) {
     if (a == null) return "—";
@@ -556,7 +557,7 @@
         .map((it) => `<div class="issue"><q>「${it.quote}」</q><div>${it.problem}</div></div>`)
         .join("");
       return `
-        <article class="panel ${toneCls} j-reveal">
+        <article class="panel ${toneCls}">
           <div class="panel-head"><div><h3>${side.title}</h3></div></div>
           <ul class="j-points">${(side.points || []).map((p) => `<li>${p}</li>`).join("")}</ul>
           ${side.sample_text ? `<p class="section-label">${side.sample_label || "文本"}</p><p class="cap-text">${side.sample_text}</p>` : ""}
@@ -566,7 +567,7 @@
 
     if (side.type === "encode_token") {
       return `
-        <article class="panel ${toneCls} j-reveal">
+        <article class="panel ${toneCls}">
           <div class="panel-head"><div><h3>${side.title}</h3></div></div>
           <ul class="j-points">${(side.points || []).map((p) => `<li>${p}</li>`).join("")}</ul>
           ${side.image_id ? `<div class="slot" style="margin-top:0.6rem"><label>${side.sample_label || "图像"}</label><img src="${thumb(side.image_id)}" alt="" /></div>` : ""}
@@ -577,7 +578,7 @@
     if (side.type === "rank") {
       const rankPct = Math.max(8, 100 - (Number(side.rank) - 1) * 6);
       return `
-        <article class="panel ${toneCls} j-reveal">
+        <article class="panel ${toneCls}">
           <div class="panel-head"><div><h3>${side.title}</h3></div>
             <div class="verdict ${side.status === "ok" ? "ok" : "bad"}">#${side.rank}</div>
           </div>
@@ -589,7 +590,7 @@
 
     if (side.type === "pick") {
       return `
-        <article class="panel ${toneCls} j-reveal">
+        <article class="panel ${toneCls}">
           <div class="panel-head">
             <div><h3>${side.title}</h3></div>
             <div class="verdict ${side.match ? "ok" : "bad"}">${side.match ? "定对" : "定错"}</div>
@@ -605,7 +606,7 @@
 
     if (side.type === "answer") {
       return `
-        <article class="panel ${toneCls} j-reveal">
+        <article class="panel ${toneCls}">
           <div class="panel-head">
             <div><h3>${side.title}</h3></div>
             <div class="verdict ${side.correct ? (side.lucky ? "warn" : "ok") : "bad"}">${
@@ -624,7 +625,7 @@
     if (!shared) return "";
     if (shared.type === "question") {
       return `
-        <div class="j-shared j-reveal">
+        <div class="j-shared">
           <div class="j-shared-label">用户问题</div>
           <h3 class="j-q">${shared.text}</h3>
           ${shared.meta ? `<p class="j-meta">${shared.meta}</p>` : ""}
@@ -632,7 +633,7 @@
     }
     if (shared.type === "gold_image") {
       return `
-        <div class="j-shared j-reveal">
+        <div class="j-shared">
           <div class="j-shared-label">${shared.label || "金标图"}</div>
           <img class="j-gold" src="${thumb(shared.image_id)}" alt="" />
         </div>`;
@@ -642,7 +643,7 @@
 
   function journeyVerdictHTML(step, journey) {
     return `
-      <div class="j-verdict-wrap j-reveal">
+      <div class="j-verdict-wrap">
         <div class="j-gt"><span>标准答案</span><strong>${step.gt_answer || journey.gt_answer}</strong></div>
         <div class="j-verdict-grid">
           <div class="j-verdict-card caption">
@@ -668,6 +669,22 @@
       </div>`;
   }
 
+  function journeyBeatBody(step, journey) {
+    if (step.layout === "shared") return journeySharedHTML(step.shared);
+    if (step.layout === "verdict") return journeyVerdictHTML(step, journey);
+    return `
+      <div class="j-dual">
+        <div class="j-col">
+          <div class="j-col-label caption">Caption 路径</div>
+          ${journeySideHTML(step.left, "caption")}
+        </div>
+        <div class="j-col">
+          <div class="j-col-label token">Visual Token 路径</div>
+          ${journeySideHTML(step.right, "token")}
+        </div>
+      </div>`;
+  }
+
   function renderJourney() {
     hideAllStages();
     $("#picker-section").hidden = false;
@@ -682,18 +699,18 @@
     const steps = journey.steps;
     if (journeyStep < 0) journeyStep = 0;
     if (journeyStep >= steps.length) journeyStep = steps.length - 1;
-    const step = steps[journeyStep];
     const atEnd = journeyStep === steps.length - 1;
     const atStart = journeyStep === 0;
 
     $("#overall-stats").innerHTML = `
       <div class="stat"><label>当前案例</label><strong style="font-size:1.05rem">${journey.badge}</strong></div>
-      <div class="stat token"><label>进度</label><strong>${journeyStep + 1} / ${steps.length}</strong></div>
-      <div class="stat caption"><label>操作</label><strong style="font-size:1.05rem">点下一步展开</strong></div>`;
+      <div class="stat token"><label>已展开</label><strong>${journeyStep + 1} / ${steps.length} 步</strong></div>
+      <div class="stat caption"><label>操作</label><strong style="font-size:1.05rem">向下追加展开</strong></div>`;
     $("#picker-title").textContent = "选择全程案例";
-    $("#picker-desc").textContent = journeyData.intro;
+    $("#picker-desc").textContent =
+      "像看录像一样：点「下一步」会在下方追加新一幕，上面已展开的内容一直保留，整条链路可上下浏览。";
     $("#foot-note").textContent =
-      "全程逐步为预计算轨迹回放：点「下一步」同步展开 Caption 与 Visual Token 两条路径。数据来自定图协议与单图金标对比。";
+      "全程逐步为预计算轨迹回放：内容从上往下累积展开，左右对照 Caption 与 Visual Token。";
 
     const list = $("#q-list");
     list.innerHTML = "";
@@ -716,60 +733,61 @@
     const stepper = steps
       .map(
         (s, i) => `
-      <button type="button" class="j-step ${i === journeyStep ? "current" : i < journeyStep ? "done" : ""}" data-step="${i}">
+      <button type="button" class="j-step ${i === journeyStep ? "current" : i < journeyStep ? "done" : ""}" data-step="${i}" ${
+          i > journeyStep + 1 ? "disabled" : ""
+        }>
         <span class="n">${i + 1}</span><span class="t">${s.title}</span>
       </button>`
       )
       .join("");
 
-    let body = "";
-    if (step.layout === "shared") {
-      body = journeySharedHTML(step.shared);
-    } else if (step.layout === "verdict") {
-      body = journeyVerdictHTML(step, journey);
-    } else {
-      body = `
-        <div class="j-dual">
-          <div class="j-col">
-            <div class="j-col-label caption">Caption 路径</div>
-            ${journeySideHTML(step.left, "caption")}
+    const timeline = steps
+      .slice(0, journeyStep + 1)
+      .map((s, i) => {
+        const isLatest = i === journeyStep;
+        return `
+        <section class="j-beat${isLatest ? " j-reveal is-latest" : ""}" id="j-beat-${i}" data-beat="${i}">
+          <div class="j-beat-rail" aria-hidden="true"></div>
+          <div class="j-beat-head">
+            <span class="j-beat-n">第 ${i + 1} / ${steps.length} 步</span>
+            <h3>${s.title}</h3>
+            <p>${s.narrator || ""}</p>
           </div>
-          <div class="j-col">
-            <div class="j-col-label token">Visual Token 路径</div>
-            ${journeySideHTML(step.right, "token")}
-          </div>
-        </div>`;
-    }
+          <div class="j-beat-body">${journeyBeatBody(s, journey)}</div>
+        </section>`;
+      })
+      .join("");
 
     const root = $("#journey-root");
     root.hidden = false;
     root.innerHTML = `
       <div class="j-shell">
         <div class="j-head">
-          <div>
-            <div class="j-badge">${journey.badge}</div>
-            <h2>${journey.title}</h2>
-            <p class="j-blurb">${journey.blurb}</p>
-          </div>
+          <div class="j-badge">${journey.badge}</div>
+          <h2>${journey.title}</h2>
+          <p class="j-blurb">${journey.blurb}</p>
         </div>
-        <div class="j-stepper">${stepper}</div>
-        <div class="j-narrator">
-          <div class="j-step-title">第 ${journeyStep + 1} 步 · ${step.title}</div>
-          <p>${step.narrator || ""}</p>
-        </div>
-        <div class="j-body">${body}</div>
+        <div class="j-stepper" aria-label="进度">${stepper}</div>
+        <div class="j-timeline">${timeline}</div>
         <div class="j-controls">
-          <button type="button" class="j-btn ghost" id="j-prev" ${atStart ? "disabled" : ""}>← 上一步</button>
-          <button type="button" class="j-btn ghost" id="j-reset">重来</button>
-          <button type="button" class="j-btn primary" id="j-next">${atEnd ? "已到最后一步" : "下一步 →"}</button>
+          <button type="button" class="j-btn ghost" id="j-prev" ${atStart ? "disabled" : ""}>收回一步</button>
+          <button type="button" class="j-btn ghost" id="j-reset">从头重来</button>
+          <button type="button" class="j-btn primary" id="j-next" ${atEnd ? "disabled" : ""}>${
+            atEnd ? "已全部展开" : "下一步，向下展开 →"
+          }</button>
         </div>
       </div>`;
 
     root.querySelectorAll("[data-step]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const target = Number(btn.dataset.step);
-        // only allow going to already revealed steps or next one
-        if (target <= journeyStep + 1) {
+        if (target < journeyStep) {
+          // jump-scroll to an already revealed beat; keep later content
+          document.getElementById(`j-beat-${target}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+        if (target === journeyStep + 1) {
+          journeyShouldScroll = true;
           journeyStep = target;
           refresh();
         }
@@ -777,20 +795,33 @@
     });
     $("#j-prev")?.addEventListener("click", () => {
       if (journeyStep > 0) {
+        journeyShouldScroll = false;
         journeyStep -= 1;
         refresh();
       }
     });
     $("#j-reset")?.addEventListener("click", () => {
+      journeyShouldScroll = false;
       journeyStep = 0;
       refresh();
     });
     $("#j-next")?.addEventListener("click", () => {
       if (journeyStep < steps.length - 1) {
+        journeyShouldScroll = true;
         journeyStep += 1;
         refresh();
       }
     });
+
+    if (journeyShouldScroll) {
+      journeyShouldScroll = false;
+      requestAnimationFrame(() => {
+        document.getElementById(`j-beat-${journeyStep}`)?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    }
   }
 
   function syncHash() {
