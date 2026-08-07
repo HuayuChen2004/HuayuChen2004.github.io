@@ -707,11 +707,11 @@
       <div class="stat"><label>当前案例</label><strong style="font-size:1.05rem">${journey.badge}</strong></div>
       <div class="stat token"><label>已展开</label><strong>${journeyStep + 1} / ${steps.length} 步</strong></div>
       <div class="stat caption"><label>操作</label><strong style="font-size:1.05rem">同页向下追加</strong></div>`;
-    $("#picker-title").textContent = "选择全程案例";
+    $("#picker-title").textContent = `选择全程案例（共 ${journeys.length} 道）`;
     $("#picker-desc").textContent =
-      "题目始终留在上方。点「下一步」只在下面追加新内容，第 1、2、3… 步都留在同一页，可往上翻回看。";
+      `当前共 ${journeys.length} 道预计算案例，请向下滚动题单。题目固定在上方；点「下一步」只在下面追加新内容。`;
     $("#foot-note").textContent =
-      "全程逐步：同一页从上往下堆叠展开，前面步骤不会被替换掉。";
+      `全程逐步共 ${journeys.length} 道案例：同一页从上往下堆叠展开，前面步骤不会被替换掉。`;
 
     const list = $("#q-list");
     list.innerHTML = "";
