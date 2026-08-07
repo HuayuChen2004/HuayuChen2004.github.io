@@ -860,6 +860,44 @@ details.glossary[open] > summary::before { content: "▾ "; }
   color: var(--muted);
   font-size: 0.9rem;
 }
+.j-pin-q {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 4;
+  margin: 0.85rem 0 0.75rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(8px);
+}
+.j-pin-q .j-q {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+.j-shared-mini {
+  padding: 0.65rem 0.85rem;
+  background: #f8fafc;
+}
+.j-locked-hint {
+  margin: 0.35rem 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.j-locked-hint.done {
+  border-style: solid;
+  border-color: rgba(11, 110, 79, 0.25);
+  background: rgba(227, 245, 238, 0.45);
+  color: var(--token);
+}
+.j-step.nextable {
+  border-style: dashed;
+  border-color: rgba(11, 110, 79, 0.35);
+}
 .j-stepper {
   display: flex;
   gap: 0.45rem;
