@@ -497,8 +497,66 @@ body {
   margin-bottom: 0.35rem;
 }
 
+.analysis-box {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--caption);
+  border-radius: 14px;
+  padding: 0.95rem 1rem;
+  margin-top: 0.9rem;
+}
+.analysis-box.ok-side {
+  border-left-color: var(--token);
+}
+.analysis-box h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+.analysis-box .summary {
+  margin: 0 0 0.65rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.analysis-box ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+.analysis-box li { margin: 0.25rem 0; }
+.issue-list { margin-top: 0.75rem; display: grid; gap: 0.5rem; }
+.issue {
+  background: var(--caption-soft);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.86rem;
+}
+.issue q {
+  display: block;
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--caption);
+  margin-bottom: 0.25rem;
+}
+.stage-split {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.9rem;
+  align-items: start;
+}
+.protocol-banner {
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+  background: rgba(255,255,255,0.75);
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-bottom: 0.85rem;
+}
+
 @media (max-width: 900px) {
-  .overall, .q-list, .compare, .q-meta, .delta-bar, .pair-imgs { grid-template-columns: 1fr; }
+  .overall, .q-list, .compare, .q-meta, .delta-bar, .pair-imgs, .stage-split { grid-template-columns: 1fr; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 560px) {

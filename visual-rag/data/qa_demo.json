@@ -1,1762 +1,40 @@
 {
   "title": "Answering-stage comparison",
   "overall": {
-    "open_gallery_note": "开放图库选图答题（Caption QA vs Cached Visual Token QA，421 图库 / 20 题子集中的代表性题）",
-    "locate_note": "定唯一图再答题（Caption hybrid vs Visual Token Rel scoring，15 题正式协议）",
+    "select_note": "阶段 A：用 caption 从候选池选图（定唯一图协议）。Caption 定图 0/15；Visual Token Rel 15/15。",
+    "read_note": "阶段 B：图已是金标唯一图，只把该图 caption 喂给模型作答。Caption 仍可能因文本信息损失答错；Visual Token 在同图上可读对。",
     "locate_summary": {
       "caption_locate_acc": 0.0,
       "caption_answer_acc": 0.67,
       "visual_token_locate_acc": 1.0,
-      "visual_token_answer_acc": 1.0
+      "visual_token_answer_acc": 1.0,
+      "oracle_caption_acc": 0.9,
+      "oracle_visual_acc": 1.0
     }
   },
-  "list_questions": [
-    {
-      "id": "clevr_q_000016",
-      "kind": "open_gallery_list",
-      "question": "在整个图库中，哪些图片具有灰色球体？",
-      "risk": "low",
-      "why": "Caption 先漏检大量灰球图，答题时又从候选里错选噪声图，最终命中远少于 Visual Token。",
-      "n_gt": 141,
-      "caption": {
-        "n_gt": 141,
-        "n_retrieved": 170,
-        "n_pred": 121,
-        "n_hit": 53,
-        "n_wrong_sel": 68,
-        "n_retrieved_not_sel": 7,
-        "n_miss_retrieve": 81,
-        "precision": 0.438,
-        "recall": 0.376,
-        "f1": 0.405,
-        "hit_selected": [
-          {
-            "id": "CLEVR_train_000872.png"
-          },
-          {
-            "id": "CLEVR_train_001321.png"
-          },
-          {
-            "id": "CLEVR_train_001670.png"
-          },
-          {
-            "id": "CLEVR_train_002234.png"
-          },
-          {
-            "id": "CLEVR_train_004365.png"
-          },
-          {
-            "id": "CLEVR_train_004823.png"
-          },
-          {
-            "id": "CLEVR_train_005667.png"
-          },
-          {
-            "id": "CLEVR_train_006880.png"
-          },
-          {
-            "id": "CLEVR_train_011237.png"
-          },
-          {
-            "id": "CLEVR_train_011793.png"
-          },
-          {
-            "id": "CLEVR_train_014168.png"
-          },
-          {
-            "id": "CLEVR_train_014790.png"
-          }
-        ],
-        "wrong_selected": [
-          {
-            "id": "CLEVR_train_000136.png"
-          },
-          {
-            "id": "CLEVR_train_000392.png"
-          },
-          {
-            "id": "CLEVR_train_001024.png"
-          },
-          {
-            "id": "CLEVR_train_001311.png"
-          },
-          {
-            "id": "CLEVR_train_001947.png"
-          },
-          {
-            "id": "CLEVR_train_002378.png"
-          },
-          {
-            "id": "CLEVR_train_003998.png"
-          },
-          {
-            "id": "CLEVR_train_007788.png"
-          },
-          {
-            "id": "CLEVR_train_008198.png"
-          },
-          {
-            "id": "CLEVR_train_011507.png"
-          },
-          {
-            "id": "CLEVR_train_012152.png"
-          },
-          {
-            "id": "CLEVR_train_014375.png"
-          }
-        ],
-        "retrieved_not_selected": [
-          {
-            "id": "CLEVR_train_006988.png"
-          },
-          {
-            "id": "CLEVR_train_025215.png"
-          },
-          {
-            "id": "CLEVR_train_026816.png"
-          },
-          {
-            "id": "CLEVR_train_047981.png"
-          },
-          {
-            "id": "CLEVR_train_050862.png"
-          },
-          {
-            "id": "CLEVR_train_058489.png"
-          },
-          {
-            "id": "CLEVR_train_067298.png"
-          }
-        ],
-        "missed_retrieve": [
-          {
-            "id": "CLEVR_train_000363.png"
-          },
-          {
-            "id": "CLEVR_train_000540.png"
-          },
-          {
-            "id": "CLEVR_train_001441.png"
-          },
-          {
-            "id": "CLEVR_train_002664.png"
-          },
-          {
-            "id": "CLEVR_train_003121.png"
-          },
-          {
-            "id": "CLEVR_train_003424.png"
-          },
-          {
-            "id": "CLEVR_train_004883.png"
-          },
-          {
-            "id": "CLEVR_train_006106.png"
-          },
-          {
-            "id": "CLEVR_train_006831.png"
-          },
-          {
-            "id": "CLEVR_train_007290.png"
-          },
-          {
-            "id": "CLEVR_train_007294.png"
-          },
-          {
-            "id": "CLEVR_train_007425.png"
-          }
-        ]
-      },
-      "visual_token": {
-        "n_gt": 141,
-        "n_retrieved": 170,
-        "n_pred": 116,
-        "n_hit": 79,
-        "n_wrong_sel": 37,
-        "n_retrieved_not_sel": 27,
-        "n_miss_retrieve": 35,
-        "precision": 0.681,
-        "recall": 0.56,
-        "f1": 0.615,
-        "hit_selected": [
-          {
-            "id": "CLEVR_train_000363.png"
-          },
-          {
-            "id": "CLEVR_train_000540.png"
-          },
-          {
-            "id": "CLEVR_train_000872.png"
-          },
-          {
-            "id": "CLEVR_train_001321.png"
-          },
-          {
-            "id": "CLEVR_train_001441.png"
-          },
-          {
-            "id": "CLEVR_train_001670.png"
-          },
-          {
-            "id": "CLEVR_train_002234.png"
-          },
-          {
-            "id": "CLEVR_train_004823.png"
-          },
-          {
-            "id": "CLEVR_train_006880.png"
-          },
-          {
-            "id": "CLEVR_train_006988.png"
-          },
-          {
-            "id": "CLEVR_train_007290.png"
-          },
-          {
-            "id": "CLEVR_train_007294.png"
-          }
-        ],
-        "wrong_selected": [
-          {
-            "id": "CLEVR_train_000136.png"
-          },
-          {
-            "id": "CLEVR_train_000392.png"
-          },
-          {
-            "id": "CLEVR_train_000570.png"
-          },
-          {
-            "id": "CLEVR_train_001081.png"
-          },
-          {
-            "id": "CLEVR_train_001112.png"
-          },
-          {
-            "id": "CLEVR_train_001947.png"
-          },
-          {
-            "id": "CLEVR_train_002735.png"
-          },
-          {
-            "id": "CLEVR_train_003998.png"
-          },
-          {
-            "id": "CLEVR_train_009256.png"
-          },
-          {
-            "id": "CLEVR_train_011852.png"
-          },
-          {
-            "id": "CLEVR_train_012152.png"
-          },
-          {
-            "id": "CLEVR_train_015379.png"
-          }
-        ],
-        "retrieved_not_selected": [
-          {
-            "id": "CLEVR_train_003424.png"
-          },
-          {
-            "id": "CLEVR_train_004365.png"
-          },
-          {
-            "id": "CLEVR_train_004883.png"
-          },
-          {
-            "id": "CLEVR_train_005667.png"
-          },
-          {
-            "id": "CLEVR_train_006106.png"
-          },
-          {
-            "id": "CLEVR_train_006831.png"
-          },
-          {
-            "id": "CLEVR_train_010029.png"
-          },
-          {
-            "id": "CLEVR_train_016503.png"
-          },
-          {
-            "id": "CLEVR_train_017290.png"
-          },
-          {
-            "id": "CLEVR_train_018853.png"
-          },
-          {
-            "id": "CLEVR_train_024617.png"
-          },
-          {
-            "id": "CLEVR_train_025001.png"
-          }
-        ],
-        "missed_retrieve": [
-          {
-            "id": "CLEVR_train_002664.png"
-          },
-          {
-            "id": "CLEVR_train_003121.png"
-          },
-          {
-            "id": "CLEVR_train_007722.png"
-          },
-          {
-            "id": "CLEVR_train_008389.png"
-          },
-          {
-            "id": "CLEVR_train_008990.png"
-          },
-          {
-            "id": "CLEVR_train_010325.png"
-          },
-          {
-            "id": "CLEVR_train_011689.png"
-          },
-          {
-            "id": "CLEVR_train_014790.png"
-          },
-          {
-            "id": "CLEVR_train_016966.png"
-          },
-          {
-            "id": "CLEVR_train_018216.png"
-          },
-          {
-            "id": "CLEVR_train_022807.png"
-          },
-          {
-            "id": "CLEVR_train_023084.png"
-          }
-        ]
-      },
-      "caption_info_loss": [
-        {
-          "id": "CLEVR_train_000136.png",
-          "role": "wrong_selected",
-          "caption": "画面中三个球体置于浅灰色平面上，从左至右依次为：左侧是浅青绿色哑光球，中间是金棕色金属光泽球，右侧是淡蓝色哑光球。三球大小相近，呈三角形分布，表面光滑，各自投下柔和阴影。背景为纯色渐变，整体构图简洁，突出球体材质与色彩对比。",
-          "cues": [
-            {
-              "cue": "灰色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": true
-            },
-            {
-              "cue": "球",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_000392.png",
-          "role": "wrong_selected",
-          "caption": "画面中三个球体置于浅灰色平面上，两个较大的绿色球体表面呈哑光质感，大小相近，位于画面左右两侧；中间偏左位置有一个较小的蓝色球体，表面光滑且具有金属反光效果，反射出周围环境的高光。三个球体投下柔和的阴影，整体构图简洁，背景为纯色，无其他装饰或干扰元素。",
-          "cues": [
-            {
-              "cue": "灰色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": true
-            },
-            {
-              "cue": "球",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_001024.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的球体和立方体。前景有红色立方体、绿色金属球、金色金属球和棕色小金属球；中景有蓝色立方体、红色立方体和青色金属立方体；背景有蓝色大立方体和青色小金属球。物体表面材质多样，有金属光泽和哑光质感，颜色涵盖红、蓝、绿、金、棕、青等。",
-          "cues": [
-            {
-              "cue": "灰色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": true
-            },
-            {
-              "cue": "球",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_000363.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示七个大小不一的球体，散落在浅灰色平面上。左侧有一个大号绿色金属球，表面高光反射明显；其后方偏右是一个大号银灰色金属球；右上方是一个大号红色金属球；前景中央是一个大号紫色金属球；右侧有一个中等大小的紫色哑光球；左后方有一个小号紫色哑光球；最右侧是一个小号蓝色哑光球。整体光线柔和，阴影自然。",
-          "cues": [
-            {
-              "cue": "灰色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": true
-            },
-            {
-              "cue": "球",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_000540.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示多个几何体散落在浅灰色平面上，包括一个红色圆柱体、一个黄色立方体、一个棕色立方体、一个银色金属圆柱体、一个绿色金属小圆柱体、一个紫色小球、一个绿色金属小球、一个灰色小球、一个棕色小球和一个金色金属大球。物体材质多样，有哑光、金属光泽和半透明质感，大小不一，分布错落有致。",
-          "cues": [
-            {
-              "cue": "灰色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": false
-            },
-            {
-              "cue": "球",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_001441.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示多个几何体，包括一个大绿色立方体、一个金属质感的青色立方体、一个黄色球体、一个绿色球体、一个灰色小球、一个红色金属小球、一个浅蓝色小立方体、一个大银色金属圆柱体、一个红色大圆柱体、一个黄色小圆柱体，所有物体置于浅灰色背景上，材质有哑光、金属和半透明质感，颜色丰富多样。",
-          "cues": [
-            {
-              "cue": "灰色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": true
-            },
-            {
-              "cue": "球",
-              "present": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "clevr_q_000002",
-      "kind": "open_gallery_list",
-      "question": "在整个图库中，哪些图片同时具有红色立方体和青色圆柱体？",
-      "risk": "medium",
-      "why": "双物体共现：Caption 检索漏检多，选图时也更容易被只含其中一个物体的图带偏。",
-      "n_gt": 40,
-      "caption": {
-        "n_gt": 40,
-        "n_retrieved": 80,
-        "n_pred": 43,
-        "n_hit": 5,
-        "n_wrong_sel": 38,
-        "n_retrieved_not_sel": 9,
-        "n_miss_retrieve": 26,
-        "precision": 0.116,
-        "recall": 0.125,
-        "f1": 0.12,
-        "hit_selected": [
-          {
-            "id": "CLEVR_train_006106.png"
-          },
-          {
-            "id": "CLEVR_train_006177.png"
-          },
-          {
-            "id": "CLEVR_train_019933.png"
-          },
-          {
-            "id": "CLEVR_train_036094.png"
-          },
-          {
-            "id": "CLEVR_train_037765.png"
-          }
-        ],
-        "wrong_selected": [
-          {
-            "id": "CLEVR_train_001441.png"
-          },
-          {
-            "id": "CLEVR_train_002497.png"
-          },
-          {
-            "id": "CLEVR_train_007722.png"
-          },
-          {
-            "id": "CLEVR_train_012656.png"
-          },
-          {
-            "id": "CLEVR_train_014790.png"
-          },
-          {
-            "id": "CLEVR_train_018650.png"
-          },
-          {
-            "id": "CLEVR_train_020465.png"
-          },
-          {
-            "id": "CLEVR_train_024617.png"
-          },
-          {
-            "id": "CLEVR_train_026468.png"
-          },
-          {
-            "id": "CLEVR_train_027845.png"
-          },
-          {
-            "id": "CLEVR_train_028019.png"
-          },
-          {
-            "id": "CLEVR_train_029933.png"
-          }
-        ],
-        "retrieved_not_selected": [
-          {
-            "id": "CLEVR_train_002399.png"
-          },
-          {
-            "id": "CLEVR_train_014375.png"
-          },
-          {
-            "id": "CLEVR_train_034541.png"
-          },
-          {
-            "id": "CLEVR_train_035638.png"
-          },
-          {
-            "id": "CLEVR_train_037336.png"
-          },
-          {
-            "id": "CLEVR_train_039708.png"
-          },
-          {
-            "id": "CLEVR_train_044732.png"
-          },
-          {
-            "id": "CLEVR_train_054889.png"
-          },
-          {
-            "id": "CLEVR_train_054999.png"
-          }
-        ],
-        "missed_retrieve": [
-          {
-            "id": "CLEVR_train_002835.png"
-          },
-          {
-            "id": "CLEVR_train_003121.png"
-          },
-          {
-            "id": "CLEVR_train_007290.png"
-          },
-          {
-            "id": "CLEVR_train_008198.png"
-          },
-          {
-            "id": "CLEVR_train_011331.png"
-          },
-          {
-            "id": "CLEVR_train_014168.png"
-          },
-          {
-            "id": "CLEVR_train_015297.png"
-          },
-          {
-            "id": "CLEVR_train_017596.png"
-          },
-          {
-            "id": "CLEVR_train_021169.png"
-          },
-          {
-            "id": "CLEVR_train_021596.png"
-          },
-          {
-            "id": "CLEVR_train_029513.png"
-          },
-          {
-            "id": "CLEVR_train_030768.png"
-          }
-        ]
-      },
-      "visual_token": {
-        "n_gt": 40,
-        "n_retrieved": 80,
-        "n_pred": 25,
-        "n_hit": 10,
-        "n_wrong_sel": 15,
-        "n_retrieved_not_sel": 12,
-        "n_miss_retrieve": 18,
-        "precision": 0.4,
-        "recall": 0.25,
-        "f1": 0.308,
-        "hit_selected": [
-          {
-            "id": "CLEVR_train_006177.png"
-          },
-          {
-            "id": "CLEVR_train_014168.png"
-          },
-          {
-            "id": "CLEVR_train_014375.png"
-          },
-          {
-            "id": "CLEVR_train_021596.png"
-          },
-          {
-            "id": "CLEVR_train_030768.png"
-          },
-          {
-            "id": "CLEVR_train_035571.png"
-          },
-          {
-            "id": "CLEVR_train_043379.png"
-          },
-          {
-            "id": "CLEVR_train_045959.png"
-          },
-          {
-            "id": "CLEVR_train_051845.png"
-          },
-          {
-            "id": "CLEVR_train_053600.png"
-          }
-        ],
-        "wrong_selected": [
-          {
-            "id": "CLEVR_train_000033.png"
-          },
-          {
-            "id": "CLEVR_train_000136.png"
-          },
-          {
-            "id": "CLEVR_train_003527.png"
-          },
-          {
-            "id": "CLEVR_train_007031.png"
-          },
-          {
-            "id": "CLEVR_train_007722.png"
-          },
-          {
-            "id": "CLEVR_train_010211.png"
-          },
-          {
-            "id": "CLEVR_train_014566.png"
-          },
-          {
-            "id": "CLEVR_train_015552.png"
-          },
-          {
-            "id": "CLEVR_train_017290.png"
-          },
-          {
-            "id": "CLEVR_train_019923.png"
-          },
-          {
-            "id": "CLEVR_train_024365.png"
-          },
-          {
-            "id": "CLEVR_train_027845.png"
-          }
-        ],
-        "retrieved_not_selected": [
-          {
-            "id": "CLEVR_train_003121.png"
-          },
-          {
-            "id": "CLEVR_train_017596.png"
-          },
-          {
-            "id": "CLEVR_train_021169.png"
-          },
-          {
-            "id": "CLEVR_train_034541.png"
-          },
-          {
-            "id": "CLEVR_train_035638.png"
-          },
-          {
-            "id": "CLEVR_train_037336.png"
-          },
-          {
-            "id": "CLEVR_train_044113.png"
-          },
-          {
-            "id": "CLEVR_train_044732.png"
-          },
-          {
-            "id": "CLEVR_train_044759.png"
-          },
-          {
-            "id": "CLEVR_train_054889.png"
-          },
-          {
-            "id": "CLEVR_train_062492.png"
-          },
-          {
-            "id": "CLEVR_train_065773.png"
-          }
-        ],
-        "missed_retrieve": [
-          {
-            "id": "CLEVR_train_002399.png"
-          },
-          {
-            "id": "CLEVR_train_002835.png"
-          },
-          {
-            "id": "CLEVR_train_006106.png"
-          },
-          {
-            "id": "CLEVR_train_007290.png"
-          },
-          {
-            "id": "CLEVR_train_008198.png"
-          },
-          {
-            "id": "CLEVR_train_011331.png"
-          },
-          {
-            "id": "CLEVR_train_015297.png"
-          },
-          {
-            "id": "CLEVR_train_019933.png"
-          },
-          {
-            "id": "CLEVR_train_029513.png"
-          },
-          {
-            "id": "CLEVR_train_034253.png"
-          },
-          {
-            "id": "CLEVR_train_036094.png"
-          },
-          {
-            "id": "CLEVR_train_037000.png"
-          }
-        ]
-      },
-      "caption_info_loss": [
-        {
-          "id": "CLEVR_train_001441.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示多个几何体，包括一个大绿色立方体、一个金属质感的青色立方体、一个黄色球体、一个绿色球体、一个灰色小球、一个红色金属小球、一个浅蓝色小立方体、一个大银色金属圆柱体、一个红色大圆柱体、一个黄色小圆柱体，所有物体置于浅灰色背景上，材质有哑光、金属和半透明质感，颜色丰富多样。",
-          "cues": [
-            {
-              "cue": "红色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_002497.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示了多个几何体，包括不同大小和颜色的立方体、圆柱体和一个球体。左侧有一个较大的棕色立方体，旁边有小的青色和银色立方体。中间偏右有一个红色圆柱体、一个银色立方体、一个紫色小圆柱体和一个黄色圆柱体。右侧有一个红色立方体和一个青绿色金属球体。所有物体表面材质不同，有哑光、金属光泽和半透明质感，置于浅灰色背景上。",
-          "cues": [
-            {
-              "cue": "红色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_007722.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个蓝色哑光立方体、一个红色金属质感立方体、一个青绿色金属立方体、一个紫色哑光圆柱体、一个小型紫色圆柱体、一个银灰色金属球体、一个绿色金属小球体和一个青色哑光小球体。物体大小不一，材质多样，有金属光泽与哑光质感，整体布局分散，背景简洁。",
-          "cues": [
-            {
-              "cue": "红色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_002835.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示多个几何体散落在浅灰色背景上，包括一个大型紫色金属圆柱体、一个蓝色金属小圆柱体、一个棕色木质小圆柱体、一个银色金属小圆柱体、一个红色金属立方体、一个绿色金属立方体、两个金色金属立方体、一个浅蓝色半透明球体，以及一个浅蓝色小圆柱体。物体表面具有不同光泽和材质质感，大小不一，分布错落有致。",
-          "cues": [
-            {
-              "cue": "红色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": false
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_003121.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示了多个几何体，包括红色哑光大立方体、紫色金属光泽立方体、蓝色金属光泽立方体、绿色金属光泽球体、银灰色金属光泽球体、灰色哑光大圆柱体、蓝色哑光小圆柱体、紫色哑光小立方体、青绿色金属光泽小圆柱体。物体材质多样，有金属反光和哑光质感，大小不一，散落在浅灰色背景上，光线从左上方照射，形成柔和阴影。",
-          "cues": [
-            {
-              "cue": "红色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": false
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_007290.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示了多个几何体，包括红色立方体、蓝色金属圆柱、绿色金属球、紫色半透明球、黄色圆柱、银色金属小球、红色小立方体和青色小圆柱。物体材质多样，有金属光泽、哑光和半透明质感。它们散落在浅灰色平面上，大小不一，色彩鲜明，整体构图简洁，光线柔和，呈现出三维渲染效果。",
-          "cues": [
-            {
-              "cue": "红色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "clevr_q_000017",
-      "kind": "open_gallery_list",
-      "question": "在整个图库中，哪些图片同时具有紫色球体和紫色立方体？",
-      "risk": "medium",
-      "why": "同色双形状约束下，Caption 文本常写不全，导致选对率低。",
-      "n_gt": 31,
-      "caption": {
-        "n_gt": 31,
-        "n_retrieved": 80,
-        "n_pred": 38,
-        "n_hit": 7,
-        "n_wrong_sel": 31,
-        "n_retrieved_not_sel": 11,
-        "n_miss_retrieve": 13,
-        "precision": 0.184,
-        "recall": 0.226,
-        "f1": 0.203,
-        "hit_selected": [
-          {
-            "id": "CLEVR_train_001098.png"
-          },
-          {
-            "id": "CLEVR_train_001947.png"
-          },
-          {
-            "id": "CLEVR_train_002891.png"
-          },
-          {
-            "id": "CLEVR_train_006831.png"
-          },
-          {
-            "id": "CLEVR_train_011744.png"
-          },
-          {
-            "id": "CLEVR_train_027222.png"
-          },
-          {
-            "id": "CLEVR_train_029443.png"
-          }
-        ],
-        "wrong_selected": [
-          {
-            "id": "CLEVR_train_002408.png"
-          },
-          {
-            "id": "CLEVR_train_002497.png"
-          },
-          {
-            "id": "CLEVR_train_002735.png"
-          },
-          {
-            "id": "CLEVR_train_005667.png"
-          },
-          {
-            "id": "CLEVR_train_013000.png"
-          },
-          {
-            "id": "CLEVR_train_014610.png"
-          },
-          {
-            "id": "CLEVR_train_015379.png"
-          },
-          {
-            "id": "CLEVR_train_018143.png"
-          },
-          {
-            "id": "CLEVR_train_018650.png"
-          },
-          {
-            "id": "CLEVR_train_018792.png"
-          },
-          {
-            "id": "CLEVR_train_019933.png"
-          },
-          {
-            "id": "CLEVR_train_025658.png"
-          }
-        ],
-        "retrieved_not_selected": [
-          {
-            "id": "CLEVR_train_022616.png"
-          },
-          {
-            "id": "CLEVR_train_025001.png"
-          },
-          {
-            "id": "CLEVR_train_025304.png"
-          },
-          {
-            "id": "CLEVR_train_025675.png"
-          },
-          {
-            "id": "CLEVR_train_027332.png"
-          },
-          {
-            "id": "CLEVR_train_032263.png"
-          },
-          {
-            "id": "CLEVR_train_041605.png"
-          },
-          {
-            "id": "CLEVR_train_060934.png"
-          },
-          {
-            "id": "CLEVR_train_064477.png"
-          },
-          {
-            "id": "CLEVR_train_064917.png"
-          },
-          {
-            "id": "CLEVR_train_067654.png"
-          }
-        ],
-        "missed_retrieve": [
-          {
-            "id": "CLEVR_train_006106.png"
-          },
-          {
-            "id": "CLEVR_train_007294.png"
-          },
-          {
-            "id": "CLEVR_train_015174.png"
-          },
-          {
-            "id": "CLEVR_train_033779.png"
-          },
-          {
-            "id": "CLEVR_train_037765.png"
-          },
-          {
-            "id": "CLEVR_train_048707.png"
-          },
-          {
-            "id": "CLEVR_train_049737.png"
-          },
-          {
-            "id": "CLEVR_train_052455.png"
-          },
-          {
-            "id": "CLEVR_train_059304.png"
-          },
-          {
-            "id": "CLEVR_train_060389.png"
-          },
-          {
-            "id": "CLEVR_train_065773.png"
-          },
-          {
-            "id": "CLEVR_train_068033.png"
-          }
-        ]
-      },
-      "visual_token": {
-        "n_gt": 31,
-        "n_retrieved": 80,
-        "n_pred": 41,
-        "n_hit": 14,
-        "n_wrong_sel": 27,
-        "n_retrieved_not_sel": 10,
-        "n_miss_retrieve": 7,
-        "precision": 0.341,
-        "recall": 0.452,
-        "f1": 0.389,
-        "hit_selected": [
-          {
-            "id": "CLEVR_train_001947.png"
-          },
-          {
-            "id": "CLEVR_train_002891.png"
-          },
-          {
-            "id": "CLEVR_train_006106.png"
-          },
-          {
-            "id": "CLEVR_train_006831.png"
-          },
-          {
-            "id": "CLEVR_train_011744.png"
-          },
-          {
-            "id": "CLEVR_train_022616.png"
-          },
-          {
-            "id": "CLEVR_train_025675.png"
-          },
-          {
-            "id": "CLEVR_train_027222.png"
-          },
-          {
-            "id": "CLEVR_train_033779.png"
-          },
-          {
-            "id": "CLEVR_train_041605.png"
-          },
-          {
-            "id": "CLEVR_train_049737.png"
-          },
-          {
-            "id": "CLEVR_train_064477.png"
-          }
-        ],
-        "wrong_selected": [
-          {
-            "id": "CLEVR_train_001693.png"
-          },
-          {
-            "id": "CLEVR_train_002408.png"
-          },
-          {
-            "id": "CLEVR_train_003424.png"
-          },
-          {
-            "id": "CLEVR_train_004354.png"
-          },
-          {
-            "id": "CLEVR_train_005628.png"
-          },
-          {
-            "id": "CLEVR_train_006595.png"
-          },
-          {
-            "id": "CLEVR_train_007290.png"
-          },
-          {
-            "id": "CLEVR_train_008625.png"
-          },
-          {
-            "id": "CLEVR_train_010325.png"
-          },
-          {
-            "id": "CLEVR_train_012682.png"
-          },
-          {
-            "id": "CLEVR_train_015552.png"
-          },
-          {
-            "id": "CLEVR_train_018143.png"
-          }
-        ],
-        "retrieved_not_selected": [
-          {
-            "id": "CLEVR_train_001098.png"
-          },
-          {
-            "id": "CLEVR_train_007294.png"
-          },
-          {
-            "id": "CLEVR_train_025001.png"
-          },
-          {
-            "id": "CLEVR_train_025304.png"
-          },
-          {
-            "id": "CLEVR_train_027332.png"
-          },
-          {
-            "id": "CLEVR_train_029443.png"
-          },
-          {
-            "id": "CLEVR_train_048707.png"
-          },
-          {
-            "id": "CLEVR_train_059304.png"
-          },
-          {
-            "id": "CLEVR_train_060389.png"
-          },
-          {
-            "id": "CLEVR_train_067654.png"
-          }
-        ],
-        "missed_retrieve": [
-          {
-            "id": "CLEVR_train_015174.png"
-          },
-          {
-            "id": "CLEVR_train_032263.png"
-          },
-          {
-            "id": "CLEVR_train_037765.png"
-          },
-          {
-            "id": "CLEVR_train_052455.png"
-          },
-          {
-            "id": "CLEVR_train_060934.png"
-          },
-          {
-            "id": "CLEVR_train_064917.png"
-          },
-          {
-            "id": "CLEVR_train_068033.png"
-          }
-        ]
-      },
-      "caption_info_loss": [
-        {
-          "id": "CLEVR_train_002408.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示多个几何体，包括一个大的紫色圆柱体、一个中等大小的紫色球体、一个金色金属圆柱体、一个米色哑光立方体、一个绿色金属立方体、一个红色金属小立方体、一个金色金属小球体、一个棕色金属小立方体和一个灰色小圆柱体。物体材质多样，有金属光泽和哑光质感，颜色涵盖紫、金、绿、红、灰、米色，置于浅灰色背景上。",
-          "cues": [
-            {
-              "cue": "紫色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_002497.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示了多个几何体，包括不同大小和颜色的立方体、圆柱体和一个球体。左侧有一个较大的棕色立方体，旁边有小的青色和银色立方体。中间偏右有一个红色圆柱体、一个银色立方体、一个紫色小圆柱体和一个黄色圆柱体。右侧有一个红色立方体和一个青绿色金属球体。所有物体表面材质不同，有哑光、金属光泽和半透明质感，置于浅灰色背景上。",
-          "cues": [
-            {
-              "cue": "紫色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_002735.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示多个几何体散落在浅灰色平面上，包括两个大的绿色球体、一个中等大小的紫色球体、一个蓝色小球、一个银色金属立方体、一个金色金属立方体、一个金色金属圆柱体、一个紫色小圆柱体、一个棕色金属小圆柱体和一个绿色小圆柱体。物体表面材质多样，有金属光泽和哑光质感，颜色丰富，整体布局疏密有致。",
-          "cues": [
-            {
-              "cue": "紫色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_006106.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示多个几何体，包括红色金属球、紫色金属球、蓝色半透明球、灰色哑光球、黄色立方体、蓝色小立方体、紫色金属立方体、红色小立方体、黄色大立方体和青色圆柱体。物体材质多样，有金属光泽和哑光质感，颜色丰富，置于浅灰色背景上，整体布局分散，光影柔和。",
-          "cues": [
-            {
-              "cue": "紫色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": false
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_007294.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个大型银色金属球、一个青绿色金属立方体、一个红色哑光立方体、一个紫色金属小立方体、一个棕色哑光球、一个金色金属小球、一个紫色哑光球、一个蓝色小圆柱、一个银色金属大圆柱，以及一个金色金属小球。物体材质多样，有金属光泽和哑光质感，颜色丰富，大小不一，分布错落有致。",
-          "cues": [
-            {
-              "cue": "紫色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": false
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_015174.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示多个几何体散落在浅灰色平面上，包括大小不一的球体、圆柱体和立方体。球体有灰色、紫色、金色；圆柱体有绿色（大）、红色、青色；立方体有银色、蓝色、金色、紫色，部分表面呈金属光泽。物体颜色丰富，材质多样，有哑光和高光质感，整体布局分散，背景简洁。",
-          "cues": [
-            {
-              "cue": "紫色",
-              "present": true
-            },
-            {
-              "cue": "球体",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "clevr_q_000032",
-      "kind": "open_gallery_list",
-      "question": "在整个图库中，哪些图片同时具有绿色圆柱体和青色立方体？",
-      "risk": "medium",
-      "why": "跨形状共现题：Visual Token 直接看图判定，选对更多相关图。",
-      "n_gt": 44,
-      "caption": {
-        "n_gt": 44,
-        "n_retrieved": 80,
-        "n_pred": 45,
-        "n_hit": 12,
-        "n_wrong_sel": 33,
-        "n_retrieved_not_sel": 6,
-        "n_miss_retrieve": 26,
-        "precision": 0.267,
-        "recall": 0.273,
-        "f1": 0.27,
-        "hit_selected": [
-          {
-            "id": "CLEVR_train_024365.png"
-          },
-          {
-            "id": "CLEVR_train_026468.png"
-          },
-          {
-            "id": "CLEVR_train_029903.png"
-          },
-          {
-            "id": "CLEVR_train_030596.png"
-          },
-          {
-            "id": "CLEVR_train_033919.png"
-          },
-          {
-            "id": "CLEVR_train_034928.png"
-          },
-          {
-            "id": "CLEVR_train_035351.png"
-          },
-          {
-            "id": "CLEVR_train_035638.png"
-          },
-          {
-            "id": "CLEVR_train_037040.png"
-          },
-          {
-            "id": "CLEVR_train_042654.png"
-          },
-          {
-            "id": "CLEVR_train_049599.png"
-          },
-          {
-            "id": "CLEVR_train_053125.png"
-          }
-        ],
-        "wrong_selected": [
-          {
-            "id": "CLEVR_train_001441.png"
-          },
-          {
-            "id": "CLEVR_train_001947.png"
-          },
-          {
-            "id": "CLEVR_train_003549.png"
-          },
-          {
-            "id": "CLEVR_train_005667.png"
-          },
-          {
-            "id": "CLEVR_train_006236.png"
-          },
-          {
-            "id": "CLEVR_train_006831.png"
-          },
-          {
-            "id": "CLEVR_train_006988.png"
-          },
-          {
-            "id": "CLEVR_train_007722.png"
-          },
-          {
-            "id": "CLEVR_train_011689.png"
-          },
-          {
-            "id": "CLEVR_train_015174.png"
-          },
-          {
-            "id": "CLEVR_train_017290.png"
-          },
-          {
-            "id": "CLEVR_train_018647.png"
-          }
-        ],
-        "retrieved_not_selected": [
-          {
-            "id": "CLEVR_train_013656.png"
-          },
-          {
-            "id": "CLEVR_train_015519.png"
-          },
-          {
-            "id": "CLEVR_train_019484.png"
-          },
-          {
-            "id": "CLEVR_train_039972.png"
-          },
-          {
-            "id": "CLEVR_train_056027.png"
-          },
-          {
-            "id": "CLEVR_train_059008.png"
-          }
-        ],
-        "missed_retrieve": [
-          {
-            "id": "CLEVR_train_004354.png"
-          },
-          {
-            "id": "CLEVR_train_004365.png"
-          },
-          {
-            "id": "CLEVR_train_006613.png"
-          },
-          {
-            "id": "CLEVR_train_006880.png"
-          },
-          {
-            "id": "CLEVR_train_011912.png"
-          },
-          {
-            "id": "CLEVR_train_012663.png"
-          },
-          {
-            "id": "CLEVR_train_014566.png"
-          },
-          {
-            "id": "CLEVR_train_022793.png"
-          },
-          {
-            "id": "CLEVR_train_025702.png"
-          },
-          {
-            "id": "CLEVR_train_026956.png"
-          },
-          {
-            "id": "CLEVR_train_028254.png"
-          },
-          {
-            "id": "CLEVR_train_035350.png"
-          }
-        ]
-      },
-      "visual_token": {
-        "n_gt": 44,
-        "n_retrieved": 80,
-        "n_pred": 45,
-        "n_hit": 18,
-        "n_wrong_sel": 27,
-        "n_retrieved_not_sel": 8,
-        "n_miss_retrieve": 18,
-        "precision": 0.4,
-        "recall": 0.409,
-        "f1": 0.404,
-        "hit_selected": [
-          {
-            "id": "CLEVR_train_012663.png"
-          },
-          {
-            "id": "CLEVR_train_013656.png"
-          },
-          {
-            "id": "CLEVR_train_015519.png"
-          },
-          {
-            "id": "CLEVR_train_019484.png"
-          },
-          {
-            "id": "CLEVR_train_022793.png"
-          },
-          {
-            "id": "CLEVR_train_025702.png"
-          },
-          {
-            "id": "CLEVR_train_034928.png"
-          },
-          {
-            "id": "CLEVR_train_035350.png"
-          },
-          {
-            "id": "CLEVR_train_035351.png"
-          },
-          {
-            "id": "CLEVR_train_035872.png"
-          },
-          {
-            "id": "CLEVR_train_036377.png"
-          },
-          {
-            "id": "CLEVR_train_046270.png"
-          }
-        ],
-        "wrong_selected": [
-          {
-            "id": "CLEVR_train_000033.png"
-          },
-          {
-            "id": "CLEVR_train_000136.png"
-          },
-          {
-            "id": "CLEVR_train_006236.png"
-          },
-          {
-            "id": "CLEVR_train_008454.png"
-          },
-          {
-            "id": "CLEVR_train_015297.png"
-          },
-          {
-            "id": "CLEVR_train_022313.png"
-          },
-          {
-            "id": "CLEVR_train_023995.png"
-          },
-          {
-            "id": "CLEVR_train_027845.png"
-          },
-          {
-            "id": "CLEVR_train_030768.png"
-          },
-          {
-            "id": "CLEVR_train_031961.png"
-          },
-          {
-            "id": "CLEVR_train_032827.png"
-          },
-          {
-            "id": "CLEVR_train_034334.png"
-          }
-        ],
-        "retrieved_not_selected": [
-          {
-            "id": "CLEVR_train_011912.png"
-          },
-          {
-            "id": "CLEVR_train_024365.png"
-          },
-          {
-            "id": "CLEVR_train_026468.png"
-          },
-          {
-            "id": "CLEVR_train_030596.png"
-          },
-          {
-            "id": "CLEVR_train_033919.png"
-          },
-          {
-            "id": "CLEVR_train_047863.png"
-          },
-          {
-            "id": "CLEVR_train_049599.png"
-          },
-          {
-            "id": "CLEVR_train_052082.png"
-          }
-        ],
-        "missed_retrieve": [
-          {
-            "id": "CLEVR_train_004354.png"
-          },
-          {
-            "id": "CLEVR_train_004365.png"
-          },
-          {
-            "id": "CLEVR_train_006613.png"
-          },
-          {
-            "id": "CLEVR_train_006880.png"
-          },
-          {
-            "id": "CLEVR_train_014566.png"
-          },
-          {
-            "id": "CLEVR_train_026956.png"
-          },
-          {
-            "id": "CLEVR_train_028254.png"
-          },
-          {
-            "id": "CLEVR_train_029903.png"
-          },
-          {
-            "id": "CLEVR_train_035638.png"
-          },
-          {
-            "id": "CLEVR_train_037040.png"
-          },
-          {
-            "id": "CLEVR_train_037289.png"
-          },
-          {
-            "id": "CLEVR_train_039972.png"
-          }
-        ]
-      },
-      "caption_info_loss": [
-        {
-          "id": "CLEVR_train_001441.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示多个几何体，包括一个大绿色立方体、一个金属质感的青色立方体、一个黄色球体、一个绿色球体、一个灰色小球、一个红色金属小球、一个浅蓝色小立方体、一个大银色金属圆柱体、一个红色大圆柱体、一个黄色小圆柱体，所有物体置于浅灰色背景上，材质有哑光、金属和半透明质感，颜色丰富多样。",
-          "cues": [
-            {
-              "cue": "绿色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_001947.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个大型金色金属球体、一个中型灰色圆柱体、一个紫色金属立方体、一个红色小立方体、一个紫色金属小球、一个蓝色金属小球、一个青色半透明球体、一个黄色小圆柱体、一个绿色金属小圆柱体，以及一个紫色立方体。物体材质多样，有金属光泽、哑光和半透明质感，大小不一，分布错落。",
-          "cues": [
-            {
-              "cue": "绿色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_003549.png",
-          "role": "wrong_selected",
-          "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个金色金属质感的圆柱体、一个紫色半透明圆柱体、一个紫色半透明立方体、一个青色半透明立方体、一个棕色半透明立方体、一个绿色半透明小立方体、一个灰色小圆柱体、一个棕色小立方体和一个棕色小球体，整体呈现柔和的阴影与光泽。",
-          "cues": [
-            {
-              "cue": "绿色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_004354.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示多个几何体散落在浅灰色平面上，包括一个大的紫色哑光立方体、一个大的红色金属球、一个大的黄色半透明球、一个青绿色金属立方体、一个蓝色金属小立方体、一个金色金属大圆柱、一个金色金属小球，以及两个绿色圆柱。物体材质多样，有金属光泽、哑光和半透明质感，颜色丰富，大小不一，整体布局自然随意。",
-          "cues": [
-            {
-              "cue": "绿色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": false
-            },
-            {
-              "cue": "立方",
-              "present": true
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_004365.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示了多个几何体，包括一个大的青色球体、一个银色金属球体、一个蓝色小球体、一个灰色小方块、一个青色小方块、一个蓝色金属方块、一个黄色金属方块、一个黄色圆柱体、一个金色圆柱体、一个绿色小圆柱体。物体材质多样，有金属光泽和哑光质感，颜色涵盖青、蓝、黄、绿、灰、金、银等，大小不一，散落在浅灰色背景上。",
-          "cues": [
-            {
-              "cue": "绿色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": false
-            }
-          ]
-        },
-        {
-          "id": "CLEVR_train_006613.png",
-          "role": "missed_retrieve",
-          "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个绿色金属质感的圆柱体、一个黄色哑光正方体、一个红色圆柱体、一个棕色圆柱体、一个银色金属正方体、一个青色半透明小正方体、一个紫色金属小球、一个青色半透明大球、一个蓝色小球，以及一个位于前景的蓝色小球。物体大小不一，材质多样，有金属光泽、哑光和半透明质感，整体布局分散。",
-          "cues": [
-            {
-              "cue": "绿色",
-              "present": true
-            },
-            {
-              "cue": "圆柱",
-              "present": true
-            },
-            {
-              "cue": "青色",
-              "present": true
-            },
-            {
-              "cue": "立方",
-              "present": false
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "locate_questions": [
+  "select_questions": [
     {
       "id": "clevr_q_000001__relation_scene",
-      "kind": "locate_answer",
+      "kind": "select",
       "parent_qid": "clevr_q_000001",
       "question": "在本题检索得到的候选图片中，唯一一张同时具有灰色圆柱体和青色球体和红色球体的图片里，绿色圆柱体相对于灰色圆柱体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
       "answer_type": "spatial_relation",
       "gt_answer": "水平方向在右侧，深度方向在后方。",
-      "why": "空间关系往往写不进 caption；Caption 定错图后几乎必然答错，Visual Token 相关性打分能钉住唯一图。",
+      "why": "定图要靠「灰圆柱 + 青球 + 红球」共现，但最终还要答左右/前后。Caption 对物体有无写得模糊，对相对位置更常缺失，于是 hybrid 分数被更靠前的局部相似噪声图抢走。",
+      "analysis": {
+        "title": "空间关系几乎不进 caption",
+        "summary": "定图要靠「灰圆柱 + 青球 + 红球」共现，但最终还要答左右/前后。Caption 对物体有无写得模糊，对相对位置更常缺失，于是 hybrid 分数被更靠前的局部相似噪声图抢走。",
+        "bullets": [
+          "题干同时要求多物体共现 + 空间关系，caption 通常只枚举物体，很少写「A 在 B 左侧」。",
+          "Caption 选中的图往往只部分命中颜色/形状关键词，却排在真正唯一图前面。",
+          "Visual Token Rel 直接对图像证据打相关性分，能把唯一图顶到 #1。"
+        ],
+        "tags": [
+          "空间关系缺失",
+          "关键词局部匹配",
+          "定图被噪声带走"
+        ]
+      },
       "caption": {
         "selected_id": "CLEVR_train_056027.png",
         "selected_matches_anchor": false,
@@ -1863,12 +141,26 @@
     },
     {
       "id": "clevr_q_000006__relation_scene",
-      "kind": "locate_answer",
+      "kind": "select",
       "parent_qid": "clevr_q_000006",
       "question": "在本题检索得到的候选图片中，唯一一张同时具有蓝色球体和青色立方体和棕色球体的图片里，黄色圆柱体相对于红色圆柱体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
       "answer_type": "spatial_relation",
       "gt_answer": "水平方向在右侧，深度方向在前方。",
-      "why": "空间关系往往写不进 caption；Caption 定错图后几乎必然答错，Visual Token 相关性打分能钉住唯一图。",
+      "why": "正确 anchor 在 caption 排序里极靠后（约 #148）。说明文本检索几乎没抓住「三物体唯一」约束，后续空间题无从谈起。",
+      "analysis": {
+        "title": "唯一图被排到很后",
+        "summary": "正确 anchor 在 caption 排序里极靠后（约 #148）。说明文本检索几乎没抓住「三物体唯一」约束，后续空间题无从谈起。",
+        "bullets": [
+          "Caption hybrid 对多约束共现召回很弱，唯一图淹没在池子后段。",
+          "一旦定错图，左右/前后关系几乎必然错。",
+          "Visual Token 把 anchor 排到第 1，再读图作答。"
+        ],
+        "tags": [
+          "共现约束失败",
+          "排序靠后",
+          "空间题连锁错误"
+        ]
+      },
       "caption": {
         "selected_id": "CLEVR_train_001024.png",
         "selected_matches_anchor": false,
@@ -1974,21 +266,142 @@
       ]
     },
     {
-      "id": "clevr_q_000011__relation_scene",
-      "kind": "locate_answer",
+      "id": "clevr_q_000006__anchor_attr_material",
+      "kind": "select",
+      "parent_qid": "clevr_q_000006",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有蓝色球体和青色立方体和棕色球体的图片里，其中的蓝色球体是金属材质还是橡胶材质？",
+      "answer_type": "material",
+      "gt_answer": "金属材质。",
+      "why": "即便最终答案只问材质，Caption 仍可能选错图；若碰巧答对，属于 lucky correct，不能说明它真的定位到了证据图。",
+      "analysis": {
+        "title": "材质题也会定错图",
+        "summary": "即便最终答案只问材质，Caption 仍可能选错图；若碰巧答对，属于 lucky correct，不能说明它真的定位到了证据图。",
+        "bullets": [
+          "定图失败时，模型是在错误图像的 caption 上猜测材质。",
+          "池里很多图都有金属/橡胶物体，材质答案很容易碰巧对。",
+          "因此需要同时看「定图是否命中 anchor」，不能只看答题准确率。"
+        ],
+        "tags": [
+          "lucky correct",
+          "定图≠答对",
+          "材质词可蒙"
+        ]
+      },
+      "caption": {
+        "selected_id": "CLEVR_train_001024.png",
+        "selected_matches_anchor": false,
+        "anchor_rank": 148,
+        "pred_answer": "metal",
+        "correct": true,
+        "selected_caption": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的球体和立方体。前景有红色立方体、绿色金属球、金色金属球和棕色小金属球；中景有蓝色立方体、红色立方体和青色金属立方体；背景有蓝色大立方体和青色小金属球。物体表面材质多样，有金属光泽和哑光质感，颜色涵盖红、蓝、绿、金、棕、青等。",
+        "selected_cues": [
+          {
+            "cue": "青色",
+            "present": true
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "棕色",
+            "present": true
+          },
+          {
+            "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "立方",
+            "present": true
+          },
+          {
+            "cue": "金属",
+            "present": true
+          },
+          {
+            "cue": "橡胶",
+            "present": false
+          }
+        ]
+      },
+      "visual_token": {
+        "selected_id": "CLEVR_train_055302.png",
+        "selected_matches_anchor": true,
+        "anchor_rank": 1,
+        "pred_answer": "metal",
+        "correct": true
+      },
+      "anchor": {
+        "id": "CLEVR_train_055302.png",
+        "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个大的青绿色哑光立方体、一个金色金属球、一个蓝色金属球、一个绿色金属球、一个银色金属球、一个小型青绿色金属立方体、一个黄色金属圆柱、一个浅蓝色圆柱、一个红色圆柱、一个灰色圆柱。物体大小不一，材质有金属光泽和哑光质感，整体布局分散，背景为纯色。",
+        "cues": [
+          {
+            "cue": "青色",
+            "present": false
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "棕色",
+            "present": false
+          },
+          {
+            "cue": "球体",
+            "present": false
+          },
+          {
+            "cue": "立方",
+            "present": true
+          },
+          {
+            "cue": "金属",
+            "present": true
+          },
+          {
+            "cue": "橡胶",
+            "present": false
+          }
+        ]
+      },
+      "required_cues": [
+        "青色",
+        "蓝色",
+        "棕色",
+        "球体",
+        "立方",
+        "金属",
+        "橡胶"
+      ]
+    },
+    {
+      "id": "clevr_q_000011__count_parent",
+      "kind": "select",
       "parent_qid": "clevr_q_000011",
-      "question": "在本题检索得到的候选图片中，唯一一张同时具有青色圆柱体和紫色球体和绿色立方体的图片里，绿色圆柱体相对于蓝色圆柱体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
-      "answer_type": "spatial_relation",
-      "gt_answer": "水平方向在左侧，深度方向在前方。",
-      "why": "空间关系往往写不进 caption；Caption 定错图后几乎必然答错，Visual Token 相关性打分能钉住唯一图。",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有青色圆柱体和紫色球体和绿色立方体的图片里，一共有几个紫色球体？",
+      "answer_type": "count",
+      "gt_answer": "一共有1个。",
+      "why": "Caption 定错图后去数物体，数字建立在错误场景上；Visual Token 先钉住唯一图再计数。",
+      "analysis": {
+        "title": "计数依赖先定对图",
+        "summary": "Caption 定错图后去数物体，数字建立在错误场景上；Visual Token 先钉住唯一图再计数。",
+        "bullets": [
+          "开放池内「唯一过滤」对 caption 排序很不友好。",
+          "选中图的 caption 往往并不满足题干三物体条件。",
+          "Visual Token Rel 定图命中后，计数才有意义。"
+        ],
+        "tags": [
+          "定图错误",
+          "错误证据上计数"
+        ]
+      },
       "caption": {
         "selected_id": "CLEVR_train_066033.png",
         "selected_matches_anchor": false,
         "anchor_rank": 32,
-        "pred_answer": {
-          "horizontal": "left",
-          "depth": "front"
-        },
+        "pred_answer": 1,
         "correct": true,
         "selected_caption": "画面中展示多个几何体，包括一个前景的绿色球体、一个紫色圆柱体、一个紫色立方体、一个黄色小立方体、一个蓝色金属球、一个青色金属圆柱、一个棕色圆柱、一个灰色立方体和一个棕色立方体。物体材质多样，有金属光泽和哑光质感，颜色丰富，置于浅灰色背景上，整体布局分散，光线柔和。",
         "selected_cues": [
@@ -1998,10 +411,6 @@
           },
           {
             "cue": "紫色",
-            "present": true
-          },
-          {
-            "cue": "蓝色",
             "present": true
           },
           {
@@ -2019,10 +428,6 @@
           {
             "cue": "立方",
             "present": true
-          },
-          {
-            "cue": "左",
-            "present": false
           }
         ]
       },
@@ -2030,10 +435,7 @@
         "selected_id": "CLEVR_train_035872.png",
         "selected_matches_anchor": true,
         "anchor_rank": 1,
-        "pred_answer": {
-          "horizontal": "left",
-          "depth": "front"
-        },
+        "pred_answer": 1,
         "correct": true
       },
       "anchor": {
@@ -2049,10 +451,6 @@
             "present": true
           },
           {
-            "cue": "蓝色",
-            "present": true
-          },
-          {
             "cue": "绿色",
             "present": true
           },
@@ -2067,32 +465,40 @@
           {
             "cue": "立方",
             "present": true
-          },
-          {
-            "cue": "左",
-            "present": false
           }
         ]
       },
       "required_cues": [
         "青色",
         "紫色",
-        "蓝色",
         "绿色",
         "圆柱",
         "球体",
-        "立方",
-        "左"
+        "立方"
       ]
     },
     {
       "id": "clevr_q_000016__relation_scene",
-      "kind": "locate_answer",
+      "kind": "select",
       "parent_qid": "clevr_q_000016",
       "question": "在本题检索得到的候选图片中，唯一一张同时具有棕色圆柱体和蓝色立方体和灰色球体的图片里，灰色立方体相对于红色圆柱体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
       "answer_type": "spatial_relation",
       "gt_answer": "水平方向在左侧，深度方向在前方。",
-      "why": "空间关系往往写不进 caption；Caption 定错图后几乎必然答错，Visual Token 相关性打分能钉住唯一图。",
+      "why": "Caption 定错图却可能蒙对空间答案；对照 Visual Token 的「定对再答对」，才能看出可靠性差异。",
+      "analysis": {
+        "title": "答对也可能是碰巧",
+        "summary": "Caption 定错图却可能蒙对空间答案；对照 Visual Token 的「定对再答对」，才能看出可靠性差异。",
+        "bullets": [
+          "空间标签只有左/右、前/后几个选项，随机/偏见也能蒙对。",
+          "关键是 selected==anchor，而不是最终字符串是否碰巧相等。",
+          "Caption 选中图的文本通常仍缺少清晰相对方位描述。"
+        ],
+        "tags": [
+          "碰巧答对",
+          "空间选项少",
+          "证据不可靠"
+        ]
+      },
       "caption": {
         "selected_id": "CLEVR_train_001112.png",
         "selected_matches_anchor": false,
@@ -2199,12 +605,26 @@
     },
     {
       "id": "clevr_q_000021__relation_scene",
-      "kind": "locate_answer",
+      "kind": "select",
       "parent_qid": "clevr_q_000021",
       "question": "在本题检索得到的候选图片中，唯一一张同时具有蓝色立方体和青色圆柱体和黄色球体的图片里，灰色球体相对于蓝色球体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
       "answer_type": "spatial_relation",
       "gt_answer": "水平方向在右侧，深度方向在后方。",
-      "why": "空间关系往往写不进 caption；Caption 定错图后几乎必然答错，Visual Token 相关性打分能钉住唯一图。",
+      "why": "Caption 容易被「有蓝色立方/青色圆柱/黄色球」的局部词吸引，却选不到真正同时满足全部约束的那一张。",
+      "analysis": {
+        "title": "局部物体匹配压过全局唯一性",
+        "summary": "Caption 容易被「有蓝色立方/青色圆柱/黄色球」的局部词吸引，却选不到真正同时满足全部约束的那一张。",
+        "bullets": [
+          "文本检索偏爱关键词覆盖率，不擅长集合约束的精确交集。",
+          "空间问答进一步需要图上的几何关系，caption 几乎不提供。",
+          "Visual Token 用视觉相关性把唯一图排到最前。"
+        ],
+        "tags": [
+          "局部匹配",
+          "集合约束",
+          "空间信息缺失"
+        ]
+      },
       "caption": {
         "selected_id": "CLEVR_train_055927.png",
         "selected_matches_anchor": false,
@@ -2308,21 +728,180 @@
         "立方",
         "左"
       ]
+    }
+  ],
+  "read_questions": [
+    {
+      "id": "clevr_q_000011__count_parent",
+      "kind": "read",
+      "parent_qid": "clevr_q_000011",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有大号灰色金属球体和大号紫色橡胶球体和大号灰色橡胶球体的图片里，一共有几个紫色球体？",
+      "answer_type": "count",
+      "gt_answer": "一共有3个。",
+      "protocol": "oracle_gold_image",
+      "why": "图已经是正确唯一图，但 caption 把紫色球体说成「三个紫色球，其中一个是红色金属球」这种自相矛盾描述，模型按文本计数得到 2，而真实是 3。",
+      "analysis": {
+        "title": "颜色/属性绑定写乱，导致少计",
+        "summary": "图已经是正确唯一图，但 caption 把紫色球体说成「三个紫色球，其中一个是红色金属球」这种自相矛盾描述，模型按文本计数得到 2，而真实是 3。",
+        "bullets": [
+          "Caption 先写「右侧有三个紫色球体」，紧接着又说其中一个是「小号红色金属光泽球」——颜色标签互相打架。",
+          "左侧还有「淡紫色」球；模型若只信「两个中等紫色哑光」，就会少算。",
+          "Visual Token 直接看图计数，不受这段含混文本影响，答对 3。"
+        ],
+        "tags": [
+          "属性绑定错误",
+          "颜色混淆",
+          "计数依赖不可靠文本"
+        ],
+        "caption_issues": [
+          {
+            "quote": "右侧有三个紫色球体，其中两个为中等大小哑光材质，一个为小号红色金属光泽球",
+            "problem": "同一物体既被算进紫色，又被写成红色，计数边界被文本搞乱。"
+          },
+          {
+            "quote": "左侧有一个小号淡紫色哑光球",
+            "problem": "若模型不把「淡紫色」稳定映射为紫色，还会进一步漏计。"
+          }
+        ]
+      },
+      "anchor": {
+        "id": "CLEVR_train_022058.png",
+        "caption": "画面中展示七个不同大小和材质的球体，置于浅灰色平面上。左侧有一个小号淡紫色哑光球；中间偏左是一个中等大小的灰色哑光球；中央是一个大号银色金属光泽球，表面有明显高光反射；右侧有三个紫色球体，其中两个为中等大小哑光材质，一个为小号红色金属光泽球；前景还有一个小号红色哑光球。整体光线柔和，阴影清晰。"
+      },
+      "caption": {
+        "pred_answer": 2,
+        "correct": false,
+        "caption": "画面中展示七个不同大小和材质的球体，置于浅灰色平面上。左侧有一个小号淡紫色哑光球；中间偏左是一个中等大小的灰色哑光球；中央是一个大号银色金属光泽球，表面有明显高光反射；右侧有三个紫色球体，其中两个为中等大小哑光材质，一个为小号红色金属光泽球；前景还有一个小号红色哑光球。整体光线柔和，阴影清晰。"
+      },
+      "visual_token": {
+        "pred_answer": 3,
+        "correct": true
+      }
+    },
+    {
+      "id": "clevr_q_000021__exists_parent",
+      "kind": "read",
+      "parent_qid": "clevr_q_000021",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有小号绿色橡胶圆柱体和大号黄色橡胶立方体和大号棕色橡胶球体的图片里，是否存在黄色球体？",
+      "answer_type": "yes_no",
+      "gt_answer": "是。",
+      "protocol": "oracle_gold_image",
+      "why": "正确图里确实有黄色球，但 caption 只明确写了「黄色立方体」，球体被写成「金色金属球体」等别名。存在性判断直接变成 false。",
+      "analysis": {
+        "title": "关键物体没被正确命名",
+        "summary": "正确图里确实有黄色球，但 caption 只明确写了「黄色立方体」，球体被写成「金色金属球体」等别名。存在性判断直接变成 false。",
+        "bullets": [
+          "问的是「是否存在黄色球体」，caption 字面没有稳定的「黄色 + 球体」组合。",
+          "同题的计数子问题有时能碰巧对，存在性子问题却错，说明文本证据不稳定、不可组合推理。",
+          "Visual Token 在同一张金标图上答 true。"
+        ],
+        "tags": [
+          "命名漂移",
+          "颜色别名",
+          "存在性判断失败"
+        ],
+        "caption_issues": [
+          {
+            "quote": "一个黄色立方体",
+            "problem": "黄色被绑到立方体上，不是球体。"
+          },
+          {
+            "quote": "一个金色金属球体",
+            "problem": "真实黄球可能被写成金色；下游若按字面「黄色球体」检索/判断就会漏。"
+          }
+        ]
+      },
+      "anchor": {
+        "id": "CLEVR_train_002234.png",
+        "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个黄色立方体、一个棕色球体、一个绿色圆柱体、一个蓝色小球、一个紫色球体、一个灰色球体、一个金色金属球体和一个铜色金属球体。物体大小不一，材质多样，有哑光质感也有金属光泽，整体布局分散，背景简洁，光线柔和，投下清晰阴影。"
+      },
+      "caption": {
+        "pred_answer": false,
+        "correct": false,
+        "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个黄色立方体、一个棕色球体、一个绿色圆柱体、一个蓝色小球、一个紫色球体、一个灰色球体、一个金色金属球体和一个铜色金属球体。物体大小不一，材质多样，有哑光质感也有金属光泽，整体布局分散，背景简洁，光线柔和，投下清晰阴影。"
+      },
+      "visual_token": {
+        "pred_answer": true,
+        "correct": true
+      }
     },
     {
       "id": "clevr_q_000001__anchor_attr_material",
-      "kind": "locate_answer",
+      "kind": "read",
       "parent_qid": "clevr_q_000001",
-      "question": "在本题检索得到的候选图片中，唯一一张同时具有灰色圆柱体和青色球体和红色球体的图片里，其中的灰色圆柱体是金属材质还是橡胶材质？",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有小号灰色橡胶圆柱体和小号棕色金属圆柱体和大号黄色金属圆柱体的图片里，其中的小号灰色橡胶圆柱体是金属材质还是橡胶材质？",
       "answer_type": "material",
-      "gt_answer": "金属材质。",
-      "why": "材质词有时能在 caption 里对上，但定图仍常错；Visual Token 定图更稳。",
+      "gt_answer": "橡胶材质。",
+      "protocol": "oracle_gold_image",
+      "why": "金标图 caption 没写「橡胶」，只写「灰色哑光圆柱」。模型靠「哑光≈橡胶」启发式蒙对；一旦问法或近义改写，这种映射很容易失效。",
+      "analysis": {
+        "title": "答对了，但依据很脆",
+        "summary": "金标图 caption 没写「橡胶」，只写「灰色哑光圆柱」。模型靠「哑光≈橡胶」启发式蒙对；一旦问法或近义改写，这种映射很容易失效。",
+        "bullets": [
+          "题干要的是 rubber/metal，caption 给出的是「哑光 / 金属质感」外观词。",
+          "这次碰巧对齐了，不代表 caption 编码了可靠的材质符号。",
+          "Visual Token 直接从外观与材质线索读图，不依赖这层脆弱转写。"
+        ],
+        "tags": [
+          "启发式映射",
+          "材质词缺失",
+          "脆的正确"
+        ],
+        "caption_issues": [
+          {
+            "quote": "两个大小相近的灰色哑光圆柱，表面无明显反光",
+            "problem": "没有出现「橡胶」；正确性依赖模型把哑光翻译成橡胶。"
+          }
+        ]
+      },
+      "anchor": {
+        "id": "CLEVR_train_000530.png",
+        "caption": "画面中展示四个圆柱体，置于浅灰色平面上。左侧有一个高大的金色金属质感圆柱，表面反光；其前方偏右是一个较小的棕色金属圆柱；右侧有两个大小相近的灰色哑光圆柱，表面无明显反光。所有物体投下柔和阴影，背景为纯色渐变，整体呈现简洁的3D渲染风格。"
+      },
+      "caption": {
+        "pred_answer": "rubber",
+        "correct": true,
+        "caption": "画面中展示四个圆柱体，置于浅灰色平面上。左侧有一个高大的金色金属质感圆柱，表面反光；其前方偏右是一个较小的棕色金属圆柱；右侧有两个大小相近的灰色哑光圆柱，表面无明显反光。所有物体投下柔和阴影，背景为纯色渐变，整体呈现简洁的3D渲染风格。"
+      },
+      "visual_token": {
+        "pred_answer": "rubber",
+        "correct": true
+      }
+    }
+  ],
+  "list_questions": [],
+  "locate_questions": [
+    {
+      "id": "clevr_q_000001__relation_scene",
+      "kind": "select",
+      "parent_qid": "clevr_q_000001",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有灰色圆柱体和青色球体和红色球体的图片里，绿色圆柱体相对于灰色圆柱体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
+      "answer_type": "spatial_relation",
+      "gt_answer": "水平方向在右侧，深度方向在后方。",
+      "why": "定图要靠「灰圆柱 + 青球 + 红球」共现，但最终还要答左右/前后。Caption 对物体有无写得模糊，对相对位置更常缺失，于是 hybrid 分数被更靠前的局部相似噪声图抢走。",
+      "analysis": {
+        "title": "空间关系几乎不进 caption",
+        "summary": "定图要靠「灰圆柱 + 青球 + 红球」共现，但最终还要答左右/前后。Caption 对物体有无写得模糊，对相对位置更常缺失，于是 hybrid 分数被更靠前的局部相似噪声图抢走。",
+        "bullets": [
+          "题干同时要求多物体共现 + 空间关系，caption 通常只枚举物体，很少写「A 在 B 左侧」。",
+          "Caption 选中的图往往只部分命中颜色/形状关键词，却排在真正唯一图前面。",
+          "Visual Token Rel 直接对图像证据打相关性分，能把唯一图顶到 #1。"
+        ],
+        "tags": [
+          "空间关系缺失",
+          "关键词局部匹配",
+          "定图被噪声带走"
+        ]
+      },
       "caption": {
         "selected_id": "CLEVR_train_056027.png",
         "selected_matches_anchor": false,
         "anchor_rank": 14,
-        "pred_answer": "metal",
-        "correct": true,
+        "pred_answer": {
+          "horizontal": "left",
+          "depth": "front"
+        },
+        "correct": false,
         "selected_caption": "画面中展示了多个几何体，包括大小不一的球体、圆柱体和立方体，散落在浅灰色背景上。可见一个黄色球体、一个棕色球体、一个青色小球；两个绿色圆柱体，一个红色金属质感圆柱体；一个大型青色金属立方体、一个红色小立方体、一个灰色金属小立方体、一个青色小立方体。物体表面材质多样，有哑光、金属反光等，颜色丰富，包括黄、棕、绿、红、青、灰。",
         "selected_cues": [
           {
@@ -2338,6 +917,10 @@
             "present": true
           },
           {
+            "cue": "绿色",
+            "present": true
+          },
+          {
             "cue": "圆柱",
             "present": true
           },
@@ -2346,11 +929,11 @@
             "present": true
           },
           {
-            "cue": "金属",
-            "present": true
+            "cue": "左",
+            "present": false
           },
           {
-            "cue": "橡胶",
+            "cue": "右",
             "present": false
           }
         ]
@@ -2359,7 +942,10 @@
         "selected_id": "CLEVR_train_024365.png",
         "selected_matches_anchor": true,
         "anchor_rank": 1,
-        "pred_answer": "metal",
+        "pred_answer": {
+          "horizontal": "right",
+          "depth": "behind"
+        },
         "correct": true
       },
       "anchor": {
@@ -2379,11 +965,253 @@
             "present": true
           },
           {
+            "cue": "绿色",
+            "present": true
+          },
+          {
             "cue": "圆柱",
             "present": true
           },
           {
             "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "左",
+            "present": false
+          },
+          {
+            "cue": "右",
+            "present": true
+          }
+        ]
+      },
+      "required_cues": [
+        "灰色",
+        "青色",
+        "红色",
+        "绿色",
+        "圆柱",
+        "球体",
+        "左",
+        "右"
+      ]
+    },
+    {
+      "id": "clevr_q_000006__relation_scene",
+      "kind": "select",
+      "parent_qid": "clevr_q_000006",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有蓝色球体和青色立方体和棕色球体的图片里，黄色圆柱体相对于红色圆柱体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
+      "answer_type": "spatial_relation",
+      "gt_answer": "水平方向在右侧，深度方向在前方。",
+      "why": "正确 anchor 在 caption 排序里极靠后（约 #148）。说明文本检索几乎没抓住「三物体唯一」约束，后续空间题无从谈起。",
+      "analysis": {
+        "title": "唯一图被排到很后",
+        "summary": "正确 anchor 在 caption 排序里极靠后（约 #148）。说明文本检索几乎没抓住「三物体唯一」约束，后续空间题无从谈起。",
+        "bullets": [
+          "Caption hybrid 对多约束共现召回很弱，唯一图淹没在池子后段。",
+          "一旦定错图，左右/前后关系几乎必然错。",
+          "Visual Token 把 anchor 排到第 1，再读图作答。"
+        ],
+        "tags": [
+          "共现约束失败",
+          "排序靠后",
+          "空间题连锁错误"
+        ]
+      },
+      "caption": {
+        "selected_id": "CLEVR_train_001024.png",
+        "selected_matches_anchor": false,
+        "anchor_rank": 148,
+        "pred_answer": {
+          "horizontal": "left",
+          "depth": "front"
+        },
+        "correct": false,
+        "selected_caption": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的球体和立方体。前景有红色立方体、绿色金属球、金色金属球和棕色小金属球；中景有蓝色立方体、红色立方体和青色金属立方体；背景有蓝色大立方体和青色小金属球。物体表面材质多样，有金属光泽和哑光质感，颜色涵盖红、蓝、绿、金、棕、青等。",
+        "selected_cues": [
+          {
+            "cue": "青色",
+            "present": true
+          },
+          {
+            "cue": "红色",
+            "present": true
+          },
+          {
+            "cue": "黄色",
+            "present": false
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "棕色",
+            "present": true
+          },
+          {
+            "cue": "圆柱",
+            "present": false
+          },
+          {
+            "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "立方",
+            "present": true
+          }
+        ]
+      },
+      "visual_token": {
+        "selected_id": "CLEVR_train_055302.png",
+        "selected_matches_anchor": true,
+        "anchor_rank": 1,
+        "pred_answer": {
+          "horizontal": "right",
+          "depth": "front"
+        },
+        "correct": true
+      },
+      "anchor": {
+        "id": "CLEVR_train_055302.png",
+        "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个大的青绿色哑光立方体、一个金色金属球、一个蓝色金属球、一个绿色金属球、一个银色金属球、一个小型青绿色金属立方体、一个黄色金属圆柱、一个浅蓝色圆柱、一个红色圆柱、一个灰色圆柱。物体大小不一，材质有金属光泽和哑光质感，整体布局分散，背景为纯色。",
+        "cues": [
+          {
+            "cue": "青色",
+            "present": false
+          },
+          {
+            "cue": "红色",
+            "present": true
+          },
+          {
+            "cue": "黄色",
+            "present": true
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "棕色",
+            "present": false
+          },
+          {
+            "cue": "圆柱",
+            "present": true
+          },
+          {
+            "cue": "球体",
+            "present": false
+          },
+          {
+            "cue": "立方",
+            "present": true
+          }
+        ]
+      },
+      "required_cues": [
+        "青色",
+        "红色",
+        "黄色",
+        "蓝色",
+        "棕色",
+        "圆柱",
+        "球体",
+        "立方"
+      ]
+    },
+    {
+      "id": "clevr_q_000006__anchor_attr_material",
+      "kind": "select",
+      "parent_qid": "clevr_q_000006",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有蓝色球体和青色立方体和棕色球体的图片里，其中的蓝色球体是金属材质还是橡胶材质？",
+      "answer_type": "material",
+      "gt_answer": "金属材质。",
+      "why": "即便最终答案只问材质，Caption 仍可能选错图；若碰巧答对，属于 lucky correct，不能说明它真的定位到了证据图。",
+      "analysis": {
+        "title": "材质题也会定错图",
+        "summary": "即便最终答案只问材质，Caption 仍可能选错图；若碰巧答对，属于 lucky correct，不能说明它真的定位到了证据图。",
+        "bullets": [
+          "定图失败时，模型是在错误图像的 caption 上猜测材质。",
+          "池里很多图都有金属/橡胶物体，材质答案很容易碰巧对。",
+          "因此需要同时看「定图是否命中 anchor」，不能只看答题准确率。"
+        ],
+        "tags": [
+          "lucky correct",
+          "定图≠答对",
+          "材质词可蒙"
+        ]
+      },
+      "caption": {
+        "selected_id": "CLEVR_train_001024.png",
+        "selected_matches_anchor": false,
+        "anchor_rank": 148,
+        "pred_answer": "metal",
+        "correct": true,
+        "selected_caption": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的球体和立方体。前景有红色立方体、绿色金属球、金色金属球和棕色小金属球；中景有蓝色立方体、红色立方体和青色金属立方体；背景有蓝色大立方体和青色小金属球。物体表面材质多样，有金属光泽和哑光质感，颜色涵盖红、蓝、绿、金、棕、青等。",
+        "selected_cues": [
+          {
+            "cue": "青色",
+            "present": true
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "棕色",
+            "present": true
+          },
+          {
+            "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "立方",
+            "present": true
+          },
+          {
+            "cue": "金属",
+            "present": true
+          },
+          {
+            "cue": "橡胶",
+            "present": false
+          }
+        ]
+      },
+      "visual_token": {
+        "selected_id": "CLEVR_train_055302.png",
+        "selected_matches_anchor": true,
+        "anchor_rank": 1,
+        "pred_answer": "metal",
+        "correct": true
+      },
+      "anchor": {
+        "id": "CLEVR_train_055302.png",
+        "caption": "画面中展示多个几何体置于浅灰色平面上，包括一个大的青绿色哑光立方体、一个金色金属球、一个蓝色金属球、一个绿色金属球、一个银色金属球、一个小型青绿色金属立方体、一个黄色金属圆柱、一个浅蓝色圆柱、一个红色圆柱、一个灰色圆柱。物体大小不一，材质有金属光泽和哑光质感，整体布局分散，背景为纯色。",
+        "cues": [
+          {
+            "cue": "青色",
+            "present": false
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "棕色",
+            "present": false
+          },
+          {
+            "cue": "球体",
+            "present": false
+          },
+          {
+            "cue": "立方",
             "present": true
           },
           {
@@ -2397,13 +1225,366 @@
         ]
       },
       "required_cues": [
-        "灰色",
         "青色",
-        "红色",
-        "圆柱",
+        "蓝色",
+        "棕色",
         "球体",
+        "立方",
         "金属",
         "橡胶"
+      ]
+    },
+    {
+      "id": "clevr_q_000011__count_parent",
+      "kind": "select",
+      "parent_qid": "clevr_q_000011",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有青色圆柱体和紫色球体和绿色立方体的图片里，一共有几个紫色球体？",
+      "answer_type": "count",
+      "gt_answer": "一共有1个。",
+      "why": "Caption 定错图后去数物体，数字建立在错误场景上；Visual Token 先钉住唯一图再计数。",
+      "analysis": {
+        "title": "计数依赖先定对图",
+        "summary": "Caption 定错图后去数物体，数字建立在错误场景上；Visual Token 先钉住唯一图再计数。",
+        "bullets": [
+          "开放池内「唯一过滤」对 caption 排序很不友好。",
+          "选中图的 caption 往往并不满足题干三物体条件。",
+          "Visual Token Rel 定图命中后，计数才有意义。"
+        ],
+        "tags": [
+          "定图错误",
+          "错误证据上计数"
+        ]
+      },
+      "caption": {
+        "selected_id": "CLEVR_train_066033.png",
+        "selected_matches_anchor": false,
+        "anchor_rank": 32,
+        "pred_answer": 1,
+        "correct": true,
+        "selected_caption": "画面中展示多个几何体，包括一个前景的绿色球体、一个紫色圆柱体、一个紫色立方体、一个黄色小立方体、一个蓝色金属球、一个青色金属圆柱、一个棕色圆柱、一个灰色立方体和一个棕色立方体。物体材质多样，有金属光泽和哑光质感，颜色丰富，置于浅灰色背景上，整体布局分散，光线柔和。",
+        "selected_cues": [
+          {
+            "cue": "青色",
+            "present": true
+          },
+          {
+            "cue": "紫色",
+            "present": true
+          },
+          {
+            "cue": "绿色",
+            "present": true
+          },
+          {
+            "cue": "圆柱",
+            "present": true
+          },
+          {
+            "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "立方",
+            "present": true
+          }
+        ]
+      },
+      "visual_token": {
+        "selected_id": "CLEVR_train_035872.png",
+        "selected_matches_anchor": true,
+        "anchor_rank": 1,
+        "pred_answer": 1,
+        "correct": true
+      },
+      "anchor": {
+        "id": "CLEVR_train_035872.png",
+        "caption": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的圆柱体、球体和立方体。前景有一个大的紫色哑光圆柱体，其后方是一个高大的青绿色金属质感圆柱体。周围散落着绿色、紫色、蓝色的圆柱体和球体，部分表面光滑反光，部分呈哑光质感。还有两个绿色立方体和一个浅蓝色立方体，整体色彩鲜明，光影柔和。",
+        "cues": [
+          {
+            "cue": "青色",
+            "present": false
+          },
+          {
+            "cue": "紫色",
+            "present": true
+          },
+          {
+            "cue": "绿色",
+            "present": true
+          },
+          {
+            "cue": "圆柱",
+            "present": true
+          },
+          {
+            "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "立方",
+            "present": true
+          }
+        ]
+      },
+      "required_cues": [
+        "青色",
+        "紫色",
+        "绿色",
+        "圆柱",
+        "球体",
+        "立方"
+      ]
+    },
+    {
+      "id": "clevr_q_000016__relation_scene",
+      "kind": "select",
+      "parent_qid": "clevr_q_000016",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有棕色圆柱体和蓝色立方体和灰色球体的图片里，灰色立方体相对于红色圆柱体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
+      "answer_type": "spatial_relation",
+      "gt_answer": "水平方向在左侧，深度方向在前方。",
+      "why": "Caption 定错图却可能蒙对空间答案；对照 Visual Token 的「定对再答对」，才能看出可靠性差异。",
+      "analysis": {
+        "title": "答对也可能是碰巧",
+        "summary": "Caption 定错图却可能蒙对空间答案；对照 Visual Token 的「定对再答对」，才能看出可靠性差异。",
+        "bullets": [
+          "空间标签只有左/右、前/后几个选项，随机/偏见也能蒙对。",
+          "关键是 selected==anchor，而不是最终字符串是否碰巧相等。",
+          "Caption 选中图的文本通常仍缺少清晰相对方位描述。"
+        ],
+        "tags": [
+          "碰巧答对",
+          "空间选项少",
+          "证据不可靠"
+        ]
+      },
+      "caption": {
+        "selected_id": "CLEVR_train_001112.png",
+        "selected_matches_anchor": false,
+        "anchor_rank": 5,
+        "pred_answer": {
+          "horizontal": "left",
+          "depth": "front"
+        },
+        "correct": true,
+        "selected_caption": "画面中展示多个几何体置于浅灰色平面上，包括大小不一的立方体（灰色、金色、蓝色、红色、棕色）、圆柱体（蓝色、棕色）和一个绿色金属球体。立方体材质各异，有哑光、金属光泽和半透明质感，颜色涵盖灰、金、蓝、红、棕。圆柱体呈细长状，绿色球体表面光滑反光。整体布局分散，光线柔和，阴影清晰。",
+        "selected_cues": [
+          {
+            "cue": "灰色",
+            "present": true
+          },
+          {
+            "cue": "红色",
+            "present": true
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "棕色",
+            "present": true
+          },
+          {
+            "cue": "圆柱",
+            "present": true
+          },
+          {
+            "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "立方",
+            "present": true
+          },
+          {
+            "cue": "左",
+            "present": false
+          }
+        ]
+      },
+      "visual_token": {
+        "selected_id": "CLEVR_train_047690.png",
+        "selected_matches_anchor": true,
+        "anchor_rank": 1,
+        "pred_answer": {
+          "horizontal": "left",
+          "depth": "front"
+        },
+        "correct": true
+      },
+      "anchor": {
+        "id": "CLEVR_train_047690.png",
+        "caption": "画面中展示多个几何体散落在浅灰色平面上，包括一个蓝色金属光泽的立方体、一个灰色哑光立方体、一个红色圆柱体、一个棕色圆柱体、一个青色圆柱体、一个紫色圆柱体、一个蓝色金属圆柱体、一个绿色金属球体、一个银色金属球体和一个黄色球体。物体大小不一，材质有金属光泽和哑光质感，整体构图简洁，光线柔和均匀。",
+        "cues": [
+          {
+            "cue": "灰色",
+            "present": true
+          },
+          {
+            "cue": "红色",
+            "present": true
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "棕色",
+            "present": true
+          },
+          {
+            "cue": "圆柱",
+            "present": true
+          },
+          {
+            "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "立方",
+            "present": true
+          },
+          {
+            "cue": "左",
+            "present": false
+          }
+        ]
+      },
+      "required_cues": [
+        "灰色",
+        "红色",
+        "蓝色",
+        "棕色",
+        "圆柱",
+        "球体",
+        "立方",
+        "左"
+      ]
+    },
+    {
+      "id": "clevr_q_000021__relation_scene",
+      "kind": "select",
+      "parent_qid": "clevr_q_000021",
+      "question": "在本题检索得到的候选图片中，唯一一张同时具有蓝色立方体和青色圆柱体和黄色球体的图片里，灰色球体相对于蓝色球体，在水平方向是左侧还是右侧？在深度方向是前方还是后方？",
+      "answer_type": "spatial_relation",
+      "gt_answer": "水平方向在右侧，深度方向在后方。",
+      "why": "Caption 容易被「有蓝色立方/青色圆柱/黄色球」的局部词吸引，却选不到真正同时满足全部约束的那一张。",
+      "analysis": {
+        "title": "局部物体匹配压过全局唯一性",
+        "summary": "Caption 容易被「有蓝色立方/青色圆柱/黄色球」的局部词吸引，却选不到真正同时满足全部约束的那一张。",
+        "bullets": [
+          "文本检索偏爱关键词覆盖率，不擅长集合约束的精确交集。",
+          "空间问答进一步需要图上的几何关系，caption 几乎不提供。",
+          "Visual Token 用视觉相关性把唯一图排到最前。"
+        ],
+        "tags": [
+          "局部匹配",
+          "集合约束",
+          "空间信息缺失"
+        ]
+      },
+      "caption": {
+        "selected_id": "CLEVR_train_055927.png",
+        "selected_matches_anchor": false,
+        "anchor_rank": 25,
+        "pred_answer": {
+          "horizontal": "left",
+          "depth": "front"
+        },
+        "correct": false,
+        "selected_caption": "画面中展示多个几何体，包括一个大的蓝色圆柱体、一个金色金属质感的立方体、一个黄色球体、一个红色金属球、一个蓝色金属球、一个灰色小球、一个绿色小立方体、一个绿色小圆柱体、一个黄色小圆柱体和一个青色金属圆柱体。物体材质多样，有金属光泽和哑光质感，颜色丰富，置于浅灰色背景上。",
+        "selected_cues": [
+          {
+            "cue": "灰色",
+            "present": true
+          },
+          {
+            "cue": "青色",
+            "present": true
+          },
+          {
+            "cue": "黄色",
+            "present": true
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "圆柱",
+            "present": true
+          },
+          {
+            "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "立方",
+            "present": true
+          },
+          {
+            "cue": "左",
+            "present": false
+          }
+        ]
+      },
+      "visual_token": {
+        "selected_id": "CLEVR_train_047468.png",
+        "selected_matches_anchor": true,
+        "anchor_rank": 1,
+        "pred_answer": {
+          "horizontal": "right",
+          "depth": "behind"
+        },
+        "correct": true
+      },
+      "anchor": {
+        "id": "CLEVR_train_047468.png",
+        "caption": "画面中展示多个几何体散落在浅灰色平面上，包括一个大的绿色立方体、一个蓝色金属光泽立方体、一个黄色球体、一个灰色球体、一个蓝色球体、一个绿色小球体，以及多个圆柱体：红色金属质感、青色哑光、黄色哑光。物体大小不一，材质有金属、哑光塑料等，整体呈现柔和的阴影和均匀的光照。",
+        "cues": [
+          {
+            "cue": "灰色",
+            "present": true
+          },
+          {
+            "cue": "青色",
+            "present": true
+          },
+          {
+            "cue": "黄色",
+            "present": true
+          },
+          {
+            "cue": "蓝色",
+            "present": true
+          },
+          {
+            "cue": "圆柱",
+            "present": true
+          },
+          {
+            "cue": "球体",
+            "present": true
+          },
+          {
+            "cue": "立方",
+            "present": true
+          },
+          {
+            "cue": "左",
+            "present": false
+          }
+        ]
+      },
+      "required_cues": [
+        "灰色",
+        "青色",
+        "黄色",
+        "蓝色",
+        "圆柱",
+        "球体",
+        "立方",
+        "左"
       ]
     }
   ]

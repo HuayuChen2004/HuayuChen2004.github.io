@@ -13,7 +13,7 @@ I’m Huayu Chen, a sophomore in Department of Automation, Tsinghua University. 
 
 ## Projects
 
-- **[Visual Token vs Caption](/visual-rag/)** — Interactive demo comparing visual-token vs caption methods on retrieval recall and answering-stage failures (missed images, wrong selections, caption information loss).
+- **[Visual Token vs Caption](/visual-rag/)** — Interactive demo of retrieval, caption-based image selection, and caption-reading failures (with failure-reason analysis).
 
 <!-- ## News -->
 
