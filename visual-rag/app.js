@@ -375,17 +375,17 @@
     if (!howto && !analysis) return "";
     return `
       <div class="ov-explain">
-        ${howto ? `<div class="ov-explain-card howto"><h4>实验做法</h4><p>${howto}</p></div>` : ""}
-        ${analysis ? `<div class="ov-explain-card analysis"><h4>结果分析</h4><p>${analysis}</p></div>` : ""}
+        ${howto ? `<div class="ov-explain-card howto"><h4>我们比了什么</h4><p>${howto}</p></div>` : ""}
+        ${analysis ? `<div class="ov-explain-card analysis"><h4>这说明什么（给非技术同学）</h4><p>${analysis}</p></div>` : ""}
       </div>`;
   }
 
   function renderOverview() {
     const d = overviewData;
     $("#overall-stats").innerHTML = `
-      <div class="stat caption"><label>检索召回：Caption → 视觉 token</label><strong>31% → 82%</strong></div>
-      <div class="stat token"><label>单图完全匹配：文字 → 视觉</label><strong>45.6% → 87.5%</strong></div>
-      <div class="stat"><label>定对唯一图：Caption / Rel</label><strong>0/15 · 15/15</strong></div>`;
+      <div class="stat caption"><label>Caption 找图大约</label><strong>只对 3 成</strong></div>
+      <div class="stat token"><label>我们的方法找图大约</label><strong>近 6 成起</strong></div>
+      <div class="stat"><label>选对关键图</label><strong>0/15 → 15/15</strong></div>`;
     $("#picker-section").hidden = true;
     $("#active-q").hidden = true;
     $("#answer-subtabs").hidden = true;
@@ -445,7 +445,7 @@
     const locRows = loc.methods
       .map(
         (m) => `
-      <tr class="${/Rel|视觉/.test(m.name) ? "ours" : m.name === "Caption" ? "baseline" : ""}">
+      <tr class="${/我们的方法|看图/.test(m.name) ? "ours" : m.name === "Caption" ? "baseline" : ""}">
         <td>${m.name}</td>
         <td>${fmtPct(m.locate_acc)}</td>
         <td>${fmtPct(m.answer_acc)}</td>
@@ -487,7 +487,7 @@
         <p class="primer-text">${d.primer.text}</p>
       </div>
 
-      <details class="ov-block glossary" open>
+      <details class="ov-block glossary">
         <summary>
           <span class="gloss-title">${d.glossary.title}</span>
           <span class="gloss-hint">${d.glossary.hint}</span>
@@ -496,8 +496,8 @@
       </details>
 
       <div class="ov-block">
-        <h2>三条失败路径</h2>
-        <p class="setting">想看数字阶梯与术语表可留在本页；最直观的「提问→作答」请回「① 全程逐步」。</p>
+        <h2>三条失败路径（Caption 常在这里翻车）</h2>
+        <p class="setting">点卡片可看具体例子。想自己点一步看全程，请回「① 全程逐步」。</p>
         <div class="story-grid">${story}</div>
         <button type="button" class="journey-cta" data-jump="journey">回到全程逐步对照 →</button>
       </div>
@@ -513,7 +513,7 @@
         <h2>${e150.name}</h2>
         <p class="setting">${e150.setting}</p>
         <table class="ov-table">
-          <thead><tr><th>方法</th><th>池内召回率 ↑</th><th>排序 packing ↓</th></tr></thead>
+          <thead><tr><th>方法</th><th>有用图找进名单的比例 ↑</th><th>排得越前越好（数字↓）</th></tr></thead>
           <tbody>${e150rows}</tbody>
         </table>
         ${ovExplainHTML(e150)}
@@ -523,7 +523,7 @@
         <h2>${loc.name}</h2>
         <p class="setting">${loc.setting}</p>
         <table class="ov-table">
-          <thead><tr><th>方法</th><th>定图准确率</th><th>答题准确率</th><th>备注</th></tr></thead>
+          <thead><tr><th>方法</th><th>选对关键图</th><th>最终答对</th><th>备注</th></tr></thead>
           <tbody>${locRows}</tbody>
         </table>
         ${ovExplainHTML(loc)}
@@ -1197,10 +1197,10 @@
 
   async function main() {
     const [rRes, qRes, oRes, jRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807f"),
-      fetch("./data/qa_demo.json?v=20260807f"),
-      fetch("./data/overview.json?v=20260807f"),
-      fetch("./data/journey.json?v=20260807f"),
+      fetch("./data/demo.json?v=20260807g"),
+      fetch("./data/qa_demo.json?v=20260807g"),
+      fetch("./data/overview.json?v=20260807g"),
+      fetch("./data/journey.json?v=20260807g"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
