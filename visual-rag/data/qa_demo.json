@@ -1,8 +1,8 @@
 {
   "title": "Answering-stage comparison",
   "overall": {
-    "select_note": "阶段 A：用 caption 从候选池选图（定唯一图协议）。Caption 定图 0/15；Visual Token Rel 15/15。",
-    "read_note": "阶段 B：图已是金标唯一图，只把该图 caption 喂给模型作答。Caption 仍可能因文本信息损失答错；Visual Token 在同图上可读对。",
+    "select_note": "阶段 A：用 caption 从候选池选唯一证据图。Caption 定图 0/15；视觉 token Rel 15/15。答对也可能是碰巧。",
+    "read_note": "阶段 B：正确图已给定（金标），只把该图 caption 或视觉 token 喂给模型。Caption 仍可能因文字信息损失答错。",
     "locate_summary": {
       "caption_locate_acc": 0.0,
       "caption_answer_acc": 0.67,

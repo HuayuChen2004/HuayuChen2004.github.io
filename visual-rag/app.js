@@ -58,14 +58,15 @@
   function renderRetrieveOverall() {
     const o = retrieveData.overall;
     $("#overall-stats").innerHTML = `
-      <div class="stat caption"><label>Caption pool recall（24 题）</label><strong>${fmtPct(o.caption_pool_recall)}</strong></div>
-      <div class="stat token"><label>Visual Token pool recall</label><strong>${fmtPct(o.visual_token_pool_recall)}</strong></div>
+      <div class="stat caption"><label>Caption 池内召回率（24 题）</label><strong>${fmtPct(o.caption_pool_recall)}</strong></div>
+      <div class="stat token"><label>视觉 token 池内召回率</label><strong>${fmtPct(o.visual_token_pool_recall)}</strong></div>
       <div class="stat"><label>相对提升</label><strong>+${((o.visual_token_pool_recall - o.caption_pool_recall) * 100).toFixed(1)} pt</strong></div>`;
     $("#picker-title").textContent = "选择问题";
-    $("#picker-desc").textContent = "8 道代表性题目，来自 Gallery QA v1（检索阶段）。";
+    $("#picker-desc").textContent =
+      "8 道代表性题目（Gallery QA 检索评测）。看相关图进没进候选池：绿框=命中，灰框=噪声，红框=漏检。";
     $("#answer-subtabs").hidden = true;
     $("#foot-note").textContent =
-      "指标为 pool recall：候选池前 K 张中命中的相关图比例。Visual Token 对应全库 Rel tok/2；评测均值 Caption 0.311 → Visual Token 0.823（24 题）。";
+      "池内召回率 = 相关图里有多少进了前 K 名候选。本页 Visual Token 对应「全库相关性打分 + tok/2（半精度 token）」；24 题均值 Caption 31.1% → Visual Token 82.3%。名词解释见总览「读懂这些词」。";
   }
 
   function renderAnswerOverall() {
@@ -88,7 +89,7 @@
     $("#picker-title").textContent = "选择答题问题";
     $("#answer-subtabs").hidden = false;
     $("#foot-note").textContent =
-      "选图阶段：qa_score_top1（Caption vs Rel）。读 Caption 阶段：单图 oracle（金标图 caption vs visual tokens）。";
+      "阶段 A：同一候选池里用 Caption 或视觉 token Rel 定唯一图再答题。阶段 B：直接给出正确图（金标/oracle），只换证据形态。名词解释见总览「读懂这些词」。";
   }
 
   function renderRetrievePicker(onSelect) {
@@ -99,11 +100,11 @@
       btn.type = "button";
       btn.className = `q-btn${q.id === activeId ? " active" : ""}`;
       btn.innerHTML = `
-        <div class="row"><span>${q.id}</span><span>${q.risk || ""} · |E*|=${q.n_gt}</span></div>
+        <div class="row"><span>${q.id}</span><span>难度 ${q.risk || "—"} · 相关图 ${q.n_gt} 张</span></div>
         <div class="title">${q.question}</div>
         <div class="scores">
-          <span class="c">Cap ${fmtPct(q.metrics_summary.caption_pool_recall)}</span>
-          <span class="t">Tok ${fmtPct(q.metrics_summary.visual_token_pool_recall)}</span>
+          <span class="c">Caption 召回 ${fmtPct(q.metrics_summary.caption_pool_recall)}</span>
+          <span class="t">视觉 token ${fmtPct(q.metrics_summary.visual_token_pool_recall)}</span>
         </div>`;
       btn.addEventListener("click", () => onSelect(q.id));
       root.appendChild(btn);
@@ -154,7 +155,7 @@
     el.innerHTML = `
       <div class="panel-head">
         <div><h3>${methodMeta.name}</h3><p>${methodMeta.desc}</p></div>
-        <div class="badge">recall ${fmtPct(pack.pool_recall)}</div>
+        <div class="badge">池内召回 ${fmtPct(pack.pool_recall)}</div>
       </div>
       <div class="kpi-row">
         <div class="kpi"><span>命中</span><b>${pack.n_hit}/${pack.n_gt}</b></div>
@@ -172,14 +173,14 @@
     $("#active-q").hidden = false;
     $("#qid").textContent = q.id;
     const risk = $("#risk");
-    risk.textContent = `caption risk: ${q.risk}`;
+    risk.textContent = `Caption 难度: ${q.risk}`;
     risk.className = `risk ${q.risk || ""}`;
     $("#q-text").textContent = q.question;
     $("#why").textContent = q.why_hard || "";
     $("#q-meta").innerHTML = `
       <div><label>标准答案</label><strong>${q.answer}</strong></div>
-      <div><label>相关图 |E*|</label><strong>${q.n_gt}</strong></div>
-      <div><label>候选池 K</label><strong>${q.K}</strong></div>`;
+      <div><label>相关图数量</label><strong>${q.n_gt}</strong></div>
+      <div><label>候选池大小 K</label><strong>${q.K}</strong></div>`;
     const capR = q.metrics_summary.caption_pool_recall;
     const tokR = q.metrics_summary.visual_token_pool_recall;
     $("#delta-bar").innerHTML = `
@@ -208,15 +209,15 @@
     $("#why").textContent = q.why || "";
     $("#q-meta").innerHTML = `
       <div><label>标准答案</label><strong>${q.gt_answer}</strong></div>
-      <div><label>Caption anchor 名次</label><strong style="color:var(--caption)">#${q.caption.anchor_rank ?? "—"}</strong></div>
-      <div><label>Visual Token 名次</label><strong style="color:var(--token)">#${q.visual_token.anchor_rank ?? "—"}</strong></div>`;
+      <div><label>Caption：唯一证据图名次</label><strong style="color:var(--caption)">#${q.caption.anchor_rank ?? "—"}</strong></div>
+      <div><label>视觉 token：唯一证据图名次</label><strong style="color:var(--token)">#${q.visual_token.anchor_rank ?? "—"}</strong></div>`;
     $("#delta-bar").innerHTML = `
       <div class="meter caption"><div class="lab"><span>Caption</span><span>定图 ${q.caption.selected_matches_anchor ? "对" : "错"} · ${q.caption.correct ? "答对" : "答错"}</span></div><div class="track"><div class="fill" style="width:${q.caption.selected_matches_anchor ? 100 : 18}%"></div></div></div>
       <div class="meter token"><div class="lab"><span>Visual Token</span><span>定图 ${q.visual_token.selected_matches_anchor ? "对" : "错"} · ${q.visual_token.correct ? "答对" : "答错"}</span></div><div class="track"><div class="fill" style="width:${q.visual_token.selected_matches_anchor ? 100 : 18}%"></div></div></div>`;
-    $("#legend").innerHTML = `<span>比较的是「从池子里选哪张图」；答对但定错 = 碰巧。</span>`;
+    $("#legend").innerHTML = `<span>比较的是「从池子里选哪张图」；答对但定错 = 碰巧对（lucky correct）。</span>`;
 
     $("#stage-body").innerHTML = `
-      <div class="protocol-banner">协议：同一候选池内打分 → 取 top-1 → 只在该图上答题。差别只在打分函数（Caption hybrid vs Visual Token Rel）。</div>
+      <div class="protocol-banner">怎么比：同一候选池里打分 → 只取第 1 名那张图再答题。差别只在打分方式（Caption 文本相似 vs 视觉 token 相关性 Rel）。</div>
       <div class="stage-split">
         <div class="compare" style="grid-template-columns:1fr 1fr">
           <article class="panel caption-panel">
@@ -227,7 +228,7 @@
             <div class="kpi-row">
               <div class="kpi"><span>模型答案</span><b>${q.caption.pred_answer}</b></div>
               <div class="kpi"><span>答题</span><b>${q.caption.correct ? "对" : "错"}</b></div>
-              <div class="kpi"><span>anchor 名次</span><b>#${q.caption.anchor_rank ?? "—"}</b></div>
+              <div class="kpi"><span>唯一证据图名次</span><b>#${q.caption.anchor_rank ?? "—"}</b></div>
             </div>
             <div class="pair-imgs">
               <div class="slot"><label>Caption 选中</label><img src="${thumb(q.caption.selected_id)}" alt="" /></div>
@@ -245,7 +246,7 @@
             <div class="kpi-row">
               <div class="kpi"><span>模型答案</span><b>${q.visual_token.pred_answer}</b></div>
               <div class="kpi"><span>答题</span><b>${q.visual_token.correct ? "对" : "错"}</b></div>
-              <div class="kpi"><span>anchor 名次</span><b>#${q.visual_token.anchor_rank ?? "—"}</b></div>
+              <div class="kpi"><span>唯一证据图名次</span><b>#${q.visual_token.anchor_rank ?? "—"}</b></div>
             </div>
             <div class="pair-imgs">
               <div class="slot"><label>Visual Token 选中</label><img src="${thumb(q.visual_token.selected_id)}" alt="" /></div>
@@ -279,7 +280,7 @@
     $("#legend").innerHTML = `<span>图已经选对；比较的是「caption 文本是否足以支撑正确答案」。</span>`;
 
     $("#stage-body").innerHTML = `
-      <div class="protocol-banner">协议：直接把金标唯一图交给两种答题器——一边只看该图 caption，一边看 visual tokens。选图错误已被排除。</div>
+      <div class="protocol-banner">怎么比：正确图已经给定（金标/oracle）。一边只读该图 caption 文本，一边读视觉 token。选图错误已被排除，比的是证据形态本身。</div>
       <div class="stage-split">
         <div>
           <div class="compare" style="grid-template-columns:1fr 1fr">
@@ -346,14 +347,24 @@
   function renderOverview() {
     const d = overviewData;
     $("#overall-stats").innerHTML = `
-      <div class="stat caption"><label>Caption → Visual Token（检索）</label><strong>31% → 82%</strong></div>
-      <div class="stat token"><label>单图 EM：cap → vis</label><strong>45.6% → 87.5%</strong></div>
-      <div class="stat"><label>定图：Caption / Rel</label><strong>0/15 · 15/15</strong></div>`;
+      <div class="stat caption"><label>检索召回：Caption → 视觉 token</label><strong>31% → 82%</strong></div>
+      <div class="stat token"><label>单图完全匹配：文字 → 视觉</label><strong>45.6% → 87.5%</strong></div>
+      <div class="stat"><label>定对唯一图：Caption / Rel</label><strong>0/15 · 15/15</strong></div>`;
     $("#picker-section").hidden = true;
     $("#active-q").hidden = true;
     $("#answer-subtabs").hidden = true;
     const root = $("#overview-root");
     root.hidden = false;
+
+    const glossary = (d.glossary?.items || [])
+      .map(
+        (g) => `
+      <div class="gloss-item">
+        <dt>${g.term}</dt>
+        <dd>${g.def}</dd>
+      </div>`
+      )
+      .join("");
 
     const story = d.story
       .map(
@@ -375,7 +386,7 @@
         <div class="bar-row">
           <div class="name">${m.name}<span class="blurb">${m.blurb}</span></div>
           <div class="bar-track"><div class="bar-fill ${roleClass(m.role)}" style="width:${w}%"></div></div>
-          <div class="bar-meta">${fmtPct(m.pool_recall)} · 名次比 ${m.rank_ratio_mean.toFixed(2)} · ${m.sec_per_q}s</div>
+          <div class="bar-meta">召回 ${fmtPct(m.pool_recall)} · 名次比 ${m.rank_ratio_mean.toFixed(2)} · ${m.sec_per_q}s/题</div>
         </div>`;
       })
       .join("");
@@ -396,7 +407,7 @@
     const locRows = loc.methods
       .map(
         (m) => `
-      <tr class="${m.name.includes("Rel") ? "ours" : m.name === "Caption" ? "baseline" : ""}">
+      <tr class="${/Rel|视觉/.test(m.name) ? "ours" : m.name === "Caption" ? "baseline" : ""}">
         <td>${m.name}</td>
         <td>${fmtPct(m.locate_acc)}</td>
         <td>${fmtPct(m.answer_acc)}</td>
@@ -411,7 +422,7 @@
         (k) => `
       <div class="kind-card">
         <label>${k.kind}</label>
-        <div class="nums"><span class="c">cap ${fmtPct(k.cap)}</span> → <span class="t">vis ${fmtPct(k.vis)}</span></div>
+        <div class="nums"><span class="c">Caption ${fmtPct(k.cap)}</span> → <span class="t">视觉 ${fmtPct(k.vis)}</span></div>
       </div>`
       )
       .join("");
@@ -423,8 +434,8 @@
       <div class="cost-card ${roleClass(r.role)}">
         <h3>${r.name}</h3>
         <div class="cost-kpis">
-          <div><span>pool recall</span><b>${fmtPct(r.pool_recall)}</b></div>
-          <div><span>packing↓</span><b>${r.packing.toFixed(2)}</b></div>
+          <div><span>池内召回↑</span><b>${fmtPct(r.pool_recall)}</b></div>
+          <div><span>排序 packing↓</span><b>${r.packing.toFixed(2)}</b></div>
           <div><span>秒/题</span><b>${r.sec_per_q}</b></div>
         </div>
         <p class="note">${r.note}</p>
@@ -433,15 +444,28 @@
       .join("");
 
     root.innerHTML = `
+      <div class="ov-block primer">
+        <h2>${d.primer.title}</h2>
+        <p class="primer-text">${d.primer.text}</p>
+      </div>
+
+      <details class="ov-block glossary" open>
+        <summary>
+          <span class="gloss-title">${d.glossary.title}</span>
+          <span class="gloss-hint">${d.glossary.hint}</span>
+        </summary>
+        <dl class="gloss-grid">${glossary}</dl>
+      </details>
+
       <div class="ov-block">
         <h2>三条失败路径</h2>
-        <p class="setting">从总览跳进交互案例：Caption 会在压缩证据后，于检索、选图、读文本作答上连续失手。</p>
+        <p class="setting">点卡片可跳进交互案例：Caption 压缩成文字后，会在找图、选图、读文字答题上连续失手。</p>
         <div class="story-grid">${story}</div>
       </div>
 
       <div class="ov-block">
         <h2>${ladder.name}</h2>
-        <p class="setting">${ladder.setting}. ${ladder.note}</p>
+        <p class="setting">${ladder.setting} ${ladder.note}</p>
         <div class="bar-rows">${bars}</div>
       </div>
 
@@ -449,7 +473,7 @@
         <h2>${e150.name}</h2>
         <p class="setting">${e150.setting}</p>
         <table class="ov-table">
-          <thead><tr><th>方法</th><th>pool recall↑</th><th>packing↓</th></tr></thead>
+          <thead><tr><th>方法</th><th>池内召回率 ↑</th><th>排序 packing ↓</th></tr></thead>
           <tbody>${e150rows}</tbody>
         </table>
         <p class="ov-takeaway">${e150.note}</p>
@@ -470,11 +494,11 @@
         <p class="setting">${ora.setting}</p>
         <div class="dual-bars">
           <div class="dual-item">
-            <div class="labs"><span>Caption EM</span><span class="c" style="color:var(--caption);font-weight:700">${fmtPct(ora.em_caption)}</span></div>
+            <div class="labs"><span>只读 Caption · 完全匹配（EM）</span><span class="c" style="color:var(--caption);font-weight:700">${fmtPct(ora.em_caption)}</span></div>
             <div class="bar-track"><div class="bar-fill baseline" style="width:${ora.em_caption * 100}%"></div></div>
           </div>
           <div class="dual-item">
-            <div class="labs"><span>Visual Token EM</span><span style="color:var(--token);font-weight:700">${fmtPct(ora.em_visual)}</span></div>
+            <div class="labs"><span>视觉 token · 完全匹配（EM）</span><span style="color:var(--token);font-weight:700">${fmtPct(ora.em_visual)}</span></div>
             <div class="bar-track"><div class="bar-fill ours" style="width:${ora.em_visual * 100}%"></div></div>
           </div>
         </div>
@@ -494,7 +518,7 @@
     });
 
     $("#foot-note").textContent =
-      "总览数字来自 Gallery QA v1、Expand-150、qa_score_top1 与 Capsule C0 单图评测；交互案例见「检索对比 / 答题对比」。";
+      "数字来自开放图库检索评测（Gallery QA）、Expand-150 对照、定图协议与单图金标对比。更细的词义见上方「读懂这些词」；交互案例见「检索对比 / 答题对比」。";
   }
 
   function syncHash() {

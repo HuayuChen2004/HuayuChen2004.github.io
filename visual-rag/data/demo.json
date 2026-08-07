@@ -3,14 +3,14 @@
   "gallery_size": 842,
   "methods": {
     "caption": {
-      "name": "Caption Retrieval",
+      "name": "Caption 混合检索",
       "short": "Caption",
-      "desc": "先把每张图写成文本描述，再用文本 embedding + 关键词做混合检索。"
+      "desc": "先把每张图写成一段文字描述，再用文本向量 + 关键词做混合检索。"
     },
     "visual_token": {
-      "name": "Visual Token (Rel tok/2)",
+      "name": "Visual Token（相关性 Rel · tok/2）",
       "short": "Visual Token",
-      "desc": "保留视觉 token，用相关性打分直接在图库上排序，不依赖中间 caption。"
+      "desc": "保留图像视觉 token，用问题相关性直接打分排序，不依赖中间 caption。tok/2 = 用一半 token 以节省时间。"
     }
   },
   "overall": {
