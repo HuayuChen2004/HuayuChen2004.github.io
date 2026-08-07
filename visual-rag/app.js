@@ -852,6 +852,228 @@
     });
   }
 
+
+  const TOUR_KEY = "visual-rag-tour-seen-v1";
+  let tourIndex = 0;
+  let tourTimer = null;
+  let tourActive = false;
+
+  const TOUR_STEPS = [
+    {
+      sel: null,
+      title: "30 秒学会怎么用",
+      text: "这是一个预计算演示页：选一道题，点「下一步」，同一页从上往下展开 Caption 与 Visual Token 的对照过程。",
+      place: "center",
+    },
+    {
+      sel: ".mode-tabs",
+      title: "你现在在「全程逐步」",
+      text: "默认最直观的是这个 Tab。总览数字、检索网格、答题对比可以稍后再看。",
+      place: "bottom",
+    },
+    {
+      sel: "#q-list",
+      title: "先选一道案例",
+      text: "这里有多道题（定图失败、碰巧对、读 caption 仍错…）。点卡片切换题目，引导会停在当前题上。",
+      place: "bottom",
+    },
+    {
+      sel: ".j-pin-q",
+      title: "题目一直钉在上面",
+      text: "展开后面步骤时，问题不会消失。随时能对照「现在在回答什么」。",
+      place: "bottom",
+    },
+    {
+      sel: ".j-timeline",
+      title: "内容往下堆叠",
+      text: "第 1 步、第 2 步、第 3 步…都留在同一页。左右两列分别是 Caption 路径和 Visual Token 路径。",
+      place: "top",
+    },
+    {
+      sel: "#j-next",
+      title: "点这里继续展开",
+      text: "每点一次「下一步」，新内容接在下面出现，不会盖掉上面的步骤。也可以「收回一步 / 从头重来」。",
+      place: "top",
+      clickHint: true,
+    },
+    {
+      sel: null,
+      title: "可以开始自己点了",
+      text: "右下角「怎么用?」随时能重播这段引导。现在选一道题，连点几次下一步看看整条链路吧。",
+      place: "center",
+    },
+  ];
+
+  function stopTourTimer() {
+    if (tourTimer) {
+      clearTimeout(tourTimer);
+      tourTimer = null;
+    }
+  }
+
+  function endTour(markSeen) {
+    stopTourTimer();
+    tourActive = false;
+    const root = $("#tour-root");
+    if (root) {
+      root.hidden = true;
+      root.classList.remove("is-on");
+      root.innerHTML = "";
+    }
+    if (markSeen) {
+      try {
+        localStorage.setItem(TOUR_KEY, "1");
+      } catch (_) {}
+    }
+  }
+
+  function positionTourCard(card, holeRect, place) {
+    const pad = 14;
+    const cw = card.offsetWidth;
+    const ch = card.offsetHeight;
+    let top;
+    let left;
+    if (place === "center" || !holeRect) {
+      top = Math.max(pad, (window.innerHeight - ch) / 2);
+      left = Math.max(pad, (window.innerWidth - cw) / 2);
+    } else if (place === "top") {
+      top = Math.max(pad, holeRect.top - ch - 16);
+      left = Math.min(Math.max(pad, holeRect.left), window.innerWidth - cw - pad);
+    } else {
+      top = Math.min(window.innerHeight - ch - pad, holeRect.bottom + 16);
+      left = Math.min(Math.max(pad, holeRect.left), window.innerWidth - cw - pad);
+    }
+    card.style.top = `${top}px`;
+    card.style.left = `${left}px`;
+  }
+
+  function renderTourStep() {
+    const root = $("#tour-root");
+    if (!root || !tourActive) return;
+    const step = TOUR_STEPS[tourIndex];
+    const el = step.sel ? document.querySelector(step.sel) : null;
+    if (step.sel && el) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    const dots = TOUR_STEPS.map((_, i) => `<i class="${i === tourIndex ? "on" : ""}"></i>`).join("");
+    const isLast = tourIndex === TOUR_STEPS.length - 1;
+
+    root.hidden = false;
+    root.classList.add("is-on");
+    root.innerHTML = `
+      <div class="tour-dim" data-tour-skip></div>
+      <div class="tour-hole ${step.clickHint ? "is-pulse" : ""}" id="tour-hole"></div>
+      <div class="tour-cursor" id="tour-cursor" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#0b6e4f" d="M4 3l1.2 14.2 3.5-3.3 3.3 6.4 2.4-1.2-3.4-6.5L17 11.2 4 3z"/></svg>
+      </div>
+      <div class="tour-card" id="tour-card">
+        <div class="tour-progress">${dots}</div>
+        <div class="tour-kicker">使用引导 · ${tourIndex + 1}/${TOUR_STEPS.length}</div>
+        <h3>${step.title}</h3>
+        <p>${step.text}</p>
+        <div class="tour-actions">
+          <button type="button" class="tour-btn" data-tour-skip>跳过</button>
+          <span class="spacer"></span>
+          <button type="button" class="tour-btn" data-tour-prev ${tourIndex === 0 ? "disabled" : ""}>上一步</button>
+          <button type="button" class="tour-btn primary" data-tour-next>${isLast ? "开始体验" : "下一步"}</button>
+        </div>
+      </div>`;
+
+    const hole = $("#tour-hole");
+    const card = $("#tour-card");
+    const cursor = $("#tour-cursor");
+
+    requestAnimationFrame(() => {
+      let rect = null;
+      if (el) {
+        rect = el.getBoundingClientRect();
+        const pad = 8;
+        hole.style.opacity = "1";
+        hole.style.top = `${Math.max(6, rect.top - pad)}px`;
+        hole.style.left = `${Math.max(6, rect.left - pad)}px`;
+        hole.style.width = `${Math.min(window.innerWidth - 12, rect.width + pad * 2)}px`;
+        hole.style.height = `${Math.min(window.innerHeight - 12, rect.height + pad * 2)}px`;
+        cursor.hidden = false;
+        cursor.style.top = `${rect.top + Math.min(36, rect.height * 0.35)}px`;
+        cursor.style.left = `${rect.left + Math.min(48, rect.width * 0.45)}px`;
+        if (step.clickHint) {
+          cursor.classList.remove("is-click");
+          void cursor.offsetWidth;
+          cursor.classList.add("is-click");
+        }
+      } else {
+        hole.style.opacity = "0";
+        hole.style.top = "40%";
+        hole.style.left = "30%";
+        hole.style.width = "40%";
+        hole.style.height = "20%";
+        cursor.hidden = true;
+      }
+      positionTourCard(card, rect, step.place || "bottom");
+    });
+
+    root.querySelectorAll("[data-tour-skip]").forEach((b) =>
+      b.addEventListener("click", () => endTour(true))
+    );
+    root.querySelector("[data-tour-prev]")?.addEventListener("click", () => {
+      stopTourTimer();
+      if (tourIndex > 0) {
+        tourIndex -= 1;
+        renderTourStep();
+        scheduleTourAuto();
+      }
+    });
+    root.querySelector("[data-tour-next]")?.addEventListener("click", () => {
+      stopTourTimer();
+      if (tourIndex < TOUR_STEPS.length - 1) {
+        tourIndex += 1;
+        renderTourStep();
+        scheduleTourAuto();
+      } else {
+        endTour(true);
+      }
+    });
+  }
+
+  function scheduleTourAuto() {
+    stopTourTimer();
+    if (!tourActive) return;
+    if (tourIndex >= TOUR_STEPS.length - 1) return;
+    tourTimer = setTimeout(() => {
+      tourIndex += 1;
+      renderTourStep();
+      scheduleTourAuto();
+    }, 3400);
+  }
+
+  function startTour({ auto = true } = {}) {
+    // Ensure journey UI is on screen for selectors
+    if (mode !== "journey") {
+      mode = "journey";
+      activeId = null;
+      journeyStep = 0;
+      refresh();
+    }
+    stopTourTimer();
+    tourActive = true;
+    tourIndex = 0;
+    // wait a tick for DOM
+    requestAnimationFrame(() => {
+      renderTourStep();
+      if (auto) scheduleTourAuto();
+    });
+  }
+
+  function maybeAutoStartTour() {
+    try {
+      if (localStorage.getItem(TOUR_KEY)) return;
+    } catch (_) {}
+    if (mode !== "journey") return;
+    setTimeout(() => startTour({ auto: true }), 600);
+  }
+
+
   function syncHash() {
     const parts = [`mode=${mode}`];
     if (mode === "answer") parts.push(`sub=${answerSub}`);
@@ -922,10 +1144,10 @@
 
   async function main() {
     const [rRes, qRes, oRes, jRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807c"),
-      fetch("./data/qa_demo.json?v=20260807c"),
-      fetch("./data/overview.json?v=20260807c"),
-      fetch("./data/journey.json?v=20260807c"),
+      fetch("./data/demo.json?v=20260807d"),
+      fetch("./data/qa_demo.json?v=20260807d"),
+      fetch("./data/overview.json?v=20260807d"),
+      fetch("./data/journey.json?v=20260807d"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
@@ -938,6 +1160,7 @@
         mode = btn.dataset.mode;
         activeId = null;
         journeyStep = 0;
+        endTour(false);
         refresh();
       });
     });
@@ -948,8 +1171,10 @@
         refresh();
       });
     });
+    $("#tour-help")?.addEventListener("click", () => startTour({ auto: true }));
 
     refresh();
+    maybeAutoStartTour();
   }
 
   main().catch((err) => {
