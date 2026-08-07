@@ -424,7 +424,7 @@
         <div class="bar-row">
           <div class="name">${m.name}<span class="blurb">${m.blurb}</span></div>
           <div class="bar-track"><div class="bar-fill ${roleClass(m.role)}" style="width:${w}%"></div></div>
-          <div class="bar-meta">召回 ${fmtPct(m.pool_recall)} · 名次比 ${m.rank_ratio_mean.toFixed(2)} · ${m.sec_per_q}s/题</div>
+          <div class="bar-meta">找全约 ${fmtPct(m.pool_recall)} · 排位松紧 ${m.rank_ratio_mean.toFixed(2)} · ${m.sec_per_q}s/题</div>
         </div>`;
       })
       .join("");
@@ -472,9 +472,9 @@
       <div class="cost-card ${roleClass(r.role)}">
         <h3>${r.name}</h3>
         <div class="cost-kpis">
-          <div><span>池内召回↑</span><b>${fmtPct(r.pool_recall)}</b></div>
-          <div><span>排序 packing↓</span><b>${r.packing.toFixed(2)}</b></div>
-          <div><span>秒/题</span><b>${r.sec_per_q}</b></div>
+          <div><span>找全程度 ↑</span><b>${fmtPct(r.pool_recall)}</b></div>
+          <div><span>排得越前越好 ↓</span><b>${r.packing.toFixed(2)}</b></div>
+          <div><span>大约秒/题</span><b>${r.sec_per_q}</b></div>
         </div>
         <p class="note">${r.note}</p>
       </div>`
@@ -534,11 +534,11 @@
         <p class="setting">${ora.setting}</p>
         <div class="dual-bars">
           <div class="dual-item">
-            <div class="labs"><span>只读 Caption · 完全匹配（EM）</span><span class="c" style="color:var(--caption);font-weight:700">${fmtPct(ora.em_caption)}</span></div>
+            <div class="labs"><span>只读文字描述 · 答对比例</span><span class="c" style="color:var(--caption);font-weight:700">${fmtPct(ora.em_caption)}</span></div>
             <div class="bar-track"><div class="bar-fill baseline" style="width:${ora.em_caption * 100}%"></div></div>
           </div>
           <div class="dual-item">
-            <div class="labs"><span>视觉 token · 完全匹配（EM）</span><span style="color:var(--token);font-weight:700">${fmtPct(ora.em_visual)}</span></div>
+            <div class="labs"><span>直接看图 · 答对比例</span><span style="color:var(--token);font-weight:700">${fmtPct(ora.em_visual)}</span></div>
             <div class="bar-track"><div class="bar-fill ours" style="width:${ora.em_visual * 100}%"></div></div>
           </div>
         </div>
@@ -558,7 +558,7 @@
     });
 
     $("#foot-note").textContent =
-      "数字来自开放图库检索评测（Gallery QA）、Expand-150 对照、定图协议与单图金标对比。更细的词义见上方「读懂这些词」；想看全过程请用「全程逐步」。";
+      "本页面向非技术读者：用几组对照说明「只靠文字描述」会在找图、选图、读文字答题上连续失手；直接看图更稳，并用门控控制成本。细节例子见「全程逐步」。";
   }
 
   function journeySideHTML(side, tone) {
@@ -1197,10 +1197,10 @@
 
   async function main() {
     const [rRes, qRes, oRes, jRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807g"),
-      fetch("./data/qa_demo.json?v=20260807g"),
-      fetch("./data/overview.json?v=20260807g"),
-      fetch("./data/journey.json?v=20260807g"),
+      fetch("./data/demo.json?v=20260807h"),
+      fetch("./data/qa_demo.json?v=20260807h"),
+      fetch("./data/overview.json?v=20260807h"),
+      fetch("./data/journey.json?v=20260807h"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
