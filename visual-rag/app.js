@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810k";
+  const DATA_V = "20260810m";
 
   let retrieveData = null;
   let qaData = null;
@@ -14,8 +14,8 @@
   let miniStep = 0;
   let pipelineStep = 0;
   let pipelineTimer = null;
-  let mode = "mini"; // mini | pipeline | journey | overview | retrieve | answer
-  let answerSub = "select"; // select | read | multi
+  let mode = "mini"; // mini | pipeline | journey | overview | retrieve | answer | translate
+  let answerSub = "select"; // select | read
   let activeId = null;
   let journeyStep = 0;
   let journeyShouldScroll = false;
@@ -74,6 +74,8 @@
     }
     if (targetMode === "answer") {
       tasks.push(ensureJson("answer", "./data/qa_demo.json", () => qaData, (d) => (qaData = d)));
+    }
+    if (targetMode === "translate") {
       tasks.push(ensureJson("pack", "./data/pack_demo.json", () => packData, (d) => (packData = d)));
     }
     await Promise.all(tasks);
@@ -81,7 +83,7 @@
 
   /** Demo 先出来；其余 Tab 数据在空闲时后台预取，切换时通常已就绪。 */
   function prefetchRemainingData() {
-    const queue = ["pipeline", "journey", "overview", "retrieve", "answer", "mini"];
+    const queue = ["pipeline", "journey", "overview", "retrieve", "answer", "translate", "mini"];
     const run = async () => {
       for (const m of queue) {
         try {
@@ -243,7 +245,7 @@
       "检索 = 从大图库捞出候选池（相关图进没进前 K）。下一步的「定图」才是在这个池子里选出要看的那一张。绿框=命中，灰框=噪声，红框=漏检。";
     $("#answer-subtabs").hidden = true;
     $("#foot-note").textContent =
-      "检索对比只看「池子好不好」。定图、基于证据作答、多图列表题在「⑥ 答题对比」。本页 Visual Token 对应全库 Rel + tok/2；24 题均值 Caption 31.1% → Visual Token 82.3%。";
+      "检索对比只看「池子好不好」。定图与读证据在「⑥ 答题对比」；跨模型译后作答在「⑦ 跨模型翻译」。本页 Visual Token 对应全库 Rel + tok/2；24 题均值 Caption 31.1% → Visual Token 82.3%。";
   }
 
   function renderAnswerOverall() {
@@ -256,32 +258,36 @@
         <div class="stat token"><label>Visual Token 定图准确率</label><strong>${fmtPct(s.visual_token_locate_acc)}</strong></div>
         <div class="stat"><label>设定</label><strong style="font-size:1.05rem">池已给定</strong></div>`;
       $("#picker-desc").textContent =
-        "单图定图：检索已经给出同一候选池后，对比 Caption 与 Visual Token 谁更能从池子里选出正确的那一张，并据此作答。定错图却答对 = 碰巧对。";
+        "定图对比：检索已经给出同一候选池后，对比 Caption 与 Visual Token 谁更能从池子里选出正确的那一张，并据此作答。定错图却答对 = 碰巧对。";
       $("#foot-note").textContent =
-        "检索 ≠ 定图。检索负责「相关图进不进池」；定图是在池内选唯一图。本页左右对照的是定图环节。";
-    } else if (answerSub === "read") {
+        "检索 ≠ 定图。检索负责「相关图进不进池」；定图是在池内选唯一图。本页是同模型原生 Visual Token，没有跨模型翻译。";
+    } else {
       $("#overall-stats").innerHTML = `
         <div class="stat caption"><label>金标图 + Caption</label><strong>${fmtPct(s.oracle_caption_acc)}</strong></div>
         <div class="stat token"><label>金标图 + Visual Token</label><strong>${fmtPct(s.oracle_visual_acc)}</strong></div>
         <div class="stat"><label>设定</label><strong style="font-size:1.05rem">图已选对</strong></div>`;
       $("#picker-desc").textContent =
-        "单图基于证据：跳过检索与定图，图已经是正确唯一图。一边只读 Caption 文字，一边用 Visual Token 看图，对比证据形态本身。";
+        "读证据对比：跳过检索与定图，图已经是正确唯一图。一边只读 Caption 文字，一边用 Visual Token 看图，对比证据形态本身。";
       $("#foot-note").textContent =
-        "这里不再比找图/选图，只比「喂给模型的是文字还是视觉 token」。用来说明 Caption 的信息损失。";
-    } else {
-      const agg = packData?.aggregates || [];
-      const high = agg.find((a) => String(a.subset).includes("high")) || agg[0];
-      if (high) {
-        $("#overall-stats").innerHTML = `
-          <div class="stat caption"><label>Caption list F1</label><strong>${high.caption_f1.toFixed(2)}</strong></div>
-          <div class="stat token"><label>gate list F1</label><strong>${high.gate_f1.toFixed(2)}</strong></div>
-          <div class="stat"><label>oracle list F1</label><strong>${high.oracle_f1.toFixed(2)}</strong></div>`;
-      }
-      $("#picker-desc").textContent =
-        "多图检索题型例题：答案是「找出所有满足条件的图」（一堆图），不是只定一张。下面用列表题展示 Caption / 看图检索 / 上限对照。";
-      $("#foot-note").textContent =
-        "这不是与定图并列的第三阶段，而是另一种题型。主看 list F1；oracle = 相关图全进池后的看图作答上限。";
+        "这里不再比找图/选图，只比「喂给模型的是文字还是视觉 token」。跨模型翻译请看「⑦」。";
     }
+  }
+
+  function renderTranslateOverall() {
+    const t = packData?.translator;
+    const m = t?.metrics || [];
+    const cards = m
+      .slice(0, 3)
+      .map(
+        (x) =>
+          `<div class="stat"><label>${x.label}</label><strong style="font-size:1.15rem">${x.value}</strong></div>`
+      )
+      .join("");
+    $("#overall-stats").innerHTML =
+      cards ||
+      `<div class="stat"><label>机制</label><strong style="font-size:1.05rem">8B → 译 → 4B</strong></div>`;
+    $("#foot-note").textContent =
+      "本页独立于⑥：⑥ 是同模型 Caption vs 原生 Visual Token；这里是跨模型翻译后再作答。列表题只是展示场景，不是与定图并列的第三阶段。";
   }
 
   function renderRetrievePicker(onSelect) {
@@ -531,14 +537,13 @@
       mode = "mini";
       activeId = null;
       miniStep = 0;
-    } else if (target === "pack" || target === "multi" || target === "answer:pack" || target === "answer:multi") {
-      mode = "answer";
-      answerSub = "multi";
+    } else if (target === "pack" || target === "multi" || target === "translate" || target === "answer:pack" || target === "answer:multi") {
+      mode = "translate";
       activeId = null;
     } else if (target.startsWith("answer:")) {
       mode = "answer";
       const sub = target.split(":")[1] || "select";
-      answerSub = sub === "pack" ? "multi" : sub;
+      answerSub = sub === "pack" || sub === "multi" ? "select" : sub;
       activeId = null;
     }
     switchMode(mode).then(() => window.scrollTo({ top: 0, behavior: "smooth" }));
@@ -695,21 +700,40 @@
       .join("")}</div>`;
   }
 
-  function renderPack() {
+  function renderTranslate() {
     hideAllStages();
     const d = packData;
+    const t = d.translator || {};
     const cases = d.cases || [];
     if (!cases.some((c) => c.id === activeId)) activeId = cases[0]?.id || null;
     const cur = cases.find((c) => c.id === activeId) || cases[0];
 
-    // Pack 挂在「答题对比」下：保留子 Tab
-    $("#picker-section").hidden = false;
-    $("#answer-subtabs").hidden = false;
-    $("#q-list").hidden = true;
-    renderAnswerOverall();
+    renderTranslateOverall();
 
     const root = $("#pack-root");
     root.hidden = false;
+
+    const flowHTML = (t.flow || [])
+      .map(
+        (step, i) => `
+      ${i ? `<span class="xlate-arrow" aria-hidden="true">→</span>` : ""}
+      <div class="xlate-node">
+        <strong>${step.title}</strong>
+        <p>${step.text}</p>
+      </div>`
+      )
+      .join("");
+
+    const metricHTML = (t.metrics || [])
+      .map(
+        (m) => `
+      <div class="xlate-metric">
+        <span class="lab">${m.label}</span>
+        <b>${m.value}</b>
+        <span class="hint">${m.hint || ""}</span>
+      </div>`
+      )
+      .join("");
 
     const agg = d.aggregates || [];
     const aggCards = agg
@@ -746,7 +770,7 @@
       .join("");
 
     const armHTML = (arm) => {
-      const tone = arm.kind === "caption" ? "caption" : arm.kind === "oracle" ? "token" : "token";
+      const tone = arm.kind === "caption" ? "caption" : "token";
       return `
       <article class="panel ${tone}-panel pack-arm">
         <div class="panel-head">
@@ -770,7 +794,7 @@
           arm.miss_pool_show?.length
             ? `<p class="section-label">检索阶段就漏掉的相关图（示例）</p>${packMiniGrid(arm.miss_pool_show)}`
             : arm.kind === "oracle"
-              ? `<p class="mini-note">oracle：相关图默认全部进池，瓶颈只在看图作答。</p>`
+              ? `<p class="mini-note">oracle：相关图默认全部进池；三列都用译后 vis 作答，瓶颈只在看图筛选。</p>`
               : `<p class="mini-note">此例中，金标相关图大多已进候选池；差距更多来自作答筛选。</p>`
         }
       </article>`;
@@ -778,10 +802,18 @@
 
     root.innerHTML = `
       <div class="pack-shell">
-        <div class="pack-intro">
+        <div class="pack-intro xlate-intro">
+          <p class="xlate-kicker">${t.kicker || d.page_title || "跨模型翻译"}</p>
           <h2>${d.title}</h2>
           <p>${d.intro}</p>
-          <p class="pack-note">${d.note || ""}</p>
+          <p class="pack-note">${t.why || ""}</p>
+          <p class="pack-note">${t.vs_old || ""}</p>
+        </div>
+        <div class="xlate-flow" aria-label="翻译流程">${flowHTML}</div>
+        <div class="xlate-metrics">${metricHTML}</div>
+        <div class="pack-intro">
+          <h2>例题：译后看图 · 多图列表</h2>
+          <p>${d.note || ""}</p>
         </div>
         <div class="pack-agg">${aggCards}</div>
         <p class="pack-takeaway">${d.takeaway || ""}</p>
@@ -947,7 +979,7 @@
         <div class="story-grid">${story}</div>
         <div class="pipe-ctas" style="margin-top:0.75rem">
           <button type="button" class="j-btn ghost" data-jump="pipeline">先看方法流程 →</button>
-          <button type="button" class="j-btn ghost" data-jump="pack">看多图检索例题 →</button>
+          <button type="button" class="j-btn ghost" data-jump="translate">看跨模型翻译 →</button>
           <button type="button" class="journey-cta" data-jump="journey">去全程逐步对照 →</button>
         </div>
       </div>
@@ -1869,18 +1901,20 @@
       map.mode === "answer" ||
       map.mode === "mini" ||
       map.mode === "pipeline" ||
-      map.mode === "pack"
+      map.mode === "pack" ||
+      map.mode === "translate"
     ) {
-      // 旧链接 #mode=pack 并入答题对比
+      // 旧链接 #mode=pack / answer&sub=multi → 跨模型翻译页
       if (map.mode === "pack") {
-        mode = "answer";
-        answerSub = "multi";
+        mode = "translate";
+      } else if (map.mode === "answer" && (map.sub === "multi" || map.sub === "pack")) {
+        mode = "translate";
       } else {
         mode = map.mode;
       }
     }
-    if (map.sub === "select" || map.sub === "read" || map.sub === "multi" || map.sub === "pack") {
-      answerSub = map.sub === "pack" ? "multi" : map.sub;
+    if (map.sub === "select" || map.sub === "read") {
+      answerSub = map.sub;
     }
     if (map.sub === "locate" || map.sub === "list") answerSub = "select";
     if (map.q) activeId = map.q;
@@ -1953,9 +1987,9 @@
         refresh();
       });
       renderRetrieveQuestion(qs.find((q) => q.id === activeId));
-    } else if (answerSub === "multi") {
-      renderPack();
-    } else {
+    } else if (mode === "translate") {
+      renderTranslate();
+    } else if (mode === "answer") {
       hideAllStages();
       $("#picker-section").hidden = false;
       $("#q-list").hidden = false;

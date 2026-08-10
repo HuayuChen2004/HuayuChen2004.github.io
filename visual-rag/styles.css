@@ -1906,7 +1906,7 @@ details.glossary[open] > summary::before { content: "▾ "; }
   .pipe-stage-band { margin-left: 0; }
 }
 
-/* —— Pack 列表题 —— */
+/* —— Pack / 跨模型翻译 —— */
 .pack-root { margin-top: 0.5rem; }
 .pack-shell { display: grid; gap: 1rem; }
 .pack-intro h2 {
@@ -1919,6 +1919,75 @@ details.glossary[open] > summary::before { content: "▾ "; }
   color: var(--muted);
   line-height: 1.6;
   max-width: 52rem;
+}
+.xlate-kicker {
+  margin: 0 0 0.35rem !important;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--token);
+  font-weight: 650;
+}
+.xlate-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f7fafc 0%, #eef6f3 100%);
+}
+.xlate-node {
+  flex: 1 1 10rem;
+  min-width: 9rem;
+}
+.xlate-node strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+.xlate-node p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.xlate-arrow {
+  align-self: center;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 1.1rem;
+}
+.xlate-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+.xlate-metric {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  background: #fff;
+  display: grid;
+  gap: 0.2rem;
+}
+.xlate-metric .lab {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.xlate-metric b {
+  font-size: 1.35rem;
+  font-family: var(--mono);
+  letter-spacing: -0.02em;
+}
+.xlate-metric .hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+@media (max-width: 720px) {
+  .xlate-metrics { grid-template-columns: 1fr; }
+  .xlate-arrow { display: none; }
 }
 .pack-agg {
   display: grid;

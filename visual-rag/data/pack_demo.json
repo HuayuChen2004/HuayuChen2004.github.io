@@ -1,7 +1,7 @@
 {
-  "title": "多图检索题型例题：找出所有满足条件的图",
-  "intro": "这是「答案为一堆图」的题型（例如：找出所有同时满足…的图片），不是与定图并列的另一阶段。下面用例题对照 Caption / 看图检索 / 相关图全给对时的上限。",
-  "note": "和⑤检索对比的差别：这里题型要求列出全部相关图，并用 list F1 同时衡量找全与少报错。",
+  "title": "大模型看图特征 → 译给小模型作答",
+  "intro": "这页讲的是新机制：Teacher（Qwen3-VL-8B）抽出 visual embedding，经 Translator 映射到冻结 Consumer（Qwen3.5-4B）的注入空间再答题。与「⑥ 答题对比」不同——那里是同模型原生 visual token，没有跨模型翻译。",
+  "note": "下面多图例题：答案是「找出所有…的图」。三列都用译后 vis 作答，差别只在候选池怎么来（Caption 检索 / gate 看图检索 / 相关图全给对）。",
   "aggregates": [
     {
       "subset": "high（难）",
@@ -896,5 +896,42 @@
       "name": "vis_oracle",
       "desc": "假设相关图已全部进池（检索上限），只测看图作答能力"
     }
-  ]
+  ],
+  "page_title": "跨模型翻译",
+  "translator": {
+    "kicker": "Phase G｜通用视觉 Token 翻译器",
+    "why": "目标是：贵的大模型负责「看见」，便宜的小模型负责答题；翻译器只负责把图信息忠实地传过去，不按题型专训。",
+    "flow": [
+      {
+        "title": "Teacher 8B",
+        "text": "离线编码每张图的 image embeds（约 150×4096）"
+      },
+      {
+        "title": "Translator",
+        "text": "Ridge 暖启动 + 残差 MLP；用 Answer CE 训练，Consumer 冻结"
+      },
+      {
+        "title": "Consumer 4B",
+        "text": "注入译后 vis 作答；载体是 image embedding，不是 KV"
+      }
+    ],
+    "metrics": [
+      {
+        "label": "单图 held-out EM",
+        "value": "0.963",
+        "hint": "n=1000，译后 vis"
+      },
+      {
+        "label": "Pack list F1（high / oracle 池）",
+        "value": "~0.87",
+        "hint": "小 pack FT 后"
+      },
+      {
+        "label": "Pack list F1（medium / oracle 池）",
+        "value": "~0.95",
+        "hint": "小 pack FT 后"
+      }
+    ],
+    "vs_old": "⑥ 答题对比：同模型 Caption vs 原生 visual token。本页：跨模型翻译后的看图作答，并用列表题展示真实开放图库场景。"
+  }
 }
