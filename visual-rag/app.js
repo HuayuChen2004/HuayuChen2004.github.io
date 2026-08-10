@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810a";
+  const DATA_V = "20260810b";
 
   let retrieveData = null;
   let qaData = null;
@@ -69,6 +69,30 @@
       tasks.push(ensureJson("answer", "./data/qa_demo.json", () => qaData, (d) => (qaData = d)));
     }
     await Promise.all(tasks);
+  }
+
+  /** Demo 先出来；其余 Tab 数据在空闲时后台预取，切换时通常已就绪。 */
+  function prefetchRemainingData() {
+    // 按常见浏览顺序：全程 → 总览 → 检索 → 答题 →（若从别的入口进来）补 Demo
+    const queue = ["journey", "overview", "retrieve", "answer", "mini"];
+    const run = async () => {
+      for (const m of queue) {
+        try {
+          await ensureModeData(m);
+        } catch (err) {
+          console.warn("后台预取跳过", m, err);
+        }
+        await new Promise((r) => setTimeout(r, 80));
+      }
+    };
+    const start = () => {
+      run();
+    };
+    if (typeof requestIdleCallback === "function") {
+      requestIdleCallback(start, { timeout: 2500 });
+    } else {
+      setTimeout(start, 600);
+    }
   }
 
   function hideAllStages() {
@@ -1649,6 +1673,7 @@
 
     refresh();
     maybeAutoStartTour();
+    prefetchRemainingData();
   }
 
   main().catch(showLoadError);
