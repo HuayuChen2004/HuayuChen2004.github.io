@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810n";
+  const DATA_V = "20260810o";
 
   let retrieveData = null;
   let qaData = null;
@@ -137,53 +137,14 @@
       )
       .join("");
 
-    const snap = pitch.snapshot;
-    const side = (s, tone) => `
-      <div class="snap-side ${tone}">
-        <div class="snap-side-top">
-          <h4>${s.label}</h4>
-          <span class="verdict ${s.locate_ok && s.answer_ok ? "ok" : "bad"}">${s.tag}</span>
-        </div>
-        <div class="pair-imgs">
-          <div class="slot"><label>选中图</label><img src="${thumb(s.selected_id)}" alt="" /></div>
-          <div class="slot"><label>标准关键图</label><img src="${thumb(s.anchor_id)}" alt="" /></div>
-        </div>
-        <div class="snap-pred">预测：${s.pred}</div>
-      </div>`;
-
     root.innerHTML = `
-      <div class="pitch-shell">
+      <div class="pitch-shell pitch-shell-solo">
         <div class="pitch-elev">
           <div class="pitch-kicker">${pitch.title}</div>
           <ul class="pitch-bullets">${bullets}</ul>
           <div class="pitch-stats">${stats}</div>
         </div>
-        <div class="pitch-snap">
-          <div class="pitch-kicker">${snap.eyebrow}</div>
-          <h2>${snap.title}</h2>
-          <p class="snap-q">${snap.question}</p>
-          <p class="snap-gt">标准答案：${snap.gt_answer}</p>
-          <div class="snap-grid">
-            ${side(snap.caption, "caption")}
-            ${side(snap.ours, "token")}
-          </div>
-          <div class="snap-actions">
-            <p class="snap-note">${snap.footnote || ""}</p>
-            <button type="button" class="j-btn primary" id="pitch-open-mini">开始下方互动例子 →</button>
-          </div>
-        </div>
       </div>`;
-
-    $("#pitch-open-mini")?.addEventListener("click", () => {
-      mode = "mini";
-      activeId = snap.mini_qid || miniData?.questions?.[0]?.id || null;
-      miniStep = 0;
-      endTour(false);
-      refresh();
-      requestAnimationFrame(() => {
-        $("#mini-root")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    });
   }
 
   function tileHTML(item, kind) {

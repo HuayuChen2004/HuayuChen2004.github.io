@@ -269,33 +269,6 @@
         "value": "0/15 → 15/15",
         "tone": "good"
       }
-    ],
-    "snapshot": {
-      "eyebrow": "失败 → 挽回（同一道题）",
-      "title": "Caption 选错图又答错；我们的方法选对并答对",
-      "question": "候选图里，唯一同时有「灰圆柱 + 青球 + 红球」的那张中：绿圆柱相对灰圆柱，是左还是右？是前还是后？",
-      "gt_answer": "水平在右侧，深度在后方",
-      "journey_id": "j_locate_spatial",
-      "caption": {
-        "label": "只靠文字（Caption）",
-        "selected_id": "CLEVR_train_056027.png",
-        "anchor_id": "CLEVR_train_024365.png",
-        "locate_ok": false,
-        "answer_ok": false,
-        "pred": "左侧 · 前方",
-        "tag": "选错图 · 答错"
-      },
-      "ours": {
-        "label": "我们的方法（看图）",
-        "selected_id": "CLEVR_train_024365.png",
-        "anchor_id": "CLEVR_train_024365.png",
-        "locate_ok": true,
-        "answer_ok": true,
-        "pred": "右侧 · 后方",
-        "tag": "选对图 · 答对"
-      },
-      "footnote": "上面是结论；下面用 8 张图、几道简单题，左右走完全过程，看 Caption 错在哪一步。",
-      "mini_qid": "q_pick_metal"
-    }
+    ]
   }
 }

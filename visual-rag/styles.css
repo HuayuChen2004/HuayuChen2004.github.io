@@ -1333,13 +1333,16 @@ details.glossary[open] > summary::before { content: "▾ "; }
   .tour-help-btn { right: 0.75rem; bottom: 0.75rem; padding: 0.6rem 0.85rem; font-size: 0.85rem; }
 }
 
-/* —— elevator pitch + failure snapshot —— */
+/* —— elevator pitch —— */
 .pitch-root { margin: 0.35rem 0 1.1rem; }
 .pitch-shell {
   display: grid;
-  grid-template-columns: 0.95fr 1.15fr;
+  grid-template-columns: 1fr;
   gap: 0.85rem;
   align-items: stretch;
+}
+.pitch-shell-solo .pitch-elev {
+  max-width: 52rem;
 }
 .pitch-elev, .pitch-snap {
   background: var(--card);
@@ -1906,7 +1909,7 @@ details.glossary[open] > summary::before { content: "▾ "; }
   .pipe-stage-band { margin-left: 0; }
 }
 
-/* cache: 20260810n — Pack / 跨模型翻译 */
+/* cache: 20260810o — Pack / 跨模型翻译 */
 .pack-root { margin-top: 0.5rem; }
 .pack-shell { display: grid; gap: 1rem; }
 .pack-intro h2 {
