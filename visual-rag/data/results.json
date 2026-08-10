@@ -1,0 +1,149 @@
+{
+  "title": "数据总览",
+  "kicker": "给领导 / 客户的一页纸",
+  "lede": "用最少文字和两张表说明：相对 Caption baseline，Visual Token 在找图、定图、作答上分别强在哪里。",
+  "contributions": {
+    "title": "我们做了什么",
+    "items": [
+      "用 Visual Token（直接看图特征）替代「先写成 Caption 再检索/答题」作为主证据链。",
+      "在开放图库场景验证：相关图更能进候选池，池内更能定对唯一证据图，图对了也不易被文字写错带偏。",
+      "用门控把成本压在可用范围：质量接近全库细看，耗时远低于全库。"
+    ]
+  },
+  "protocol": {
+    "title": "实验数据怎么来",
+    "items": [
+      "图库：CLEVR 开放图库（约 840 张合成场景图）。",
+      "Caption：Qwen3-VL-8B 看图生成中文描述，再做文本混合检索 / 读文字答题。",
+      "我们的方法：缓存 Visual Token；检索用相关性（Rel）+ 门控细看；定图/答题用 Rel 看图特征。",
+      "指标均来自预计算评测，页面数字与实验日志一致，不是现场抽测。"
+    ]
+  },
+  "data_form": {
+    "title": "数据与问题长什么样",
+    "items": [
+      "每张图：原图 + 一条 Caption + 一组 Visual Token（视觉特征）。",
+      "检索题（24 题均值）：问「哪些图满足…」——相关图往往有多张；主看池内召回（有用图进没进前 K）。",
+      "定图+答题题（15 题）：池已给定（约 170 张），池内只有一张金标图；先定图再答题。主看定图准确率，答题准确率作对照（需警惕碰巧对）。",
+      "读证据题（160 题）：跳过找图，直接给金标图；只比「读 Caption」vs「看 Visual Token」。"
+    ]
+  },
+  "main_table": {
+    "title": "主表 · 端到端表现（定图 + 答题）",
+    "caption": "同一候选池、同一 15 道题；baseline = Caption；我们的方法 = Visual Token Rel。差别只在打分/证据形态。",
+    "columns": ["指标", "Caption（baseline）", "我们的方法", "变化"],
+    "rows": [
+      {
+        "metric": "定图准确率（top-1 = 金标图）",
+        "baseline": "0 / 15（0%）",
+        "ours": "15 / 15（100%）",
+        "delta": "+100 pt",
+        "tone": "good"
+      },
+      {
+        "metric": "答题准确率",
+        "baseline": "10 / 15（66.7%）",
+        "ours": "15 / 15（100%）",
+        "delta": "+33.3 pt",
+        "tone": "good"
+      },
+      {
+        "metric": "碰巧对（定错图却答对）",
+        "baseline": "10 / 10（答对全是碰巧）",
+        "ours": "0",
+        "delta": "证据链完整",
+        "tone": "good"
+      }
+    ],
+    "note": "只看答题准确率会高估 Caption：它一张金标图都没定对，却仍能「蒙对」约三分之二。"
+  },
+  "step_tables": [
+    {
+      "title": "副表 1 · 检索：相关图进不进池",
+      "caption": "开放图库约 840 张，24 道 gallery QA 均值。主指标 = 池内召回。",
+      "columns": ["方法", "池内召回", "相对 Caption", "备注"],
+      "rows": [
+        {
+          "metric": "Caption（baseline）",
+          "baseline": "31.1%",
+          "ours": "—",
+          "delta": "先写文字再检索"
+        },
+        {
+          "metric": "我们的方法（门控细看）",
+          "baseline": "58.3%",
+          "ours": "+27.2 pt",
+          "delta": "质量与成本折中",
+          "highlight": true
+        },
+        {
+          "metric": "全库细看（上限，非默认）",
+          "baseline": "82.3%",
+          "ours": "+51.2 pt",
+          "delta": "更贵，作天花板"
+        }
+      ],
+      "note": "Caption 大约只找回三成有用图；门控约六成；愿花更多算力全库细看可到八成以上。"
+    },
+    {
+      "title": "副表 2 · 定图：池内能否选对唯一证据图",
+      "caption": "15 道 NL 子题；协议对齐：只在同一池内打分取 top-1。",
+      "columns": ["方法", "定图准确率", "答题准确率", "解读"],
+      "rows": [
+        {
+          "metric": "Caption",
+          "baseline": "0%",
+          "ours": "66.7%",
+          "delta": "定图全错，答题靠碰巧"
+        },
+        {
+          "metric": "我们的方法",
+          "baseline": "100%",
+          "ours": "100%",
+          "delta": "全选定对且答对",
+          "highlight": true
+        }
+      ],
+      "note": "定图是硬指标；答题准确率单独看会误导。"
+    },
+    {
+      "title": "副表 3 · 读证据：图已经给对时，文字仍可能翻车",
+      "caption": "160 道题，跳过检索与定图，直接给定金标图。",
+      "columns": ["题型", "只读 Caption", "看 Visual Token", "差距"],
+      "rows": [
+        {
+          "metric": "总体 EM",
+          "baseline": "45.6%",
+          "ours": "87.5%",
+          "delta": "+41.9 pt",
+          "highlight": true
+        },
+        {
+          "metric": "计数题",
+          "baseline": "5.3%",
+          "ours": "68.4%",
+          "delta": "+63.1 pt"
+        },
+        {
+          "metric": "属性题",
+          "baseline": "48.1%",
+          "ours": "94.2%",
+          "delta": "+46.1 pt"
+        },
+        {
+          "metric": "是否题",
+          "baseline": "65.7%",
+          "ours": "92.9%",
+          "delta": "+27.2 pt"
+        }
+      ],
+      "note": "说明瓶颈不只在「找不到图」：图对了，Caption 压缩仍会丢数量/属性信息。"
+    }
+  ],
+  "takeaway": "一句话：Caption 便宜但不稳——漏检、定错、读错都会发生；Visual Token 把证据链补全，门控让成本可落地。细节案例见 Demo / 检索对比 / 答题对比。",
+  "links": [
+    { "label": "去 Demo 小例子", "jump": "mini" },
+    { "label": "看检索样例", "jump": "retrieve" },
+    { "label": "看定图样例", "jump": "answer:select" }
+  ]
+}

@@ -2,11 +2,12 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810t";
+  const DATA_V = "20260810u";
 
   let retrieveData = null;
   let qaData = null;
   let overviewData = null;
+  let resultsData = null;
   let journeyData = null;
   let miniData = null;
   let pipelineData = null;
@@ -78,6 +79,9 @@
     if (targetMode === "mini" || targetMode === "overview") {
       tasks.push(ensureJson("overview", "./data/overview.json", () => overviewData, (d) => (overviewData = d)));
     }
+    if (targetMode === "results") {
+      tasks.push(ensureJson("results", "./data/results.json", () => resultsData, (d) => (resultsData = d)));
+    }
     if (targetMode === "mini") {
       tasks.push(ensureJson("mini", "./data/mini_demo.json", () => miniData, (d) => (miniData = d)));
     }
@@ -101,7 +105,7 @@
 
   /** Demo 先出来；其余 Tab 数据在空闲时后台预取，切换时通常已就绪。 */
   function prefetchRemainingData() {
-    const queue = ["pipeline", "journey", "overview", "retrieve", "answer", "translate", "mini"];
+    const queue = ["results", "pipeline", "journey", "overview", "retrieve", "answer", "translate", "mini"];
     const run = async () => {
       for (const m of queue) {
         try {
@@ -125,6 +129,8 @@
   function hideAllStages() {
     $("#overview-root").hidden = true;
     $("#overview-root").innerHTML = "";
+    $("#results-root").hidden = true;
+    $("#results-root").innerHTML = "";
     $("#pipeline-root").hidden = true;
     $("#pipeline-root").innerHTML = "";
     $("#pack-root").hidden = true;
@@ -241,12 +247,12 @@
     $("#picker-desc").textContent =
       "检索 = 从大图库捞出候选池（相关图进没进前 K）。下一步的「定图」才是在这个池子里选出要看的那一张。绿框=命中，灰框=噪声，红框=漏检。";
     $("#answer-subtabs").hidden = true;
-    setFoot("检索对比只看「池子好不好」。定图与读证据在「⑥」；跨模型译后作答在「⑦」。", [
+    setFoot("检索对比只看「池子好不好」。定图与读证据在「⑦」；跨模型译后作答在「⑧」。", [
       "任务：开放图库检索；主指标 = 池内召回（相关图是否进前 K），不是定图准确率。",
-      "题集：汇总统计来自 24 道 gallery QA；本页下方展示其中 8 道样例（如 gal_qa_*）。与⑥的 15 道定图题不是同一套题。",
+      "题集：汇总统计来自 24 道 gallery QA；本页下方展示其中 8 道样例（如 gal_qa_*）。与⑦的 15 道定图题不是同一套题。",
       "Caption：Qwen3-VL-8B 看图写中文 caption，再做文本混合检索（embedding + 关键词）。",
       "Visual Token：全库相关性 Rel + tok/2（半量 token）；同模型原生 visual token，无跨模型翻译。",
-      "顶栏均值：Caption 池召回 31.1% → Visual Token 82.3%（24 题）。",
+      "顶栏均值：Caption 池召回 31.1% → Visual Token 82.3%（24 题）。一页数字总览见「②」。",
     ]);
   }
 
@@ -267,7 +273,7 @@
         "协议对齐：两边都只在同一池内打分，取分数最高一张再答题；差别只在打分函数。",
         "Caption：caption hybrid（文字向量 + 关键词）打分；图描述仍由 Qwen3-VL-8B 生成。",
         "Visual Token：cached-token Relevance 相关性打分（页面上的 Visual Token Rel）。",
-        "注意：Caption 答题准确率可以更高（定错图也可能碰巧答对），所以要和定图准确率分开看。",
+        "注意：Caption 答题准确率可以更高（定错图也可能碰巧答对），所以要和定图准确率分开看。汇总表见「②」。",
       ]);
     } else {
       $("#overall-stats").innerHTML = `
@@ -276,11 +282,11 @@
         <div class="stat"><label>设定</label><strong style="font-size:1.05rem">图已选对</strong></div>`;
       $("#picker-desc").textContent =
         "读证据对比：跳过检索与定图，图已经是正确唯一图。一边只读 Caption 文字，一边用 Visual Token 看图，对比证据形态本身。";
-      setFoot("这里不再比找图/选图，只比证据形态。跨模型翻译请看「⑦」。", [
+      setFoot("这里不再比找图/选图，只比证据形态。跨模型翻译请看「⑧」。", [
         "任务：Oracle 单图答题——跳过检索与定图，直接给定金标图。",
         "对照：一边只读该图的 Caption 文字；一边用原生 Visual Token 看图。",
         "Caption 文本：Qwen3-VL-8B 生成；用来说明「文字压缩」本身的信息损失。",
-        "与⑤检索、⑥定图、⑦跨模型翻译都不是同一设定；本页只隔离「证据形态」。",
+        "与⑥检索、⑦定图、⑧跨模型翻译都不是同一设定；本页只隔离「证据形态」。更大样本读证据表见「②」。",
       ]);
     }
   }
@@ -298,12 +304,12 @@
     $("#overall-stats").innerHTML =
       cards ||
       `<div class="stat"><label>机制</label><strong style="font-size:1.05rem">8B → 译 → 4B</strong></div>`;
-    setFoot("本页独立于⑥：⑥ 是同模型 Caption vs 原生 Visual Token；这里是跨模型翻译后再作答。", [
+    setFoot("本页独立于⑦：⑦ 是同模型 Caption vs 原生 Visual Token；这里是跨模型翻译后再作答。", [
       "机制（Phase G）：Teacher Qwen3-VL-8B 编码图特征 → Translator（Ridge + 残差 MLP）→ 冻结 Consumer Qwen3.5-4B 注入译后 vis 答题。",
       "载体：译后 image embedding（vis），不是 KV；Consumer 全程冻结。",
       "单图 held-out：译后 vis 答题 EM ≈ 0.963（n=1000）。",
       "下方列表题：答案是「找出所有…的图」；三列都用译后 vis 作答，差别主要在候选池（Caption / gate / oracle）。",
-      "与⑥的 15 道定图题、⑤的 24 道检索题都不是同一实验协议。",
+      "与⑦的 15 道定图题、⑥的 24 道检索题都不是同一实验协议。",
     ]);
   }
 
@@ -540,7 +546,10 @@
 
 
   function jumpFromOverview(target) {
-    if (target === "retrieve") {
+    } else if (target === "results") {
+      mode = "results";
+      activeId = null;
+    } else if (target === "retrieve") {
       mode = "retrieve";
       activeId = null;
     } else if (target === "pipeline") {
@@ -880,6 +889,79 @@
         ${howto ? `<div class="ov-explain-card howto"><h4>我们比了什么</h4><p>${howto}</p></div>` : ""}
         ${analysis ? `<div class="ov-explain-card analysis"><h4>这说明什么（给非技术同学）</h4><p>${analysis}</p></div>` : ""}
       </div>`;
+  }
+
+  function resultsTableHTML(table, { main = false } = {}) {
+    if (!table) return "";
+    const head = `<thead><tr>${(table.columns || []).map((c) => `<th>${c}</th>`).join("")}</tr></thead>`;
+    const body = `<tbody>${(table.rows || [])
+      .map((row) => {
+        const cells = Array.isArray(row)
+          ? row
+          : [row.metric, row.baseline, row.ours, row.delta];
+        const hi = row && row.highlight ? " is-ours" : "";
+        const tone = row && row.tone === "good" ? " is-good" : "";
+        return `<tr class="${hi}${tone}">${cells.map((c, i) => `<td class="${i === 0 ? "metric" : ""}">${c}</td>`).join("")}</tr>`;
+      })
+      .join("")}</tbody>`;
+    return `<div class="res-table-block ${main ? "is-main" : ""}">
+      <h3>${table.title}</h3>
+      ${table.caption ? `<p class="res-cap">${table.caption}</p>` : ""}
+      <div class="res-table-wrap"><table class="res-table">${head}${body}</table></div>
+      ${table.note ? `<p class="res-note">${table.note}</p>` : ""}
+    </div>`;
+  }
+
+  function renderResults() {
+    hideAllStages();
+    const d = resultsData;
+    const root = $("#results-root");
+    root.hidden = false;
+
+    $("#overall-stats").innerHTML = `
+      <div class="stat caption"><label>Caption 定图</label><strong>0%</strong></div>
+      <div class="stat token"><label>我们的方法定图</label><strong>100%</strong></div>
+      <div class="stat"><label>检索召回</label><strong>31% → 58%</strong></div>`;
+
+    setFoot(d.takeaway || "", [
+      "主表：15 道定图+答题，协议对齐，baseline = Caption，我们的方法 = Visual Token Rel。",
+      "副表：检索 24 题池召回；定图 15 题；读证据 160 题 oracle（图已给对）。",
+      "跨模型翻译（8B→4B）不在本页主表，见「⑧」。",
+    ]);
+
+    const list = (block) =>
+      `<div class="res-block">
+        <h2>${block.title}</h2>
+        <ul>${(block.items || []).map((x) => `<li>${x}</li>`).join("")}</ul>
+      </div>`;
+
+    const links = (d.links || [])
+      .map((l) => `<button type="button" class="j-btn ghost" data-jump="${l.jump}">${l.label}</button>`)
+      .join("");
+
+    root.innerHTML = `
+      <div class="res-shell">
+        <div class="res-hero">
+          <p class="res-kicker">${d.kicker || ""}</p>
+          <h2>${d.title}</h2>
+          <p>${d.lede || ""}</p>
+        </div>
+        <div class="res-grid-3">
+          ${list(d.contributions)}
+          ${list(d.protocol)}
+          ${list(d.data_form)}
+        </div>
+        ${resultsTableHTML(d.main_table, { main: true })}
+        <div class="res-step-grid">
+          ${(d.step_tables || []).map((t) => resultsTableHTML(t)).join("")}
+        </div>
+        <p class="res-takeaway">${d.takeaway || ""}</p>
+        <div class="pipe-ctas">${links}</div>
+      </div>`;
+
+    root.querySelectorAll("[data-jump]").forEach((btn) => {
+      btn.addEventListener("click", () => jumpFromOverview(btn.dataset.jump));
+    });
   }
 
   function renderOverview() {
@@ -2206,7 +2288,7 @@
       "可选图固定为这 8 张；不可上传外部照片，不可自定义问题。",
       "Caption 与 Visual Token 排序来自预计算轨迹；只对你拖入图库的子集截取名次。",
       "三道题：紫色球有几个 / 有没有黄球 / 大立方体是金属吗。",
-      "正式评测数字请看⑤检索（24 题）、⑥定图（15 题）、⑦跨模型翻译。",
+      "正式评测数字请看②数据总览；样例见⑥检索、⑦定图、⑧跨模型翻译。",
     ]);
   }
 
@@ -2240,6 +2322,7 @@
     });
     if (
       map.mode === "overview" ||
+      map.mode === "results" ||
       map.mode === "journey" ||
       map.mode === "retrieve" ||
       map.mode === "answer" ||
@@ -2313,6 +2396,8 @@
 
     if (mode === "mini") {
       renderMini();
+    } else if (mode === "results") {
+      renderResults();
     } else if (mode === "pipeline") {
       renderPipeline();
     } else if (mode === "overview") {

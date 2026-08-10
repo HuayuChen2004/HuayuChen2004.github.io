@@ -2430,3 +2430,102 @@ button.mini-tile.is-peek {
 }
 
 
+
+/* —— results / 数据总览 —— */
+.results-root { margin-top: 0.35rem; }
+.res-shell {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 2px);
+  box-shadow: var(--shadow);
+  padding: 1.15rem 1.2rem 1.35rem;
+  display: grid;
+  gap: 1rem;
+}
+.res-kicker {
+  margin: 0 0 0.25rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--token);
+}
+.res-hero h2 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  letter-spacing: -0.02em;
+}
+.res-hero p { margin: 0; color: var(--muted); line-height: 1.55; max-width: 48rem; }
+.res-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.res-block {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.85rem 0.95rem;
+  background: #fafbfc;
+}
+.res-block h2 {
+  margin: 0 0 0.45rem;
+  font-size: 0.98rem;
+}
+.res-block ul {
+  margin: 0;
+  padding-left: 1.05rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.res-block li { margin: 0.2rem 0; }
+.res-table-block h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+.res-table-block.is-main h3 { font-size: 1.2rem; }
+.res-cap, .res-note {
+  margin: 0 0 0.55rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.res-note { margin: 0.45rem 0 0; font-size: 0.8rem; }
+.res-table-wrap { overflow-x: auto; }
+.res-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.res-table th, .res-table td {
+  border: 1px solid var(--line);
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+}
+.res-table th {
+  background: #f3f5f7;
+  font-weight: 650;
+  font-size: 0.8rem;
+}
+.res-table td.metric { font-weight: 600; width: 32%; }
+.res-table tr.is-ours { background: rgba(227, 245, 238, 0.55); }
+.res-table tr.is-good td:last-child { color: var(--token); font-weight: 650; }
+.res-step-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.95rem;
+}
+.res-takeaway {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  border-left: 3px solid var(--token);
+  background: rgba(227, 245, 238, 0.35);
+  color: var(--ink);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+@media (max-width: 900px) {
+  .res-grid-3 { grid-template-columns: 1fr; }
+}
