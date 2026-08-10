@@ -82,20 +82,19 @@
           </div>
           <div class="snap-actions">
             <p class="snap-note">${snap.footnote || ""}</p>
-            <button type="button" class="j-btn primary" id="pitch-open-journey">看这道题的全程逐步 →</button>
+            <button type="button" class="j-btn primary" id="pitch-open-mini">开始下方互动例子 →</button>
           </div>
         </div>
       </div>`;
 
-    $("#pitch-open-journey")?.addEventListener("click", () => {
-      mode = "journey";
-      activeId = snap.journey_id;
-      journeyStep = 0;
-      journeyShouldScroll = false;
+    $("#pitch-open-mini")?.addEventListener("click", () => {
+      mode = "mini";
+      activeId = snap.mini_qid || miniData?.questions?.[0]?.id || null;
+      miniStep = 0;
       endTour(false);
       refresh();
       requestAnimationFrame(() => {
-        $("#journey-root")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        $("#mini-root")?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     });
   }
@@ -1501,6 +1500,8 @@
     });
 
     if (overviewData) renderPitch();
+    const pitchRoot = $("#pitch-root");
+    if (pitchRoot) pitchRoot.hidden = mode !== "mini";
 
     if (mode === "mini") {
       renderMini();
@@ -1538,11 +1539,11 @@
 
   async function main() {
     const [rRes, qRes, oRes, jRes, mRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807m"),
-      fetch("./data/qa_demo.json?v=20260807m"),
-      fetch("./data/overview.json?v=20260807m"),
-      fetch("./data/journey.json?v=20260807m"),
-      fetch("./data/mini_demo.json?v=20260807m"),
+      fetch("./data/demo.json?v=20260807n"),
+      fetch("./data/qa_demo.json?v=20260807n"),
+      fetch("./data/overview.json?v=20260807n"),
+      fetch("./data/journey.json?v=20260807n"),
+      fetch("./data/mini_demo.json?v=20260807n"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
