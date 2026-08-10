@@ -1906,7 +1906,7 @@ details.glossary[open] > summary::before { content: "▾ "; }
   .pipe-stage-band { margin-left: 0; }
 }
 
-/* —— Pack / 跨模型翻译 —— */
+/* cache: 20260810n — Pack / 跨模型翻译 */
 .pack-root { margin-top: 0.5rem; }
 .pack-shell { display: grid; gap: 1rem; }
 .pack-intro h2 {

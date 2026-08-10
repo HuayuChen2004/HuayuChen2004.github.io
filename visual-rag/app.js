@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810m";
+  const DATA_V = "20260810n";
 
   let retrieveData = null;
   let qaData = null;
@@ -1990,6 +1990,12 @@
     } else if (mode === "translate") {
       renderTranslate();
     } else if (mode === "answer") {
+      if (answerSub !== "select" && answerSub !== "read") {
+        mode = "translate";
+        renderTranslate();
+        syncHash();
+        return;
+      }
       hideAllStages();
       $("#picker-section").hidden = false;
       $("#q-list").hidden = false;
@@ -2007,11 +2013,28 @@
     syncHash();
   }
 
-  async function main() {
-    parseHash();
-    $("#overall-stats").innerHTML = `<div class="stat"><label>加载中</label><strong style="font-size:1rem">正在加载 Demo…</strong></div>`;
-    await ensureModeData(mode);
+  /** 纠正旧缓存 HTML（曾有「单图定图/多图检索」三子页、缺少⑦） */
+  function ensureNavShell() {
+    const tabs = document.querySelector(".mode-tabs");
+    if (tabs && !tabs.querySelector('[data-mode="translate"]')) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "mode-tab";
+      btn.dataset.mode = "translate";
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("aria-selected", "false");
+      btn.textContent = "⑦ 跨模型翻译";
+      tabs.appendChild(btn);
+    }
+    const sub = $("#answer-subtabs");
+    if (sub) {
+      sub.innerHTML = `
+        <button type="button" class="subtab active" data-sub="select">A. 定图对比</button>
+        <button type="button" class="subtab" data-sub="read">B. 读证据对比</button>`;
+    }
+  }
 
+  function bindNavOnce() {
     document.querySelectorAll(".mode-tab").forEach((btn) => {
       btn.addEventListener("click", () => {
         switchMode(btn.dataset.mode);
@@ -2019,7 +2042,13 @@
     });
     document.querySelectorAll(".subtab").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        answerSub = btn.dataset.sub;
+        const sub = btn.dataset.sub;
+        // 旧缓存若仍点到 multi/pack，改走翻译页，避免落到「读证据」数据
+        if (sub === "multi" || sub === "pack") {
+          await switchMode("translate");
+          return;
+        }
+        answerSub = sub === "read" ? "read" : "select";
         activeId = null;
         try {
           await ensureModeData("answer");
@@ -2029,6 +2058,19 @@
         }
       });
     });
+  }
+
+  async function main() {
+    ensureNavShell();
+    parseHash();
+    if (answerSub !== "select" && answerSub !== "read") {
+      mode = "translate";
+      answerSub = "select";
+    }
+    $("#overall-stats").innerHTML = `<div class="stat"><label>加载中</label><strong style="font-size:1rem">正在加载 Demo…</strong></div>`;
+    await ensureModeData(mode);
+
+    bindNavOnce();
     $("#tour-help")?.addEventListener("click", async () => {
       try {
         await ensureModeData("journey");
