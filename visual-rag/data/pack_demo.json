@@ -1,0 +1,900 @@
+{
+  "title": "Pack 列表题：开放图库要「列出所有相关图」",
+  "intro": "这类题不是只定一张图，而是要在大图库里找出所有满足条件的图。下面看：Caption 检索、门控看图检索、以及「相关图全给对」时的看图作答上限。",
+  "note": "主指标用 list F1（既要找得全，又不能乱报）。EM 对列表题过严，常因漏一项而为 0。",
+  "aggregates": [
+    {
+      "subset": "high（难）",
+      "n_list": 6,
+      "caption_f1": 0.232,
+      "gate_f1": 0.42,
+      "oracle_f1": 0.871,
+      "caption_recall": 0.149,
+      "gate_recall": 0.537
+    },
+    {
+      "subset": "medium",
+      "n_list": 6,
+      "caption_f1": 0.37,
+      "gate_f1": 0.625,
+      "oracle_f1": 0.952,
+      "caption_recall": 0.294,
+      "gate_recall": 0.522
+    }
+  ],
+  "takeaway": "池给全时（oracle），译后 visual token 答题 list F1 可到约 0.87–0.95；真实检索下 gate_tok2 明显好于 Caption，但仍受召回上限拖累。",
+  "cases": [
+    {
+      "id": "clevr_q_new_000014",
+      "subset": "high",
+      "blurb": "空间共现：相关图不多，上限很高",
+      "question": "在整个图库中，哪些图片同时具有红色橡胶立方体和绿色金属圆柱体，且绿色圆柱体位于红色立方体的右侧？",
+      "n_gold": 10,
+      "why": "要列出所有同时满足物体共现与左右关系的图；只靠文字描述很难写全空间约束。",
+      "arms": [
+        {
+          "name": "Caption 检索 → 作答",
+          "kind": "caption",
+          "f1": 0.182,
+          "precision": 1.0,
+          "recall": 0.1,
+          "pool_gold_recall": 0.1,
+          "n_pool": 50,
+          "n_gold": 10,
+          "n_pred": 1,
+          "n_pred_hit": 1,
+          "n_pred_fp": 0,
+          "n_gold_miss": 9,
+          "n_gold_in_pool": 1,
+          "n_gold_miss_pool": 9,
+          "pred_show": [
+            {
+              "id": "CLEVR_train_042997.png",
+              "label": "hit"
+            }
+          ],
+          "gold_show": [
+            {
+              "id": "CLEVR_train_009692.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011241.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012308.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_021596.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_023299.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_027616.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_030057.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042006.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042997.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_045933.png",
+              "label": "hit"
+            }
+          ],
+          "miss_pool_show": [
+            {
+              "id": "CLEVR_train_009692.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011241.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012308.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_021596.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_023299.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_027616.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_030057.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042006.png",
+              "label": "hit"
+            }
+          ],
+          "fp_show": [],
+          "n_gold_hidden": 0,
+          "n_pred_hidden": 0
+        },
+        {
+          "name": "门控看图检索 → 译后 vis 作答",
+          "kind": "gate",
+          "f1": 0.348,
+          "precision": 0.308,
+          "recall": 0.4,
+          "pool_gold_recall": 0.6,
+          "n_pool": 50,
+          "n_gold": 10,
+          "n_pred": 13,
+          "n_pred_hit": 4,
+          "n_pred_fp": 9,
+          "n_gold_miss": 6,
+          "n_gold_in_pool": 6,
+          "n_gold_miss_pool": 4,
+          "pred_show": [
+            {
+              "id": "CLEVR_train_010325.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_012308.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_017898.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_021596.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_024365.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_026468.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_026495.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_030057.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042997.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_049729.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_052739.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_062340.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_062492.png",
+              "label": "noise"
+            }
+          ],
+          "gold_show": [
+            {
+              "id": "CLEVR_train_009692.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011241.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012308.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_021596.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_023299.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_027616.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_030057.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042006.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042997.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_045933.png",
+              "label": "hit"
+            }
+          ],
+          "miss_pool_show": [
+            {
+              "id": "CLEVR_train_009692.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011241.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042006.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_045933.png",
+              "label": "hit"
+            }
+          ],
+          "fp_show": [
+            {
+              "id": "CLEVR_train_010325.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_017898.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_024365.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_026468.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_026495.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_049729.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_052739.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_062340.png",
+              "label": "noise"
+            }
+          ],
+          "n_gold_hidden": 0,
+          "n_pred_hidden": 0
+        },
+        {
+          "name": "相关图全给对（oracle）→ vis 作答",
+          "kind": "oracle",
+          "f1": 0.947,
+          "precision": 1.0,
+          "recall": 0.9,
+          "pool_gold_recall": 1.0,
+          "n_pool": 10,
+          "n_gold": 10,
+          "n_pred": 9,
+          "n_pred_hit": 9,
+          "n_pred_fp": 0,
+          "n_gold_miss": 1,
+          "n_gold_in_pool": 10,
+          "n_gold_miss_pool": 0,
+          "pred_show": [
+            {
+              "id": "CLEVR_train_009692.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011241.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012308.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_021596.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_027616.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_030057.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042006.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042997.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_045933.png",
+              "label": "hit"
+            }
+          ],
+          "gold_show": [
+            {
+              "id": "CLEVR_train_009692.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011241.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012308.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_021596.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_023299.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_027616.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_030057.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042006.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042997.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_045933.png",
+              "label": "hit"
+            }
+          ],
+          "miss_pool_show": [],
+          "fp_show": [],
+          "n_gold_hidden": 0,
+          "n_pred_hidden": 0
+        }
+      ]
+    },
+    {
+      "id": "clevr_q_new_000050",
+      "subset": "high",
+      "blurb": "Caption 几乎找不齐，门控挽回一半",
+      "question": "在整个图库中，哪些图片同时具有灰色圆柱体和绿色圆柱体，且绿色圆柱体位于灰色圆柱体的左侧？",
+      "n_gold": 35,
+      "why": "要列出所有同时满足物体共现与左右关系的图；只靠文字描述很难写全空间约束。",
+      "arms": [
+        {
+          "name": "Caption 检索 → 作答",
+          "kind": "caption",
+          "f1": 0.103,
+          "precision": 0.5,
+          "recall": 0.057,
+          "pool_gold_recall": 0.057,
+          "n_pool": 50,
+          "n_gold": 35,
+          "n_pred": 4,
+          "n_pred_hit": 2,
+          "n_pred_fp": 2,
+          "n_gold_miss": 33,
+          "n_gold_in_pool": 2,
+          "n_gold_miss_pool": 33,
+          "pred_show": [
+            {
+              "id": "CLEVR_train_000628.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_019950.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_023995.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_042102.png",
+              "label": "noise"
+            }
+          ],
+          "gold_show": [
+            {
+              "id": "CLEVR_train_000523.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_001947.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_002921.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_005568.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_008315.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011133.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012152.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_013656.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_015297.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_018647.png",
+              "label": "hit"
+            }
+          ],
+          "miss_pool_show": [
+            {
+              "id": "CLEVR_train_000523.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_001947.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_002921.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_005568.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_008315.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011133.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012152.png",
+              "label": "hit"
+            }
+          ],
+          "fp_show": [
+            {
+              "id": "CLEVR_train_000628.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_042102.png",
+              "label": "noise"
+            }
+          ],
+          "n_gold_hidden": 23,
+          "n_pred_hidden": 0
+        },
+        {
+          "name": "门控看图检索 → 译后 vis 作答",
+          "kind": "gate",
+          "f1": 0.456,
+          "precision": 0.591,
+          "recall": 0.371,
+          "pool_gold_recall": 0.457,
+          "n_pool": 50,
+          "n_gold": 35,
+          "n_pred": 22,
+          "n_pred_hit": 13,
+          "n_pred_fp": 9,
+          "n_gold_miss": 22,
+          "n_gold_in_pool": 16,
+          "n_gold_miss_pool": 19,
+          "pred_show": [
+            {
+              "id": "CLEVR_train_001483.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_008315.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_018647.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_019202.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_019950.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_022793.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_023966.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_036207.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_036377.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_039624.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_040966.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_043219.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_045207.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_046507.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_052082.png",
+              "label": "hit"
+            }
+          ],
+          "gold_show": [
+            {
+              "id": "CLEVR_train_000523.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_001947.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_002921.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_005568.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_008315.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011133.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012152.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_013656.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_015297.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_018647.png",
+              "label": "hit"
+            }
+          ],
+          "miss_pool_show": [
+            {
+              "id": "CLEVR_train_000523.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_001947.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_005568.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011133.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012152.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_013656.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_015297.png",
+              "label": "hit"
+            }
+          ],
+          "fp_show": [
+            {
+              "id": "CLEVR_train_001483.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_019202.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_023966.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_036207.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_039624.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_040966.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_043219.png",
+              "label": "noise"
+            },
+            {
+              "id": "CLEVR_train_045207.png",
+              "label": "noise"
+            }
+          ],
+          "n_gold_hidden": 23,
+          "n_pred_hidden": 6
+        },
+        {
+          "name": "相关图全给对（oracle）→ vis 作答",
+          "kind": "oracle",
+          "f1": 0.923,
+          "precision": 1.0,
+          "recall": 0.857,
+          "pool_gold_recall": 1.0,
+          "n_pool": 35,
+          "n_gold": 35,
+          "n_pred": 30,
+          "n_pred_hit": 30,
+          "n_pred_fp": 0,
+          "n_gold_miss": 5,
+          "n_gold_in_pool": 35,
+          "n_gold_miss_pool": 0,
+          "pred_show": [
+            {
+              "id": "CLEVR_train_000523.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_002921.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_005568.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_008315.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011133.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_013656.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_015297.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_018647.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_019950.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_022793.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_023995.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_024280.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_027417.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_033607.png",
+              "label": "hit"
+            }
+          ],
+          "gold_show": [
+            {
+              "id": "CLEVR_train_000523.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_001947.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_002921.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_005568.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_008315.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011133.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_011912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012152.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_012912.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_013656.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_015297.png",
+              "label": "hit"
+            },
+            {
+              "id": "CLEVR_train_018647.png",
+              "label": "hit"
+            }
+          ],
+          "miss_pool_show": [],
+          "fp_show": [],
+          "n_gold_hidden": 23,
+          "n_pred_hidden": 14
+        }
+      ]
+    }
+  ],
+  "methods_legend": [
+    {
+      "id": "caption",
+      "name": "Caption",
+      "desc": "用文字描述检索组池，再作答"
+    },
+    {
+      "id": "gate",
+      "name": "gate_tok2",
+      "desc": "不确定性门控 + 视觉相关性组池，再用译后 visual token 作答"
+    },
+    {
+      "id": "oracle",
+      "name": "vis_oracle",
+      "desc": "假设相关图已全部进池（检索上限），只测看图作答能力"
+    }
+  ]
+}

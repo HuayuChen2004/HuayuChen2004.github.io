@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810h";
+  const DATA_V = "20260810i";
 
   let retrieveData = null;
   let qaData = null;
@@ -10,10 +10,11 @@
   let journeyData = null;
   let miniData = null;
   let pipelineData = null;
+  let packData = null;
   let miniStep = 0;
   let pipelineStep = 0;
   let pipelineTimer = null;
-  let mode = "mini"; // mini | pipeline | journey | overview | retrieve | answer
+  let mode = "mini"; // mini | pipeline | journey | overview | retrieve | answer | pack
   let answerSub = "select"; // select | read
   let activeId = null;
   let journeyStep = 0;
@@ -74,13 +75,15 @@
     if (targetMode === "answer") {
       tasks.push(ensureJson("answer", "./data/qa_demo.json", () => qaData, (d) => (qaData = d)));
     }
+    if (targetMode === "pack") {
+      tasks.push(ensureJson("pack", "./data/pack_demo.json", () => packData, (d) => (packData = d)));
+    }
     await Promise.all(tasks);
   }
 
   /** Demo 先出来；其余 Tab 数据在空闲时后台预取，切换时通常已就绪。 */
   function prefetchRemainingData() {
-    // 方法流程很轻，紧跟 Demo；再按浏览顺序预取其余页
-    const queue = ["pipeline", "journey", "overview", "retrieve", "answer", "mini"];
+    const queue = ["pipeline", "journey", "overview", "retrieve", "answer", "pack", "mini"];
     const run = async () => {
       for (const m of queue) {
         try {
@@ -106,6 +109,8 @@
     $("#overview-root").innerHTML = "";
     $("#pipeline-root").hidden = true;
     $("#pipeline-root").innerHTML = "";
+    $("#pack-root").hidden = true;
+    $("#pack-root").innerHTML = "";
     $("#journey-root").hidden = true;
     $("#journey-root").innerHTML = "";
     $("#mini-root").hidden = true;
@@ -513,6 +518,9 @@
       mode = "mini";
       activeId = null;
       miniStep = 0;
+    } else if (target === "pack") {
+      mode = "pack";
+      activeId = null;
     } else if (target.startsWith("answer:")) {
       mode = "answer";
       answerSub = target.split(":")[1] || "select";
@@ -657,6 +665,143 @@
     });
   }
 
+  function packMiniGrid(items, emptyText) {
+    if (!items || !items.length) {
+      return `<div class="empty-miss">${emptyText || "无"}</div>`;
+    }
+    return `<div class="grid pack-grid">${items
+      .map(
+        (t) => `
+      <div class="tile ${t.label === "hit" ? "hit" : "miss"}" title="${t.id}">
+        <img src="${thumb(t.id)}" alt="" loading="lazy" />
+        <span class="tag">${t.label === "hit" ? "相关" : "噪声/错报"}</span>
+      </div>`
+      )
+      .join("")}</div>`;
+  }
+
+  function renderPack() {
+    hideAllStages();
+    const d = packData;
+    const cases = d.cases || [];
+    if (!cases.some((c) => c.id === activeId)) activeId = cases[0]?.id || null;
+    const cur = cases.find((c) => c.id === activeId) || cases[0];
+
+    const agg = d.aggregates || [];
+    $("#overall-stats").innerHTML = agg
+      .map(
+        (a) => `
+      <div class="stat caption"><label>${a.subset} · Caption F1</label><strong>${a.caption_f1.toFixed(2)}</strong></div>
+      <div class="stat token"><label>${a.subset} · gate F1</label><strong>${a.gate_f1.toFixed(2)}</strong></div>
+      <div class="stat"><label>${a.subset} · oracle F1</label><strong>${a.oracle_f1.toFixed(2)}</strong></div>`
+      )
+      .join("");
+
+    $("#foot-note").textContent =
+      "Pack 列表题：要找出所有相关图。list F1 同时惩罚漏报与错报；oracle 表示检索上限下的看图作答能力。";
+
+    const root = $("#pack-root");
+    root.hidden = false;
+
+    const aggCards = agg
+      .map((a) => {
+        const max = Math.max(a.caption_f1, a.gate_f1, a.oracle_f1, 0.01);
+        const bar = (v, cls, label) =>
+          `<div class="pack-bar-row"><span>${label}</span><div class="bar-track"><div class="bar-fill ${cls}" style="width:${Math.max(
+            4,
+            (v / max) * 100
+          )}%"></div></div><b>${v.toFixed(2)}</b></div>`;
+        return `<div class="pack-agg-card">
+          <h3>${a.subset} · ${a.n_list} 道列表题均值</h3>
+          ${bar(a.caption_f1, "baseline", "Caption")}
+          ${bar(a.gate_f1, "ours", "gate")}
+          ${bar(a.oracle_f1, "upper", "oracle")}
+          <p class="pack-agg-note">池内金标召回：Caption ${fmtPct(a.caption_recall)} → gate ${fmtPct(a.gate_recall)}</p>
+        </div>`;
+      })
+      .join("");
+
+    const caseBtns = cases
+      .map(
+        (c) => `
+      <button type="button" class="pack-case-btn ${c.id === activeId ? "active" : ""}" data-pack-q="${c.id}">
+        <div class="row"><span>${c.subset}</span><span>金标 ${c.n_gold} 张</span></div>
+        <div class="title">${c.blurb}</div>
+        <div class="scores">
+          <span class="c">Cap F1 ${c.arms[0].f1.toFixed(2)}</span>
+          <span class="t">gate ${c.arms[1].f1.toFixed(2)}</span>
+          <span>oracle ${c.arms[2].f1.toFixed(2)}</span>
+        </div>
+      </button>`
+      )
+      .join("");
+
+    const armHTML = (arm) => {
+      const tone = arm.kind === "caption" ? "caption" : arm.kind === "oracle" ? "token" : "token";
+      return `
+      <article class="panel ${tone}-panel pack-arm">
+        <div class="panel-head">
+          <div>
+            <h3>${arm.name}</h3>
+            <p>池召回 ${fmtPct(arm.pool_gold_recall)} · 预测 ${arm.n_pred} 张（命中 ${arm.n_pred_hit} / 错报 ${arm.n_pred_fp}）</p>
+          </div>
+          <div class="verdict ${arm.f1 >= 0.7 ? "ok" : arm.f1 >= 0.4 ? "warn" : "bad"}">F1 ${arm.f1.toFixed(2)}</div>
+        </div>
+        <div class="pack-kpis">
+          <div class="kpi"><span>精确率</span><b>${fmtPct(arm.precision)}</b></div>
+          <div class="kpi"><span>召回率</span><b>${fmtPct(arm.recall)}</b></div>
+          <div class="kpi"><span>漏报金标</span><b>${arm.n_gold_miss}</b></div>
+          <div class="kpi"><span>池内漏检</span><b>${arm.n_gold_miss_pool}</b></div>
+        </div>
+        <p class="section-label">模型报出的图（绿=真相关，红=错报）${
+          arm.n_pred_hidden ? ` · 另有 ${arm.n_pred_hidden} 张未展示` : ""
+        }</p>
+        ${packMiniGrid(arm.pred_show, "无预测")}
+        ${
+          arm.miss_pool_show?.length
+            ? `<p class="section-label">检索阶段就漏掉的相关图（示例）</p>${packMiniGrid(arm.miss_pool_show)}`
+            : arm.kind === "oracle"
+              ? `<p class="mini-note">oracle：相关图默认全部进池，瓶颈只在看图作答。</p>`
+              : `<p class="mini-note">此例中，金标相关图大多已进候选池；差距更多来自作答筛选。</p>`
+        }
+      </article>`;
+    };
+
+    root.innerHTML = `
+      <div class="pack-shell">
+        <div class="pack-intro">
+          <h2>${d.title}</h2>
+          <p>${d.intro}</p>
+          <p class="pack-note">${d.note || ""}</p>
+        </div>
+        <div class="pack-agg">${aggCards}</div>
+        <p class="pack-takeaway">${d.takeaway || ""}</p>
+        <div class="pack-cases">${caseBtns}</div>
+        <div class="pack-active">
+          <div class="j-pin-q">
+            <div class="j-shared-label">当前列表题 · 金标 ${cur.n_gold} 张</div>
+            <h3 class="j-q">${cur.question}</h3>
+            <p class="j-meta">${cur.why || ""}</p>
+          </div>
+          <p class="section-label">金标相关图（展示前 ${cur.arms[2].gold_show.length} 张${
+            cur.arms[2].n_gold_hidden ? `，另有 ${cur.arms[2].n_gold_hidden} 张` : ""
+          }）</p>
+          ${packMiniGrid(cur.arms[2].gold_show)}
+          <div class="pack-arms">
+            ${cur.arms.map(armHTML).join("")}
+          </div>
+        </div>
+      </div>`;
+
+    root.querySelectorAll("[data-pack-q]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeId = btn.dataset.packQ;
+        refresh();
+        requestAnimationFrame(() => $("#pack-root")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      });
+    });
+  }
+
   function roleClass(role) {
     if (role === "ours") return "ours";
     if (role === "baseline") return "baseline";
@@ -793,6 +938,7 @@
         <div class="story-grid">${story}</div>
         <div class="pipe-ctas" style="margin-top:0.75rem">
           <button type="button" class="j-btn ghost" data-jump="pipeline">先看方法流程 →</button>
+          <button type="button" class="j-btn ghost" data-jump="pack">看 Pack 列表题 →</button>
           <button type="button" class="journey-cta" data-jump="journey">去全程逐步对照 →</button>
         </div>
       </div>
@@ -1713,7 +1859,8 @@
       map.mode === "retrieve" ||
       map.mode === "answer" ||
       map.mode === "mini" ||
-      map.mode === "pipeline"
+      map.mode === "pipeline" ||
+      map.mode === "pack"
     ) {
       mode = map.mode;
     }
@@ -1773,6 +1920,8 @@
       renderMini();
     } else if (mode === "pipeline") {
       renderPipeline();
+    } else if (mode === "pack") {
+      renderPack();
     } else if (mode === "overview") {
       renderOverview();
     } else if (mode === "journey") {
