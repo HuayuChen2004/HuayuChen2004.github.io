@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810i";
+  const DATA_V = "20260810j";
 
   let retrieveData = null;
   let qaData = null;
@@ -14,8 +14,8 @@
   let miniStep = 0;
   let pipelineStep = 0;
   let pipelineTimer = null;
-  let mode = "mini"; // mini | pipeline | journey | overview | retrieve | answer | pack
-  let answerSub = "select"; // select | read
+  let mode = "mini"; // mini | pipeline | journey | overview | retrieve | answer
+  let answerSub = "select"; // select | read | pack
   let activeId = null;
   let journeyStep = 0;
   let journeyShouldScroll = false;
@@ -74,8 +74,6 @@
     }
     if (targetMode === "answer") {
       tasks.push(ensureJson("answer", "./data/qa_demo.json", () => qaData, (d) => (qaData = d)));
-    }
-    if (targetMode === "pack") {
       tasks.push(ensureJson("pack", "./data/pack_demo.json", () => packData, (d) => (packData = d)));
     }
     await Promise.all(tasks);
@@ -83,7 +81,7 @@
 
   /** Demo 先出来；其余 Tab 数据在空闲时后台预取，切换时通常已就绪。 */
   function prefetchRemainingData() {
-    const queue = ["pipeline", "journey", "overview", "retrieve", "answer", "pack", "mini"];
+    const queue = ["pipeline", "journey", "overview", "retrieve", "answer", "mini"];
     const run = async () => {
       for (const m of queue) {
         try {
@@ -250,25 +248,40 @@
 
   function renderAnswerOverall() {
     const s = qaData.overall.locate_summary;
+    $("#picker-title").textContent = "答题对比";
+    $("#answer-subtabs").hidden = false;
     if (answerSub === "select") {
       $("#overall-stats").innerHTML = `
         <div class="stat caption"><label>Caption 定图准确率</label><strong>${fmtPct(s.caption_locate_acc)}</strong></div>
         <div class="stat token"><label>Visual Token 定图准确率</label><strong>${fmtPct(s.visual_token_locate_acc)}</strong></div>
-        <div class="stat caption"><label>Caption 答题（含碰巧对）</label><strong>${fmtPct(s.caption_answer_acc)}</strong></div>`;
+        <div class="stat"><label>对照</label><strong style="font-size:1.05rem">同一候选池</strong></div>`;
       $("#picker-desc").textContent =
-        "阶段 A：用 caption 从候选池里选图。就算后面还能碰巧答对，定错图也说明证据链断了。";
-    } else {
+        "左右对照：同一候选池里，Caption 与 Visual Token 谁更能定对唯一相关图，并据此作答。定错图却答对 = 碰巧对。";
+      $("#foot-note").textContent =
+        "定图对比：两边用不同证据形态在同一候选池里选图再答题。不要只看答题正确率，先看有没有选对图。";
+    } else if (answerSub === "read") {
       $("#overall-stats").innerHTML = `
-        <div class="stat caption"><label>金标图 + Caption 答题</label><strong>${fmtPct(s.oracle_caption_acc)}</strong></div>
-        <div class="stat token"><label>金标图 + Visual Token 答题</label><strong>${fmtPct(s.oracle_visual_acc)}</strong></div>
+        <div class="stat caption"><label>金标图 + Caption</label><strong>${fmtPct(s.oracle_caption_acc)}</strong></div>
+        <div class="stat token"><label>金标图 + Visual Token</label><strong>${fmtPct(s.oracle_visual_acc)}</strong></div>
         <div class="stat"><label>设定</label><strong style="font-size:1.05rem">图已选对</strong></div>`;
       $("#picker-desc").textContent =
-        "阶段 B：图已经是正确唯一图，只把该图的 caption 喂给模型。文本信息损失仍会导致答错。";
+        "左右对照：图已经是正确唯一图，一边只读 Caption 文字，一边用 Visual Token 看图。比的是证据形态本身。";
+      $("#foot-note").textContent =
+        "读证据对比：跳过找图/定图，只换「文字描述 vs 视觉 token」。用来说明 Caption 的信息损失。";
+    } else {
+      const agg = packData?.aggregates || [];
+      const high = agg.find((a) => String(a.subset).includes("high")) || agg[0];
+      if (high) {
+        $("#overall-stats").innerHTML = `
+          <div class="stat caption"><label>Caption list F1</label><strong>${high.caption_f1.toFixed(2)}</strong></div>
+          <div class="stat token"><label>gate list F1</label><strong>${high.gate_f1.toFixed(2)}</strong></div>
+          <div class="stat"><label>oracle list F1</label><strong>${high.oracle_f1.toFixed(2)}</strong></div>`;
+      }
+      $("#picker-desc").textContent =
+        "左右/三列对照：开放图库「列出所有相关图」。Caption 检索、门控看图检索、以及相关图全给对时的看图上限。";
+      $("#foot-note").textContent =
+        "Pack 列表对比：主看 list F1。oracle 表示检索上限下的看图作答能力；gate 仍受召回上限影响。";
     }
-    $("#picker-title").textContent = "选择答题问题";
-    $("#answer-subtabs").hidden = false;
-    $("#foot-note").textContent =
-      "阶段 A：同一候选池里用 Caption 或视觉 token Rel 定唯一图再答题。阶段 B：直接给出正确图（金标/oracle），只换证据形态。名词解释见总览「读懂这些词」。";
   }
 
   function renderRetrievePicker(onSelect) {
@@ -312,8 +325,8 @@
           <div class="row"><span>${q.answer_type}</span><span>${fragile ? "脆的正确" : q.caption.correct ? "caption 对" : "caption 错"}</span></div>
           <div class="title">${q.question}</div>
           <div class="scores">
-            <span class="c">${q.caption.correct ? "答对" : "答错"}（只读 caption）</span>
-            <span class="t">${q.visual_token.correct ? "答对" : "答错"}（visual token）</span>
+            <span class="c">${q.caption.correct ? "答对" : "答错"}（Caption）</span>
+            <span class="t">${q.visual_token.correct ? "答对" : "答错"}（Visual Token）</span>
           </div>`;
       }
       btn.addEventListener("click", () => onSelect(q.id));
@@ -518,8 +531,9 @@
       mode = "mini";
       activeId = null;
       miniStep = 0;
-    } else if (target === "pack") {
-      mode = "pack";
+    } else if (target === "pack" || target === "answer:pack") {
+      mode = "answer";
+      answerSub = "pack";
       activeId = null;
     } else if (target.startsWith("answer:")) {
       mode = "answer";
@@ -687,22 +701,16 @@
     if (!cases.some((c) => c.id === activeId)) activeId = cases[0]?.id || null;
     const cur = cases.find((c) => c.id === activeId) || cases[0];
 
-    const agg = d.aggregates || [];
-    $("#overall-stats").innerHTML = agg
-      .map(
-        (a) => `
-      <div class="stat caption"><label>${a.subset} · Caption F1</label><strong>${a.caption_f1.toFixed(2)}</strong></div>
-      <div class="stat token"><label>${a.subset} · gate F1</label><strong>${a.gate_f1.toFixed(2)}</strong></div>
-      <div class="stat"><label>${a.subset} · oracle F1</label><strong>${a.oracle_f1.toFixed(2)}</strong></div>`
-      )
-      .join("");
-
-    $("#foot-note").textContent =
-      "Pack 列表题：要找出所有相关图。list F1 同时惩罚漏报与错报；oracle 表示检索上限下的看图作答能力。";
+    // Pack 挂在「答题对比」下：保留子 Tab
+    $("#picker-section").hidden = false;
+    $("#answer-subtabs").hidden = false;
+    $("#q-list").hidden = true;
+    renderAnswerOverall();
 
     const root = $("#pack-root");
     root.hidden = false;
 
+    const agg = d.aggregates || [];
     const aggCards = agg
       .map((a) => {
         const max = Math.max(a.caption_f1, a.gate_f1, a.oracle_f1, 0.01);
@@ -1862,9 +1870,15 @@
       map.mode === "pipeline" ||
       map.mode === "pack"
     ) {
-      mode = map.mode;
+      // 旧链接 #mode=pack 并入答题对比
+      if (map.mode === "pack") {
+        mode = "answer";
+        answerSub = "pack";
+      } else {
+        mode = map.mode;
+      }
     }
-    if (map.sub === "select" || map.sub === "read") answerSub = map.sub;
+    if (map.sub === "select" || map.sub === "read" || map.sub === "pack") answerSub = map.sub;
     if (map.sub === "locate" || map.sub === "list") answerSub = "select";
     if (map.q) activeId = map.q;
     if (map.step != null && map.step !== "") {
@@ -1920,8 +1934,6 @@
       renderMini();
     } else if (mode === "pipeline") {
       renderPipeline();
-    } else if (mode === "pack") {
-      renderPack();
     } else if (mode === "overview") {
       renderOverview();
     } else if (mode === "journey") {
@@ -1929,6 +1941,7 @@
     } else if (mode === "retrieve") {
       hideAllStages();
       $("#picker-section").hidden = false;
+      $("#q-list").hidden = false;
       renderRetrieveOverall();
       const qs = retrieveData.questions;
       if (!qs.some((q) => q.id === activeId)) activeId = qs[0].id;
@@ -1937,9 +1950,12 @@
         refresh();
       });
       renderRetrieveQuestion(qs.find((q) => q.id === activeId));
+    } else if (answerSub === "pack") {
+      renderPack();
     } else {
       hideAllStages();
       $("#picker-section").hidden = false;
+      $("#q-list").hidden = false;
       renderAnswerOverall();
       const qs = answerSub === "select" ? qaData.select_questions : qaData.read_questions;
       if (!qs.some((q) => q.id === activeId)) activeId = qs[0].id;

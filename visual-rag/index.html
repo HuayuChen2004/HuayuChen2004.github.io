@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=20260810i" />
+  <link rel="stylesheet" href="./styles.css?v=20260810j" />
 </head>
 <body>
   <div class="page">
@@ -33,7 +33,6 @@
         <button type="button" class="mode-tab" data-mode="overview" role="tab" aria-selected="false">④ 总览证据</button>
         <button type="button" class="mode-tab" data-mode="retrieve" role="tab" aria-selected="false">⑤ 检索对比</button>
         <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">⑥ 答题对比</button>
-        <button type="button" class="mode-tab" data-mode="pack" role="tab" aria-selected="false">⑦ Pack 列表</button>
       </div>
       <div class="overall" id="overall-stats" aria-live="polite"></div>
     </section>
@@ -46,8 +45,9 @@
         <p id="picker-desc"></p>
       </div>
       <div class="subtabs" id="answer-subtabs" hidden>
-        <button type="button" class="subtab active" data-sub="select">A. 用 Caption 选图</button>
-        <button type="button" class="subtab" data-sub="read">B. 读 Caption 作答</button>
+        <button type="button" class="subtab active" data-sub="select">A. 定图对比</button>
+        <button type="button" class="subtab" data-sub="read">B. 读证据对比</button>
+        <button type="button" class="subtab" data-sub="pack">C. Pack 列表对比</button>
       </div>
       <div class="q-list" id="q-list" role="listbox" aria-label="Questions"></div>
     </section>
@@ -82,6 +82,6 @@
       <p><a href="../">返回主页</a></p>
     </footer>
   </div>
-  <script src="./app.js?v=20260810i"></script>
+  <script src="./app.js?v=20260810j"></script>
 </body>
 </html>

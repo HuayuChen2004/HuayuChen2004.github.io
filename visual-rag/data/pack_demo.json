@@ -1,6 +1,6 @@
 {
   "title": "Pack 列表题：开放图库要「列出所有相关图」",
-  "intro": "这类题不是只定一张图，而是要在大图库里找出所有满足条件的图。下面看：Caption 检索、门控看图检索、以及「相关图全给对」时的看图作答上限。",
+  "intro": "开放图库「列出所有相关图」时的三方对照：Caption 检索作答、门控看图检索作答、以及相关图全给对时的看图上限。",
   "note": "主指标用 list F1（既要找得全，又不能乱报）。EM 对列表题过严，常因漏一项而为 0。",
   "aggregates": [
     {
@@ -33,7 +33,7 @@
       "why": "要列出所有同时满足物体共现与左右关系的图；只靠文字描述很难写全空间约束。",
       "arms": [
         {
-          "name": "Caption 检索 → 作答",
+          "name": "Caption 路径",
           "kind": "caption",
           "f1": 0.182,
           "precision": 1.0,
@@ -134,7 +134,7 @@
           "n_pred_hidden": 0
         },
         {
-          "name": "门控看图检索 → 译后 vis 作答",
+          "name": "看图路径（gate_tok2）",
           "kind": "gate",
           "f1": 0.348,
           "precision": 0.308,
@@ -300,7 +300,7 @@
           "n_pred_hidden": 0
         },
         {
-          "name": "相关图全给对（oracle）→ vis 作答",
+          "name": "看图上限（相关图全给对）",
           "kind": "oracle",
           "f1": 0.947,
           "precision": 1.0,
@@ -410,7 +410,7 @@
       "why": "要列出所有同时满足物体共现与左右关系的图；只靠文字描述很难写全空间约束。",
       "arms": [
         {
-          "name": "Caption 检索 → 作答",
+          "name": "Caption 路径",
           "kind": "caption",
           "f1": 0.103,
           "precision": 0.5,
@@ -540,7 +540,7 @@
           "n_pred_hidden": 0
         },
         {
-          "name": "门控看图检索 → 译后 vis 作答",
+          "name": "看图路径（gate_tok2）",
           "kind": "gate",
           "f1": 0.456,
           "precision": 0.591,
@@ -742,7 +742,7 @@
           "n_pred_hidden": 6
         },
         {
-          "name": "相关图全给对（oracle）→ vis 作答",
+          "name": "看图上限（相关图全给对）",
           "kind": "oracle",
           "f1": 0.923,
           "precision": 1.0,
