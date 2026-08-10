@@ -403,6 +403,35 @@ body {
   font-size: 0.88rem;
 }
 .foot a { color: var(--token); }
+.foot-note {
+  margin: 0 0 0.55rem;
+  line-height: 1.5;
+}
+.foot-setting {
+  margin: 0 0 0.85rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px dashed rgba(28, 36, 48, 0.16);
+  border-radius: 10px;
+  background: #f7f8fa;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: #6b7280;
+}
+.foot-setting[hidden] { display: none !important; }
+.foot-setting .foot-setting-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9aa3af;
+}
+.foot-setting ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+.foot-setting li { margin: 0.12rem 0; }
 
 .mode-tabs, .subtabs {
   display: flex;

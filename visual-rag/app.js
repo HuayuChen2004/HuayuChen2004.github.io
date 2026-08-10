@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810p";
+  const DATA_V = "20260810q";
 
   let retrieveData = null;
   let qaData = null;
@@ -195,6 +195,23 @@
       </aside>`;
   }
 
+  function setFoot(note, settingLines) {
+    const noteEl = $("#foot-note");
+    const setEl = $("#foot-setting");
+    if (noteEl) noteEl.textContent = note || "";
+    if (!setEl) return;
+    const lines = (settingLines || []).filter(Boolean);
+    if (!lines.length) {
+      setEl.hidden = true;
+      setEl.innerHTML = "";
+      return;
+    }
+    setEl.hidden = false;
+    setEl.innerHTML = `
+      <span class="foot-setting-label">本页实验 setting</span>
+      <ul>${lines.map((x) => `<li>${x}</li>`).join("")}</ul>`;
+  }
+
   function renderRetrieveOverall() {
     const o = retrieveData.overall;
     $("#overall-stats").innerHTML = `
@@ -205,8 +222,13 @@
     $("#picker-desc").textContent =
       "检索 = 从大图库捞出候选池（相关图进没进前 K）。下一步的「定图」才是在这个池子里选出要看的那一张。绿框=命中，灰框=噪声，红框=漏检。";
     $("#answer-subtabs").hidden = true;
-    $("#foot-note").textContent =
-      "检索对比只看「池子好不好」。定图与读证据在「⑥ 答题对比」；跨模型译后作答在「⑦ 跨模型翻译」。本页 Visual Token 对应全库 Rel + tok/2；24 题均值 Caption 31.1% → Visual Token 82.3%。";
+    setFoot("检索对比只看「池子好不好」。定图与读证据在「⑥」；跨模型译后作答在「⑦」。", [
+      "任务：开放图库检索；主指标 = 池内召回（相关图是否进前 K），不是定图准确率。",
+      "题集：汇总统计来自 24 道 gallery QA；本页下方展示其中 8 道样例（如 gal_qa_*）。与⑥的 15 道定图题不是同一套题。",
+      "Caption：Qwen3-VL-8B 看图写中文 caption，再做文本混合检索（embedding + 关键词）。",
+      "Visual Token：全库相关性 Rel + tok/2（半量 token）；同模型原生 visual token，无跨模型翻译。",
+      "顶栏均值：Caption 池召回 31.1% → Visual Token 82.3%（24 题）。",
+    ]);
   }
 
   function renderAnswerOverall() {
@@ -220,8 +242,14 @@
         <div class="stat"><label>设定</label><strong style="font-size:1.05rem">池已给定</strong></div>`;
       $("#picker-desc").textContent =
         "定图对比：检索已经给出同一候选池后，对比 Caption 与 Visual Token 谁更能从池子里选出正确的那一张，并据此作答。定错图却答对 = 碰巧对。";
-      $("#foot-note").textContent =
-        "检索 ≠ 定图。检索负责「相关图进不进池」；定图是在池内选唯一图。本页是同模型原生 Visual Token，没有跨模型翻译。";
+      setFoot("检索 ≠ 定图。本页是同模型原生 Visual Token，没有跨模型翻译。", [
+        "任务：池已给定后定图；主指标 = top-1 是否等于金标图 anchor（定图准确率）。",
+        "题集：15 道 NL 子题（5 个 LOW 父题 → 各约 170 张候选池 → 池内唯一 anchor）。顶栏 0% / 100% 是这 15 题汇总；下方是样例子集。",
+        "协议对齐：两边都只在同一池内打分，取分数最高一张再答题；差别只在打分函数。",
+        "Caption：caption hybrid（文字向量 + 关键词）打分；图描述仍由 Qwen3-VL-8B 生成。",
+        "Visual Token：cached-token Relevance 相关性打分（页面上的 Visual Token Rel）。",
+        "注意：Caption 答题准确率可以更高（定错图也可能碰巧答对），所以要和定图准确率分开看。",
+      ]);
     } else {
       $("#overall-stats").innerHTML = `
         <div class="stat caption"><label>金标图 + Caption</label><strong>${fmtPct(s.oracle_caption_acc)}</strong></div>
@@ -229,8 +257,12 @@
         <div class="stat"><label>设定</label><strong style="font-size:1.05rem">图已选对</strong></div>`;
       $("#picker-desc").textContent =
         "读证据对比：跳过检索与定图，图已经是正确唯一图。一边只读 Caption 文字，一边用 Visual Token 看图，对比证据形态本身。";
-      $("#foot-note").textContent =
-        "这里不再比找图/选图，只比「喂给模型的是文字还是视觉 token」。跨模型翻译请看「⑦」。";
+      setFoot("这里不再比找图/选图，只比证据形态。跨模型翻译请看「⑦」。", [
+        "任务：Oracle 单图答题——跳过检索与定图，直接给定金标图。",
+        "对照：一边只读该图的 Caption 文字；一边用原生 Visual Token 看图。",
+        "Caption 文本：Qwen3-VL-8B 生成；用来说明「文字压缩」本身的信息损失。",
+        "与⑤检索、⑥定图、⑦跨模型翻译都不是同一设定；本页只隔离「证据形态」。",
+      ]);
     }
   }
 
@@ -247,8 +279,13 @@
     $("#overall-stats").innerHTML =
       cards ||
       `<div class="stat"><label>机制</label><strong style="font-size:1.05rem">8B → 译 → 4B</strong></div>`;
-    $("#foot-note").textContent =
-      "本页独立于⑥：⑥ 是同模型 Caption vs 原生 Visual Token；这里是跨模型翻译后再作答。列表题只是展示场景，不是与定图并列的第三阶段。";
+    setFoot("本页独立于⑥：⑥ 是同模型 Caption vs 原生 Visual Token；这里是跨模型翻译后再作答。", [
+      "机制（Phase G）：Teacher Qwen3-VL-8B 编码图特征 → Translator（Ridge + 残差 MLP）→ 冻结 Consumer Qwen3.5-4B 注入译后 vis 答题。",
+      "载体：译后 image embedding（vis），不是 KV；Consumer 全程冻结。",
+      "单图 held-out：译后 vis 答题 EM ≈ 0.963（n=1000）。",
+      "下方列表题：答案是「找出所有…的图」；三列都用译后 vis 作答，差别主要在候选池（Caption / gate / oracle）。",
+      "与⑥的 15 道定图题、⑤的 24 道检索题都不是同一实验协议。",
+    ]);
   }
 
   function renderRetrievePicker(onSelect) {
@@ -562,8 +599,11 @@
       <div class="stat caption"><label>左边一条链</label><strong style="font-size:1.05rem">先写成文字</strong></div>
       <div class="stat token"><label>右边一条链</label><strong style="font-size:1.05rem">尽量直接看图</strong></div>
       <div class="stat"><label>同屏</label><strong>${stages.length} 步从头到尾</strong></div>`;
-    $("#foot-note").textContent =
-      "方法流程一页看完：从上往下是完整链路；左右是同一时刻的两种做法。";
+    setFoot("方法流程一页看完：从上往下是完整链路；左右是同一时刻的两种做法。", [
+      "性质：概念流程示意，对应主实验「Caption 路径 vs Visual Token 路径」，不是单独一张评测表。",
+      "Caption 路径：图 → Qwen3-VL-8B 写 caption → 文本检索 / 定图 / 读文字答题。",
+      "Visual Token 路径：保留视觉特征做检索与答题；本页讲的是同模型原生 token，不是⑦的跨模型翻译。",
+    ]);
 
     const root = $("#pipeline-root");
     root.hidden = false;
@@ -1000,8 +1040,14 @@
       btn.addEventListener("click", () => jumpFromOverview(btn.dataset.jump));
     });
 
-    $("#foot-note").textContent =
-      "本页面向非技术读者：用几组对照说明「只靠文字描述」会在找图、选图、读文字答题上连续失手；直接看图更稳，并用门控控制成本。细节例子见「全程逐步」。";
+    setFoot(
+      "本页面向非技术读者：用几组对照说明「只靠文字描述」会在找图、选图、读文字答题上连续失手；直接看图更稳，并用门控控制成本。",
+      [
+        "数字来源混用了多组实验（开放图库检索、定图 15 题等），请以各子页底部 setting 为准。",
+        "Caption 文本统一由 Qwen3-VL-8B 生成；⑤⑥ 的 Visual Token 为同模型原生特征，⑦ 才是 8B→4B 翻译。",
+        "「选对关键图 0/15 → 15/15」对应⑥定图实验（Caption vs Relevance），不是⑤检索的 24 题。",
+      ]
+    );
   }
 
   function journeySideHTML(side, tone) {
@@ -1166,8 +1212,11 @@
     $("#picker-title").textContent = `选择全程案例（共 ${journeys.length} 道）`;
     $("#picker-desc").textContent =
       `当前共 ${journeys.length} 道预计算案例，请向下滚动题单。题目固定在上方；点「下一步」只在下面追加新内容。`;
-    $("#foot-note").textContent =
-      `全程逐步共 ${journeys.length} 道案例：同一页从上往下堆叠展开，前面步骤不会被替换掉。`;
+    setFoot(`全程逐步共 ${journeys.length} 道案例：同一页从上往下堆叠展开，前面步骤不会被替换掉。`, [
+      "性质：预计算案例轨迹，用来逐步对照 Caption vs Visual Token，不是新的评测协议。",
+      "题与设定大致对齐⑥（定图 / 读证据）：池内选图、读 caption 或看图作答。",
+      "Caption 为 Qwen3-VL-8B 生成文本；本页不涉及⑦的跨模型翻译。",
+    ]);
 
     const list = $("#q-list");
     list.innerHTML = "";
@@ -1732,8 +1781,12 @@
         q.fail_step
       )}</strong></div>`;
 
-    $("#foot-note").textContent =
-      "小图库例子为示意性预计算轨迹：题更简单、图更少，方便一眼看清 Caption 在哪一步翻车、看图方法如何走通。";
+    setFoot("小图库例子为示意性预计算轨迹：题更简单、图更少，方便一眼看清 Caption 在哪一步翻车、看图方法如何走通。", [
+      "性质：教学用小例子（约 8 张图、几道简单题），非正式开放图库评测集。",
+      "左右对照：Caption 路径读预写文字；看图路径用视觉特征（示意）。",
+      "点排序缩略图可查看该图 Caption；这些 caption 与主实验一致，由 VLM（Qwen3-VL-8B）生成。",
+      "正式数字请看⑤检索（24 题）、⑥定图（15 题）、⑦跨模型翻译。",
+    ]);
 
     const qbtns = qs
       .map(
