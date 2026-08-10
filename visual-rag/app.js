@@ -2,15 +2,18 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810b";
+  const DATA_V = "20260810d";
 
   let retrieveData = null;
   let qaData = null;
   let overviewData = null;
   let journeyData = null;
   let miniData = null;
+  let pipelineData = null;
   let miniStep = 0;
-  let mode = "mini"; // mini | journey | overview | retrieve | answer
+  let pipelineStep = 0;
+  let pipelineTimer = null;
+  let mode = "mini"; // mini | pipeline | journey | overview | retrieve | answer
   let answerSub = "select"; // select | read
   let activeId = null;
   let journeyStep = 0;
@@ -59,6 +62,9 @@
     if (targetMode === "mini") {
       tasks.push(ensureJson("mini", "./data/mini_demo.json", () => miniData, (d) => (miniData = d)));
     }
+    if (targetMode === "pipeline") {
+      tasks.push(ensureJson("pipeline", "./data/pipeline.json", () => pipelineData, (d) => (pipelineData = d)));
+    }
     if (targetMode === "journey") {
       tasks.push(ensureJson("journey", "./data/journey.json", () => journeyData, (d) => (journeyData = d)));
     }
@@ -73,8 +79,8 @@
 
   /** Demo 先出来；其余 Tab 数据在空闲时后台预取，切换时通常已就绪。 */
   function prefetchRemainingData() {
-    // 按常见浏览顺序：全程 → 总览 → 检索 → 答题 →（若从别的入口进来）补 Demo
-    const queue = ["journey", "overview", "retrieve", "answer", "mini"];
+    // 方法流程很轻，紧跟 Demo；再按浏览顺序预取其余页
+    const queue = ["pipeline", "journey", "overview", "retrieve", "answer", "mini"];
     const run = async () => {
       for (const m of queue) {
         try {
@@ -98,6 +104,8 @@
   function hideAllStages() {
     $("#overview-root").hidden = true;
     $("#overview-root").innerHTML = "";
+    $("#pipeline-root").hidden = true;
+    $("#pipeline-root").innerHTML = "";
     $("#journey-root").hidden = true;
     $("#journey-root").innerHTML = "";
     $("#mini-root").hidden = true;
@@ -105,6 +113,7 @@
     $("#picker-section").hidden = true;
     $("#active-q").hidden = true;
     $("#answer-subtabs").hidden = true;
+    stopPipelinePlay();
   }
 
   function renderPitch() {
@@ -493,17 +502,224 @@
     if (target === "retrieve") {
       mode = "retrieve";
       activeId = null;
+    } else if (target === "pipeline") {
+      mode = "pipeline";
+      pipelineStep = 0;
     } else if (target === "journey") {
       mode = "journey";
       activeId = null;
       journeyStep = 0;
+    } else if (target === "mini") {
+      mode = "mini";
+      activeId = null;
+      miniStep = 0;
     } else if (target.startsWith("answer:")) {
       mode = "answer";
       answerSub = target.split(":")[1] || "select";
       activeId = null;
     }
-    refresh();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    switchMode(mode).then(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+  }
+
+  function stopPipelinePlay() {
+    if (pipelineTimer) {
+      clearInterval(pipelineTimer);
+      pipelineTimer = null;
+    }
+  }
+
+  function pipelineFlowHTML(flow) {
+    if (!flow || !flow.length) return "";
+    return `<div class="pipe-flowline" aria-hidden="true">${flow
+      .map((bit) => {
+        if (bit === "→" || bit === "↔") return `<span class="pipe-op">${bit}</span>`;
+        return `<span class="pipe-node">${bit}</span>`;
+      })
+      .join("")}</div>`;
+  }
+
+  function pipelineSideCard(side, tone, { focus = false } = {}) {
+    return `
+      <article class="pipe-card ${tone}${focus ? " is-focus" : ""}">
+        <div class="pipe-card-top">
+          <h4>${side.title}</h4>
+          <span class="pipe-tag">${side.tag}</span>
+        </div>
+        ${pipelineFlowHTML(side.flow)}
+        <p class="pipe-plain">${side.plain}</p>
+        <p class="pipe-detail">${side.detail}</p>
+      </article>`;
+  }
+
+  function renderPipeline() {
+    hideAllStages();
+    const d = pipelineData;
+    const stages = d.stages || [];
+    if (pipelineStep < 0) pipelineStep = 0;
+    if (pipelineStep >= stages.length) pipelineStep = stages.length - 1;
+    const cur = stages[pipelineStep];
+    const playing = !!pipelineTimer;
+
+    $("#overall-stats").innerHTML = `
+      <div class="stat caption"><label>左边</label><strong style="font-size:1.05rem">先写成文字</strong></div>
+      <div class="stat token"><label>右边</label><strong style="font-size:1.05rem">尽量直接看图</strong></div>
+      <div class="stat"><label>当前步</label><strong>${pipelineStep + 1} / ${stages.length} · ${cur.title}</strong></div>`;
+    $("#foot-note").textContent =
+      "方法流程是示意对照：两边要解决的问题一样，差别在证据怎么表示、每一步靠什么打分。";
+
+    const root = $("#pipeline-root");
+    root.hidden = false;
+
+    const inputChips = (d.shared_input?.items || [])
+      .map((x) => `<span class="pipe-chip">${x}</span>`)
+      .join("");
+
+    const mapNodes = stages
+      .map((s, i) => {
+        const state = i === pipelineStep ? "current" : i < pipelineStep ? "done" : "";
+        return `
+        <button type="button" class="pipe-map-node ${state}" data-pipe-step="${i}">
+          <span class="pipe-map-n">${i + 1}</span>
+          <span class="pipe-map-t">${s.title}</span>
+        </button>
+        ${i < stages.length - 1 ? `<span class="pipe-map-link" aria-hidden="true"></span>` : ""}`;
+      })
+      .join("");
+
+    const rail = stages
+      .map((s, i) => {
+        const on = i === pipelineStep;
+        const seen = i < pipelineStep;
+        return `
+        <button type="button" class="pipe-rail-item ${on ? "current" : seen ? "done" : ""}" data-pipe-step="${i}">
+          <span class="pipe-rail-n">${i + 1}</span>
+          <span class="pipe-rail-body">
+            <strong>${s.title}</strong>
+            <em>${s.diff}</em>
+          </span>
+        </button>`;
+      })
+      .join("");
+
+    const trail = stages
+      .map((s, i) => {
+        if (i > pipelineStep) return "";
+        const on = i === pipelineStep;
+        return `
+        <div class="pipe-row ${on ? "is-current" : "is-seen"}" data-pipe-row="${i}">
+          ${pipelineSideCard(s.caption, "caption", { focus: on })}
+          <div class="pipe-mid">
+            <div class="pipe-mid-n">${i + 1}</div>
+            <div class="pipe-mid-title">${s.title}</div>
+            <div class="pipe-diff">${s.diff}</div>
+            ${i < pipelineStep ? `<div class="pipe-arrow" aria-hidden="true"></div>` : ""}
+          </div>
+          ${pipelineSideCard(s.ours, "token", { focus: on })}
+        </div>`;
+      })
+      .join("");
+
+    root.innerHTML = `
+      <div class="pipe-shell">
+        <div class="pipe-intro">
+          <h2>${d.title}</h2>
+          <p>${d.intro}</p>
+        </div>
+
+        <div class="pipe-shared">
+          <span class="pipe-shared-label">${d.shared_input?.label || "共同输入"}</span>
+          <div class="pipe-chips">${inputChips}</div>
+          <div class="pipe-split" aria-hidden="true">
+            <span class="caption">Caption 路径</span>
+            <span class="mid">同一任务</span>
+            <span class="token">看图路径</span>
+          </div>
+        </div>
+
+        <div class="pipe-map" aria-label="流程总览">${mapNodes}</div>
+
+        <div class="pipe-stageboard">
+          <aside class="pipe-rail" aria-label="步骤列表">${rail}</aside>
+          <div class="pipe-focus">
+            <div class="pipe-focus-head">
+              <div>
+                <div class="pipe-focus-kicker">第 ${pipelineStep + 1} 步</div>
+                <h3>${cur.title}</h3>
+                <p>${cur.diff}</p>
+              </div>
+              <div class="pipe-controls">
+                <button type="button" class="j-btn ghost" id="pipe-prev" ${pipelineStep === 0 ? "disabled" : ""}>上一步</button>
+                <button type="button" class="j-btn ghost" id="pipe-play">${playing ? "暂停" : "自动播放"}</button>
+                <button type="button" class="j-btn primary" id="pipe-next" ${pipelineStep >= stages.length - 1 ? "disabled" : ""}>下一步 →</button>
+              </div>
+            </div>
+            <div class="pipe-heads" aria-hidden="true">
+              <div class="pipe-head caption">只靠文字（Caption）</div>
+              <div class="pipe-head mid">差别</div>
+              <div class="pipe-head token">我们的方法（看图）</div>
+            </div>
+            <div class="pipe-focus-pair pipe-reveal">
+              ${pipelineSideCard(cur.caption, "caption", { focus: true })}
+              <div class="pipe-mid pipe-mid-focus">
+                <div class="pipe-mid-n">${pipelineStep + 1}</div>
+                <div class="pipe-mid-title">对照点</div>
+                <div class="pipe-diff">${cur.diff}</div>
+              </div>
+              ${pipelineSideCard(cur.ours, "token", { focus: true })}
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-trail">
+          <div class="section-label">已展开的步骤（从上往下积累）</div>
+          <div class="pipe-flow">${trail}</div>
+        </div>
+
+        <div class="pipe-takeaway">
+          <h3>一句话记住</h3>
+          <p>${d.takeaway}</p>
+          <div class="pipe-ctas">
+            <button type="button" class="j-btn primary" data-jump="mini">${d.cta?.mini || "去 Demo"}</button>
+            <button type="button" class="j-btn ghost" data-jump="journey">${d.cta?.journey || "去全程逐步"}</button>
+          </div>
+        </div>
+      </div>`;
+
+    const go = (i) => {
+      stopPipelinePlay();
+      pipelineStep = Math.max(0, Math.min(stages.length - 1, i));
+      refresh();
+      requestAnimationFrame(() => {
+        document.querySelector(".pipe-focus")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+    };
+
+    root.querySelectorAll("[data-pipe-step]").forEach((btn) => {
+      btn.addEventListener("click", () => go(Number(btn.dataset.pipeStep)));
+    });
+    $("#pipe-prev")?.addEventListener("click", () => go(pipelineStep - 1));
+    $("#pipe-next")?.addEventListener("click", () => go(pipelineStep + 1));
+    $("#pipe-play")?.addEventListener("click", () => {
+      if (pipelineTimer) {
+        stopPipelinePlay();
+        refresh();
+        return;
+      }
+      if (pipelineStep >= stages.length - 1) pipelineStep = 0;
+      pipelineTimer = setInterval(() => {
+        if (pipelineStep >= stages.length - 1) {
+          stopPipelinePlay();
+          refresh();
+          return;
+        }
+        pipelineStep += 1;
+        refresh();
+      }, 2200);
+      refresh();
+    });
+    root.querySelectorAll("[data-jump]").forEach((btn) => {
+      btn.addEventListener("click", () => jumpFromOverview(btn.dataset.jump));
+    });
   }
 
   function roleClass(role) {
@@ -531,11 +747,7 @@
       <div class="stat caption"><label>Caption 找图大约</label><strong>只对 3 成</strong></div>
       <div class="stat token"><label>我们的方法找图大约</label><strong>近 6 成起</strong></div>
       <div class="stat"><label>选对关键图</label><strong>0/15 → 15/15</strong></div>`;
-    $("#picker-section").hidden = true;
-    $("#active-q").hidden = true;
-    $("#answer-subtabs").hidden = true;
-    $("#journey-root").hidden = true;
-    $("#journey-root").innerHTML = "";
+    hideAllStages();
     const root = $("#overview-root");
     root.hidden = false;
 
@@ -642,9 +854,12 @@
 
       <div class="ov-block">
         <h2>三条失败路径（Caption 常在这里翻车）</h2>
-        <p class="setting">点卡片可看具体例子。想自己点一步看全程，请回「① 全程逐步」。</p>
+        <p class="setting">点卡片可看具体例子。想自己点一步看全程，请去「③ 全程逐步」。想先看清两边怎么跑，请去「② 方法流程」。</p>
         <div class="story-grid">${story}</div>
-        <button type="button" class="journey-cta" data-jump="journey">回到全程逐步对照 →</button>
+        <div class="pipe-ctas" style="margin-top:0.75rem">
+          <button type="button" class="j-btn ghost" data-jump="pipeline">先看方法流程 →</button>
+          <button type="button" class="journey-cta" data-jump="journey">去全程逐步对照 →</button>
+        </div>
       </div>
 
       <div class="ov-block">
@@ -1535,7 +1750,10 @@
     if (mode === "answer") parts.push(`sub=${answerSub}`);
     if (mode === "journey") parts.push(`step=${journeyStep}`);
     if (mode === "mini") parts.push(`step=${miniStep}`);
-    if (mode !== "overview" && activeId) parts.push(`q=${encodeURIComponent(activeId)}`);
+    if (mode === "pipeline") parts.push(`step=${pipelineStep}`);
+    if (mode !== "overview" && mode !== "pipeline" && activeId) {
+      parts.push(`q=${encodeURIComponent(activeId)}`);
+    }
     history.replaceState(null, "", `#${parts.join("&")}`);
   }
 
@@ -1554,7 +1772,14 @@
         map[k] = v || "";
       }
     });
-    if (map.mode === "overview" || map.mode === "journey" || map.mode === "retrieve" || map.mode === "answer" || map.mode === "mini") {
+    if (
+      map.mode === "overview" ||
+      map.mode === "journey" ||
+      map.mode === "retrieve" ||
+      map.mode === "answer" ||
+      map.mode === "mini" ||
+      map.mode === "pipeline"
+    ) {
       mode = map.mode;
     }
     if (map.sub === "select" || map.sub === "read") answerSub = map.sub;
@@ -1563,6 +1788,7 @@
     if (map.step != null && map.step !== "") {
       const n = Math.max(0, Number(map.step) || 0);
       if (mode === "mini") miniStep = n;
+      else if (mode === "pipeline") pipelineStep = n;
       else journeyStep = n;
     }
   }
@@ -1578,10 +1804,12 @@
   }
 
   async function switchMode(nextMode) {
+    stopPipelinePlay();
     mode = nextMode;
     activeId = null;
     journeyStep = 0;
     miniStep = 0;
+    if (nextMode === "pipeline") pipelineStep = 0;
     endTour(false);
     try {
       $("#overall-stats").innerHTML = `<div class="stat"><label>加载中</label><strong style="font-size:1rem">正在准备该页数据…</strong></div>`;
@@ -1608,6 +1836,8 @@
 
     if (mode === "mini") {
       renderMini();
+    } else if (mode === "pipeline") {
+      renderPipeline();
     } else if (mode === "overview") {
       renderOverview();
     } else if (mode === "journey") {

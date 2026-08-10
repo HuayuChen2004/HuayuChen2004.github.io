@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=20260810b" />
+  <link rel="stylesheet" href="./styles.css?v=20260810d" />
 </head>
 <body>
   <div class="page">
@@ -24,14 +24,15 @@
       <p class="eyebrow">Interactive Demo</p>
       <h1>Visual Token <span class="vs">vs</span> Caption</h1>
       <p class="lede">
-        默认 Demo 页：先看 30 秒结论，再用小图库简单例子走完全过程。其他页不再重复这段。
+        先看 Demo 结论与小例子；「方法流程」用一张对照图讲清两边怎么跑。其他页是证据与案例。
       </p>
       <div class="mode-tabs" role="tablist" aria-label="Demo mode">
         <button type="button" class="mode-tab active" data-mode="mini" role="tab" aria-selected="true">① Demo</button>
-        <button type="button" class="mode-tab" data-mode="journey" role="tab" aria-selected="false">② 全程逐步</button>
-        <button type="button" class="mode-tab" data-mode="overview" role="tab" aria-selected="false">③ 总览证据</button>
-        <button type="button" class="mode-tab" data-mode="retrieve" role="tab" aria-selected="false">④ 检索对比</button>
-        <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">⑤ 答题对比</button>
+        <button type="button" class="mode-tab" data-mode="pipeline" role="tab" aria-selected="false">② 方法流程</button>
+        <button type="button" class="mode-tab" data-mode="journey" role="tab" aria-selected="false">③ 全程逐步</button>
+        <button type="button" class="mode-tab" data-mode="overview" role="tab" aria-selected="false">④ 总览证据</button>
+        <button type="button" class="mode-tab" data-mode="retrieve" role="tab" aria-selected="false">⑤ 检索对比</button>
+        <button type="button" class="mode-tab" data-mode="answer" role="tab" aria-selected="false">⑥ 答题对比</button>
       </div>
       <div class="overall" id="overall-stats" aria-live="polite"></div>
     </section>
@@ -67,6 +68,7 @@
     </section>
 
     <section id="overview-root" class="overview-root" hidden></section>
+    <section id="pipeline-root" class="pipeline-root" hidden></section>
     <section id="journey-root" class="journey-root" hidden></section>
     <section id="mini-root" class="mini-root" hidden></section>
 
@@ -78,6 +80,6 @@
       <p><a href="../">返回主页</a></p>
     </footer>
   </div>
-  <script src="./app.js?v=20260810b"></script>
+  <script src="./app.js?v=20260810d"></script>
 </body>
 </html>
