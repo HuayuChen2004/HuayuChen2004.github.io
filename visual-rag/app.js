@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810s";
+  const DATA_V = "20260810t";
 
   let retrieveData = null;
   let qaData = null;
@@ -2189,173 +2189,25 @@
   function renderMini() {
     hideAllStages();
     $("#picker-section").hidden = true;
+    $("#mini-root").hidden = true;
+    $("#mini-root").innerHTML = "";
     renderLivePlayground();
-    const root = $("#mini-root");
-    root.hidden = false;
 
-    const qs = miniData.questions;
-    if (!qs.some((q) => q.id === activeId)) {
-      activeId = qs[0].id;
-      miniStep = 0;
-    }
-    const q = qs.find((x) => x.id === activeId);
-    const steps = miniData.steps;
-    if (miniStep < 0) miniStep = 0;
-    if (miniStep >= steps.length) miniStep = steps.length - 1;
-    const step = steps[miniStep];
-    const gmap = galleryMap();
-    const atEnd = miniStep === steps.length - 1;
-    const atStart = miniStep === 0;
     const liveN = liveState.items.length;
-
+    const q = liveActiveQuestion();
     $("#overall-stats").innerHTML = `
-      <div class="stat"><label>你的图库</label><strong>${liveN ? `${liveN} 张` : "可拖入"}</strong></div>
-      <div class="stat token"><label>预计算小例子</label><strong>${miniData.gallery.length} 张图</strong></div>
-      <div class="stat caption"><label>当前例题</label><strong style="font-size:1.05rem">${q.label}</strong></div>`;
+      <div class="stat"><label>可选照片</label><strong>${miniData.gallery.length} 张</strong></div>
+      <div class="stat token"><label>已入图库</label><strong>${liveN} 张</strong></div>
+      <div class="stat caption"><label>固定题</label><strong style="font-size:1.05rem">${
+        q?.label || "三道"
+      }</strong></div>`;
 
-    setFoot("Demo 页上方：从 8 张预计算图中拖入图库，再走入库与三道固定题；下方仍是逐步对照小例子。", [
-      "可选图固定为 mini 小图库 8 张；不可上传外部照片，不可自定义问题。",
-      "Caption 与 Visual Token 排序均来自预计算轨迹；只对你拖入图库的子集重新截取名次。",
-      "三道题与下方小例子相同：紫色球有几个 / 有没有黄球 / 大立方体是金属吗。",
+    setFoot("从 8 张预计算图中拖入图库，生成 Caption / Visual Token，再用三道固定题走检索作答。", [
+      "可选图固定为这 8 张；不可上传外部照片，不可自定义问题。",
+      "Caption 与 Visual Token 排序来自预计算轨迹；只对你拖入图库的子集截取名次。",
+      "三道题：紫色球有几个 / 有没有黄球 / 大立方体是金属吗。",
       "正式评测数字请看⑤检索（24 题）、⑥定图（15 题）、⑦跨模型翻译。",
     ]);
-
-    const qbtns = qs
-      .map(
-        (item) =>
-          `<button type="button" class="mini-q ${item.id === activeId ? "active" : ""}" data-mini-q="${item.id}">${item.label}</button>`
-      )
-      .join("");
-
-    const gal = miniData.gallery
-      .map(
-        (g) =>
-          `<div class="mini-gal-item"><img src="${thumb(g.id)}" alt="" loading="lazy" /><span>${g.short}</span></div>`
-      )
-      .join("");
-
-    const stepper = steps
-      .map((s, i) => {
-        const fail = i <= miniStep && s.key === q.fail_step;
-        return `<button type="button" class="j-step ${i === miniStep ? "current" : i < miniStep ? "done" : ""} ${
-          fail ? "fail-step" : ""
-        }" data-mini-step="${i}" ${i > miniStep + 1 ? "disabled" : ""}>
-          <span class="n">${i + 1}</span><span class="t">${s.title}${fail ? " · 翻车点" : ""}</span>
-        </button>`;
-      })
-      .join("");
-
-    // accumulate revealed beats
-    const timeline = steps
-      .slice(0, miniStep + 1)
-      .map((s, i) => {
-        const isLatest = i === miniStep;
-        const failAt = s.key === q.fail_step;
-        return `<section class="j-beat${isLatest ? " j-reveal is-latest" : ""}${failAt ? " mini-beat-fail" : ""}" id="mini-beat-${i}">
-          <div class="j-beat-rail" aria-hidden="true"></div>
-          <div class="j-beat-head">
-            <span class="j-beat-n">第 ${i + 1} 步 · ${s.title}${failAt ? "（Caption 在这步出错）" : ""}</span>
-            <h3>${s.title}</h3>
-          </div>
-          <div class="mini-dual">
-            ${miniPathColumn(q, "caption", s.key, gmap)}
-            ${miniPathColumn(q, "ours", s.key, gmap)}
-          </div>
-        </section>`;
-      })
-      .join("");
-
-    root.innerHTML = `
-      <div class="mini-shell">
-        <div class="mini-intro">
-          <h2>预计算小例子（备用对照）</h2>
-          <p>${miniData.intro} 若你更想用自己的照片，请回到上方「用你的照片走一遍」。</p>
-        </div>
-        <div class="mini-gallery-wrap">
-          <div class="section-label">本例子的小图库（共 ${miniData.gallery.length} 张）</div>
-          <div class="mini-gallery">${gal}</div>
-        </div>
-        <div class="mini-q-row">${qbtns}</div>
-        <div class="j-pin-q">
-          <div class="j-shared-label">当前问题</div>
-          <h3 class="j-q">${q.question}</h3>
-          <p class="j-meta">标准答案：${q.gt_answer} · Caption 会在「${failStepLabel(
-            q.fail_step,
-            "long"
-          )}」这一步出问题</p>
-        </div>
-        <div class="j-stepper">${stepper}</div>
-        <div class="j-timeline">${timeline}</div>
-        <div class="j-controls">
-          <button type="button" class="j-btn ghost" id="mini-prev" ${atStart ? "disabled" : ""}>收回一步</button>
-          <button type="button" class="j-btn ghost" id="mini-reset">从头重来</button>
-          <button type="button" class="j-btn primary" id="mini-next" ${atEnd ? "disabled" : ""}>${
-            atEnd ? "已全部展开" : "下一步（左右一起推进） →"
-          }</button>
-        </div>
-      </div>`;
-
-    root.querySelectorAll("[data-mini-q]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        activeId = btn.dataset.miniQ;
-        miniStep = 0;
-        refresh();
-      });
-    });
-    root.querySelectorAll("[data-mini-cap-id]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.dataset.miniCapId;
-        const g = galleryMap()[id] || {};
-        const wrap = btn.closest(".mini-rank-wrap");
-        const peek = wrap?.querySelector(".mini-cap-peek");
-        if (!peek) return;
-        wrap.querySelectorAll(".mini-tile.is-peek").forEach((el) => el.classList.remove("is-peek"));
-        btn.classList.add("is-peek");
-        peek.hidden = false;
-        const img = peek.querySelector("img");
-        if (img) {
-          img.src = thumb(id);
-          img.alt = g.short || id;
-        }
-        const title = peek.querySelector(".mini-cap-peek-title");
-        const text = peek.querySelector(".mini-cap-peek-text");
-        if (title) title.textContent = g.short || id;
-        if (text) text.textContent = g.caption || "（暂无该图 Caption）";
-      });
-    });
-    root.querySelectorAll("[data-mini-step]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const t = Number(btn.dataset.miniStep);
-        if (t <= miniStep) {
-          document.getElementById(`mini-beat-${t}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        } else if (t === miniStep + 1) {
-          miniStep = t;
-          refresh();
-          requestAnimationFrame(() =>
-            document.getElementById(`mini-beat-${miniStep}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" })
-          );
-        }
-      });
-    });
-    $("#mini-prev")?.addEventListener("click", () => {
-      if (miniStep > 0) {
-        miniStep -= 1;
-        refresh();
-      }
-    });
-    $("#mini-reset")?.addEventListener("click", () => {
-      miniStep = 0;
-      refresh();
-    });
-    $("#mini-next")?.addEventListener("click", () => {
-      if (miniStep < steps.length - 1) {
-        miniStep += 1;
-        refresh();
-        requestAnimationFrame(() =>
-          document.getElementById(`mini-beat-${miniStep}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" })
-        );
-      }
-    });
   }
 
 
