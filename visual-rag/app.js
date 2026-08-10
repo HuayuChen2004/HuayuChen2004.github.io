@@ -1539,11 +1539,11 @@
 
   async function main() {
     const [rRes, qRes, oRes, jRes, mRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807n"),
-      fetch("./data/qa_demo.json?v=20260807n"),
-      fetch("./data/overview.json?v=20260807n"),
-      fetch("./data/journey.json?v=20260807n"),
-      fetch("./data/mini_demo.json?v=20260807n"),
+      fetch("./data/demo.json?v=20260807o"),
+      fetch("./data/qa_demo.json?v=20260807o"),
+      fetch("./data/overview.json?v=20260807o"),
+      fetch("./data/journey.json?v=20260807o"),
+      fetch("./data/mini_demo.json?v=20260807o"),
     ]);
     retrieveData = await rRes.json();
     qaData = await qRes.json();
