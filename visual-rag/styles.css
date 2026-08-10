@@ -1516,6 +1516,12 @@ details.glossary[open] > summary::before { content: "▾ "; }
   font-size: 0.88rem;
   line-height: 1.55;
 }
+.mini-rank-wrap { display: grid; gap: 0.45rem; }
+.mini-cap-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
 .mini-rank-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1527,6 +1533,25 @@ details.glossary[open] > summary::before { content: "▾ "; }
   border-radius: 10px;
   overflow: hidden;
   background: #fff;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  display: block;
+}
+button.mini-tile {
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.12s ease;
+}
+button.mini-tile:hover {
+  border-color: rgba(28, 36, 48, 0.35);
+  transform: translateY(-1px);
+}
+button.mini-tile.is-peek {
+  border-color: var(--token);
+  box-shadow: 0 0 0 2px rgba(11, 110, 79, 0.18);
 }
 .mini-tile img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
 .mini-tile .mini-mark, .mini-tile .mini-score {
@@ -1542,6 +1567,36 @@ details.glossary[open] > summary::before { content: "▾ "; }
 .mini-tile.is-gold { border-color: rgba(14, 165, 233, 0.55); }
 .mini-tile.pick-ok { border-color: var(--token); box-shadow: 0 0 0 2px rgba(11,110,79,0.15); }
 .mini-tile.pick-bad { border-color: var(--caption); box-shadow: 0 0 0 2px rgba(180,35,24,0.12); }
+.mini-cap-peek {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 0.65rem 0.75rem;
+}
+.mini-cap-peek-top {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 0.65rem;
+  align-items: start;
+}
+.mini-cap-peek-top img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+.mini-cap-peek-title {
+  display: block;
+  font-size: 0.88rem;
+  margin-bottom: 0.2rem;
+}
+.mini-cap-peek-text {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
 .mini-cap-list { display: grid; gap: 0.45rem; max-height: 280px; overflow: auto; }
 .mini-cap-item {
   display: grid;
@@ -1909,7 +1964,7 @@ details.glossary[open] > summary::before { content: "▾ "; }
   .pipe-stage-band { margin-left: 0; }
 }
 
-/* cache: 20260810o — Pack / 跨模型翻译 */
+/* cache: 20260810p — Pack / 跨模型翻译 */
 .pack-root { margin-top: 0.5rem; }
 .pack-shell { display: grid; gap: 1rem; }
 .pack-intro h2 {

@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810o";
+  const DATA_V = "20260810p";
 
   let retrieveData = null;
   let qaData = null;
@@ -1575,8 +1575,8 @@
     return map;
   }
 
-  function miniRankGrid(ranks, selectedId, goldId, revealSelected) {
-    return `<div class="mini-rank-grid">${ranks
+  function miniRankGrid(ranks, selectedId, goldId, revealSelected, { clickable = false, gmap = {} } = {}) {
+    const tiles = ranks
       .map((r, i) => {
         const cls =
           revealSelected && r.id === selectedId
@@ -1592,13 +1592,36 @@
               ? "选中✓"
               : "选中✗"
             : `#${i + 1}`;
+        const g = gmap[r.id] || {};
+        const short = g.short || r.id;
+        if (clickable) {
+          return `<button type="button" class="mini-tile ${cls}" data-mini-cap-id="${r.id}" title="点击查看 Caption：${short}">
+          <img src="${thumb(r.id)}" alt="${short}" loading="lazy" />
+          <span class="mini-mark">${mark}</span>
+          <span class="mini-score">${Number(r.score).toFixed(2)}</span>
+        </button>`;
+        }
         return `<div class="mini-tile ${cls}" title="${r.id}">
           <img src="${thumb(r.id)}" alt="" loading="lazy" />
           <span class="mini-mark">${mark}</span>
           <span class="mini-score">${Number(r.score).toFixed(2)}</span>
         </div>`;
       })
-      .join("")}</div>`;
+      .join("");
+    if (!clickable) return `<div class="mini-rank-grid">${tiles}</div>`;
+    return `<div class="mini-rank-wrap">
+      <p class="mini-cap-hint">点击任意图片，查看这张图对应的 Caption</p>
+      <div class="mini-rank-grid">${tiles}</div>
+      <div class="mini-cap-peek" hidden>
+        <div class="mini-cap-peek-top">
+          <img alt="" />
+          <div>
+            <b class="mini-cap-peek-title"></b>
+            <p class="mini-cap-peek-text"></p>
+          </div>
+        </div>
+      </div>
+    </div>`;
   }
 
   function miniPathColumn(q, sideKey, stepKey, gmap) {
@@ -1633,14 +1656,16 @@
         path.ranks,
         path.selected_id,
         q.gold_id,
-        false
+        false,
+        { clickable: true, gmap }
       )}`;
     } else if (stepKey === "select") {
       body = `${failBanner}<p class="mini-note">取排序第 1 名作为要看的图。</p>${miniRankGrid(
         path.ranks,
         path.selected_id,
         q.gold_id,
-        true
+        true,
+        { clickable: true, gmap }
       )}
       <div class="pair-imgs" style="margin-top:0.75rem">
         <div class="slot"><label>该方法选中</label><img src="${thumb(path.selected_id)}" alt="" /></div>
@@ -1790,6 +1815,27 @@
         activeId = btn.dataset.miniQ;
         miniStep = 0;
         refresh();
+      });
+    });
+    root.querySelectorAll("[data-mini-cap-id]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.miniCapId;
+        const g = galleryMap()[id] || {};
+        const wrap = btn.closest(".mini-rank-wrap");
+        const peek = wrap?.querySelector(".mini-cap-peek");
+        if (!peek) return;
+        wrap.querySelectorAll(".mini-tile.is-peek").forEach((el) => el.classList.remove("is-peek"));
+        btn.classList.add("is-peek");
+        peek.hidden = false;
+        const img = peek.querySelector("img");
+        if (img) {
+          img.src = thumb(id);
+          img.alt = g.short || id;
+        }
+        const title = peek.querySelector(".mini-cap-peek-title");
+        const text = peek.querySelector(".mini-cap-peek-text");
+        if (title) title.textContent = g.short || id;
+        if (text) text.textContent = g.caption || "（暂无该图 Caption）";
       });
     });
     root.querySelectorAll("[data-mini-step]").forEach((btn) => {
