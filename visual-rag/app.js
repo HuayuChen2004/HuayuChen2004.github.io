@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810q";
+  const DATA_V = "20260810r";
 
   let retrieveData = null;
   let qaData = null;
@@ -20,6 +20,51 @@
   let journeyStep = 0;
   let journeyShouldScroll = false;
   const loading = {};
+
+  /** Demo 页：用户拖入照片的本地示意流程（不上线 VLM） */
+  const liveState = {
+    items: [],
+    busy: false,
+    qid: "bright",
+    customQ: "",
+    phase: "idle", // idle | indexed | ran
+    runStep: 0,
+    result: null,
+  };
+  let liveSeq = 0;
+  const LIVE_PRESETS = [
+    {
+      id: "bright",
+      label: "找最亮的照片",
+      text: "从图库里找出整体最亮的那一张。",
+      kind: "bright",
+    },
+    {
+      id: "warm",
+      label: "找偏暖色的照片",
+      text: "哪一张照片色调更偏暖（偏红黄）？",
+      kind: "warm",
+    },
+    {
+      id: "portrait",
+      label: "找竖构图",
+      text: "哪一张是竖着拍的照片？",
+      kind: "portrait",
+    },
+    {
+      id: "custom",
+      label: "自定义问题",
+      text: "",
+      kind: "custom",
+    },
+  ];
+  const LIVE_FLOW = [
+    { key: "ask", title: "提出问题" },
+    { key: "retrieve", title: "检索排序" },
+    { key: "select", title: "选定照片" },
+    { key: "answer", title: "基于证据作答" },
+  ];
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   function fmtAns(a) {
     if (a == null) return "—";
@@ -113,6 +158,7 @@
     $("#pack-root").innerHTML = "";
     $("#journey-root").hidden = true;
     $("#journey-root").innerHTML = "";
+    $("#live-root").hidden = true;
     $("#mini-root").hidden = true;
     $("#mini-root").innerHTML = "";
     $("#picker-section").hidden = true;
@@ -1754,9 +1800,569 @@
     </article>`;
   }
 
+  function liveQuestionText() {
+    const preset = LIVE_PRESETS.find((p) => p.id === liveState.qid) || LIVE_PRESETS[0];
+    if (preset.kind === "custom") return (liveState.customQ || "").trim();
+    return preset.text;
+  }
+
+  function revokeLiveUrls(items) {
+    (items || []).forEach((it) => {
+      if (it.url && String(it.url).startsWith("blob:")) URL.revokeObjectURL(it.url);
+    });
+  }
+
+  function loadImageSize(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve({ w: img.naturalWidth || img.width, h: img.naturalHeight || img.height, img });
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  async function extractLiveFeat(url) {
+    const { w, h, img } = await loadImageSize(url);
+    const canvas = document.createElement("canvas");
+    const S = 32;
+    canvas.width = S;
+    canvas.height = S;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, S, S);
+    const data = ctx.getImageData(0, 0, S, S).data;
+    let sumR = 0;
+    let sumG = 0;
+    let sumB = 0;
+    const n = S * S;
+    for (let i = 0; i < data.length; i += 4) {
+      sumR += data[i];
+      sumG += data[i + 1];
+      sumB += data[i + 2];
+    }
+    const r = sumR / n / 255;
+    const g = sumG / n / 255;
+    const b = sumB / n / 255;
+    const brightness = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    const warm = r - b;
+    const saturation = Math.max(r, g, b) - Math.min(r, g, b);
+    const aspect = w / Math.max(h, 1);
+    const portrait = h > w * 1.05;
+    const landscape = w > h * 1.05;
+    // 4x4 brightness grid for a light "visual token" stand-in
+    const grid = [];
+    const cell = S / 4;
+    for (let gy = 0; gy < 4; gy += 1) {
+      for (let gx = 0; gx < 4; gx += 1) {
+        let s = 0;
+        let c = 0;
+        for (let y = 0; y < cell; y += 1) {
+          for (let x = 0; x < cell; x += 1) {
+            const px = Math.floor(gx * cell + x);
+            const py = Math.floor(gy * cell + y);
+            const idx = (py * S + px) * 4;
+            s += 0.2126 * data[idx] + 0.7152 * data[idx + 1] + 0.0722 * data[idx + 2];
+            c += 1;
+          }
+        }
+        grid.push(s / c / 255);
+      }
+    }
+    return {
+      w,
+      h,
+      r,
+      g,
+      b,
+      brightness,
+      warm,
+      saturation,
+      aspect,
+      portrait,
+      landscape,
+      grid,
+      tokenDim: 150,
+    };
+  }
+
+  function draftLiveCaption(item, feat, omitCue) {
+    const bits = [];
+    if (!omitCue || omitCue !== "bright") {
+      if (feat.brightness > 0.62) bits.push("整体偏亮");
+      else if (feat.brightness < 0.38) bits.push("整体偏暗");
+      else bits.push("亮度中等");
+    }
+    if (!omitCue || omitCue !== "warm") {
+      if (feat.warm > 0.08) bits.push("色调偏暖");
+      else if (feat.warm < -0.06) bits.push("色调偏冷");
+      else bits.push("色调比较中性");
+    }
+    if (!omitCue || omitCue !== "portrait") {
+      if (feat.portrait) bits.push("竖向构图");
+      else if (feat.landscape) bits.push("横向构图");
+      else bits.push("接近方形构图");
+    }
+    if (feat.saturation > 0.28) bits.push("颜色比较鲜艳");
+    else if (feat.saturation < 0.1) bits.push("颜色比较素净");
+    return `（本地示意 caption，真实系统由 Qwen3-VL-8B 生成）用户上传的照片「${item.name}」，分辨率 ${feat.w}×${feat.h}。${bits.join("，")}。`;
+  }
+
+  function liveCaptionScore(caption, qText, kind) {
+    const t = `${caption || ""} ${qText || ""}`;
+    const cap = (caption || "").toLowerCase();
+    const q = (qText || "").toLowerCase();
+    let s = 0;
+    const hit = (words, weight = 1) => {
+      words.forEach((w) => {
+        if (cap.includes(w)) s += weight;
+      });
+    };
+    if (kind === "bright") hit(["偏亮", "最亮", "明亮", "亮"], 2);
+    if (kind === "warm") hit(["偏暖", "暖色", "暖"], 2);
+    if (kind === "portrait") hit(["竖向", "竖着", "竖拍", "竖构图"], 2);
+    // custom / general: overlap characters from question appearing in caption
+    const qChars = [...new Set((qText || "").replace(/\s+/g, "").split(""))].filter((c) => c.length === 1);
+    let overlap = 0;
+    qChars.forEach((c) => {
+      if ((caption || "").includes(c)) overlap += 1;
+    });
+    s += Math.min(3, overlap / 8);
+    // tiny noise from name length to break ties
+    s += ((caption || "").length % 7) * 0.01;
+    return s;
+  }
+
+  function liveVisualScore(feat, kind) {
+    if (!feat) return 0;
+    if (kind === "bright") return feat.brightness;
+    if (kind === "warm") return (feat.warm + 1) / 2;
+    if (kind === "portrait") return feat.portrait ? 0.95 : feat.landscape ? 0.15 : 0.45;
+    // custom: prefer higher saturation + mid brightness as a weak prior
+    return 0.35 * feat.saturation + 0.2 * (1 - Math.abs(feat.brightness - 0.55));
+  }
+
+  function liveAnswerFromTop(item, kind, path) {
+    if (!item) return "未找到";
+    const f = item.feat || {};
+    if (kind === "bright") return path === "caption" ? `根据文字，选中「${item.name}」` : `看图像素亮度，选中「${item.name}」（亮度 ${(f.brightness * 100).toFixed(0)}%）`;
+    if (kind === "warm") return path === "caption" ? `根据文字，选中「${item.name}」` : `看图色调，选中「${item.name}」`;
+    if (kind === "portrait") return path === "caption" ? `根据文字，选中「${item.name}」` : `按构图比例，选中「${item.name}」`;
+    return `选中「${item.name}」作为最相关照片`;
+  }
+
+  function buildLiveResult() {
+    const preset = LIVE_PRESETS.find((p) => p.id === liveState.qid) || LIVE_PRESETS[0];
+    const kind = preset.kind === "custom" ? "custom" : preset.kind;
+    const qText = liveQuestionText();
+    const items = liveState.items.filter((it) => it.ready);
+    const rankSide = (side) => {
+      const rows = items
+        .map((it) => {
+          const score =
+            side === "caption" ? liveCaptionScore(it.caption, qText, kind) : liveVisualScore(it.feat, kind);
+          return { id: it.id, name: it.name, url: it.url, score, caption: it.caption, feat: it.feat };
+        })
+        .sort((a, b) => b.score - a.score);
+      const top = rows[0] || null;
+      return {
+        ranks: rows,
+        selected: top,
+        answer: liveAnswerFromTop(top, kind, side),
+      };
+    };
+    return {
+      qText: qText || "（请先填写问题）",
+      kind,
+      caption: rankSide("caption"),
+      visual: rankSide("visual"),
+    };
+  }
+
+  async function addLiveFiles(fileList) {
+    const files = [...fileList].filter((f) => f.type.startsWith("image/")).slice(0, 12);
+    for (const file of files) {
+      if (liveState.items.length >= 8) break;
+      liveSeq += 1;
+      const url = URL.createObjectURL(file);
+      liveState.items.push({
+        id: `live_${liveSeq}`,
+        name: file.name.replace(/\.[^.]+$/, "").slice(0, 24) || `照片${liveSeq}`,
+        fileName: file.name,
+        url,
+        ready: false,
+        caption: "",
+        captionStatus: "等待入库",
+        tokenStatus: "等待入库",
+        tokenProgress: 0,
+        feat: null,
+        omitCue: null,
+      });
+    }
+    liveState.phase = "idle";
+    liveState.result = null;
+    liveState.runStep = 0;
+    renderLivePlayground({ stick: true });
+  }
+
+  async function runLiveIndexing() {
+    if (liveState.busy || !liveState.items.length) return;
+    liveState.busy = true;
+    liveState.phase = "idle";
+    liveState.result = null;
+    liveState.runStep = 0;
+    renderLivePlayground({ stick: true });
+
+    // Make caption path occasionally miss the key cue on the true best image for preset demos
+    const feats = [];
+    for (const it of liveState.items) {
+      it.captionStatus = "提取图像特征…";
+      it.tokenStatus = "准备提取 visual token…";
+      it.tokenProgress = 0;
+      it.ready = false;
+      renderLivePlayground();
+      try {
+        it.feat = await extractLiveFeat(it.url);
+        feats.push(it);
+      } catch (_) {
+        it.captionStatus = "读图失败";
+        it.tokenStatus = "失败";
+      }
+      await sleep(180);
+    }
+
+    const byBright = [...feats].sort((a, b) => b.feat.brightness - a.feat.brightness)[0];
+    const byWarm = [...feats].sort((a, b) => b.feat.warm - a.feat.warm)[0];
+    const byPort = feats.find((x) => x.feat.portrait);
+
+    for (const it of liveState.items) {
+      if (!it.feat) continue;
+      let omit = null;
+      // 故意让「真·最优图」的 caption 偶尔漏写关键线索，方便看出文字路径的脆弱性
+      if (byBright && it.id === byBright.id && liveState.items.length >= 2) omit = "bright";
+      else if (byWarm && it.id === byWarm.id && it.feat.warm > 0.05) omit = "warm";
+      else if (byPort && it.id === byPort.id && it.feat.portrait) omit = "portrait";
+      it.omitCue = omit;
+
+      it.captionStatus = "生成 Caption…";
+      it.tokenStatus = "编码 Visual Token…";
+      it.tokenProgress = 0.15;
+      renderLivePlayground();
+      await sleep(280);
+      it.caption = draftLiveCaption(it, it.feat, omit);
+      it.captionStatus = "Caption 已写入";
+      it.tokenProgress = 0.55;
+      renderLivePlayground();
+      await sleep(260);
+      it.tokenProgress = 1;
+      it.tokenStatus = `Visual Token 就绪（示意 ${it.feat.tokenDim}×d）`;
+      it.ready = true;
+      renderLivePlayground();
+      await sleep(120);
+    }
+
+    liveState.busy = false;
+    liveState.phase = "indexed";
+    renderLivePlayground();
+  }
+
+  function runLiveQuery() {
+    if (!liveState.items.some((it) => it.ready)) return;
+    const q = liveQuestionText();
+    if (!q) {
+      liveState.qid = "custom";
+      renderLivePlayground({ stick: true });
+      const input = $("#live-custom-q");
+      input?.focus();
+      return;
+    }
+    liveState.result = buildLiveResult();
+    liveState.phase = "ran";
+    liveState.runStep = 0;
+    renderLivePlayground({ stick: true });
+  }
+
+  function liveRankGrid(rows, selectedId) {
+    return `<div class="live-rank-grid">${rows
+      .map((r, i) => {
+        const on = r.id === selectedId;
+        return `<div class="live-rank-tile ${on ? "is-top" : ""}">
+          <img src="${r.url}" alt="" />
+          <span class="n">#${i + 1}</span>
+          <span class="s">${Number(r.score).toFixed(2)}</span>
+          <span class="nm">${r.name}</span>
+        </div>`;
+      })
+      .join("")}</div>`;
+  }
+
+  function liveFlowColumn(sideKey) {
+    const res = liveState.result;
+    if (!res) return "";
+    const side = sideKey === "caption" ? res.caption : res.visual;
+    const isCap = sideKey === "caption";
+    const title = isCap ? "只靠文字（Caption）" : "我们的方法（Visual Token）";
+    const tone = isCap ? "caption" : "token";
+    const step = LIVE_FLOW[liveState.runStep] || LIVE_FLOW[0];
+    let body = "";
+    if (step.key === "ask") {
+      body = `<p class="mini-note">同一道用户问题：</p><h3 class="j-q" style="font-size:1rem">${res.qText}</h3>
+        <p class="mini-note">${isCap ? "接下来会用各图 Caption 做文字相关排序。" : "接下来会用本地提取的视觉特征（示意 visual token）打分。"}</p>`;
+    } else if (step.key === "retrieve") {
+      body = `<p class="mini-note">按相关分从高到低排序（本页为浏览器本地示意分）。</p>${liveRankGrid(side.ranks, side.selected?.id)}`;
+    } else if (step.key === "select") {
+      body = `<p class="mini-note">取第 1 名作为要查看的照片。</p>
+        ${liveRankGrid(side.ranks.slice(0, 4), side.selected?.id)}
+        <div class="pair-imgs" style="margin-top:0.7rem">
+          <div class="slot"><label>选中</label>${
+            side.selected ? `<img src="${side.selected.url}" alt="" />` : "—"
+          }</div>
+        </div>`;
+    } else {
+      body = `<p class="section-label">${isCap ? "读 Caption 作答" : "看 Visual Token 作答"}</p>
+        <p class="cap-text">${
+          isCap ? side.selected?.caption || "" : "使用该图的视觉特征（亮度 / 色调 / 构图网格等示意 token），不依赖 Caption 是否写全。"
+        }</p>
+        <div class="j-answer-bubble" style="margin-top:0.55rem">${side.answer}</div>`;
+    }
+    return `<article class="panel ${tone}-panel mini-col">
+      <div class="panel-head"><div><h3>${title}</h3></div></div>
+      ${body}
+    </article>`;
+  }
+
+  function renderLivePlayground({ stick } = {}) {
+    const root = $("#live-root");
+    if (!root) return;
+    root.hidden = false;
+    const readyN = liveState.items.filter((it) => it.ready).length;
+    const canIndex = liveState.items.length > 0 && !liveState.busy;
+    const canQuery = readyN > 0 && !liveState.busy;
+    const qText = liveQuestionText();
+
+    const cards = liveState.items
+      .map((it) => {
+        const pct = Math.round((it.tokenProgress || 0) * 100);
+        return `<article class="live-card ${it.ready ? "is-ready" : ""}">
+          <div class="live-card-media">
+            <img src="${it.url}" alt="" />
+            <button type="button" class="live-remove" data-live-del="${it.id}" title="移除" ${
+              liveState.busy ? "disabled" : ""
+            }>×</button>
+          </div>
+          <div class="live-card-body">
+            <input class="live-name" data-live-name="${it.id}" value="${it.name.replace(/"/g, "&quot;")}" ${
+              liveState.busy ? "disabled" : ""
+            } />
+            <div class="live-status">
+              <span>${it.captionStatus}</span>
+              <span>${it.tokenStatus}</span>
+            </div>
+            <div class="live-token-bar"><i style="width:${pct}%"></i></div>
+            <label class="live-cap-label">Caption${it.ready ? "（可改）" : ""}</label>
+            <textarea class="live-cap" data-live-cap="${it.id}" rows="3" ${
+              it.ready && !liveState.busy ? "" : "disabled"
+            }>${it.caption || ""}</textarea>
+          </div>
+        </article>`;
+      })
+      .join("");
+
+    const qChips = LIVE_PRESETS.map(
+      (p) =>
+        `<button type="button" class="mini-q ${liveState.qid === p.id ? "active" : ""}" data-live-q="${p.id}" ${
+          !canQuery ? "disabled" : ""
+        }>${p.label}</button>`
+    ).join("");
+
+    const flowStepper =
+      liveState.phase === "ran"
+        ? LIVE_FLOW.map(
+            (s, i) =>
+              `<button type="button" class="j-step ${i === liveState.runStep ? "current" : i < liveState.runStep ? "done" : ""}" data-live-step="${i}">
+                <span class="n">${i + 1}</span><span class="t">${s.title}</span>
+              </button>`
+          ).join("")
+        : "";
+
+    root.innerHTML = `
+      <div class="live-shell">
+        <div class="live-intro">
+          <p class="live-kicker">贴近真实使用</p>
+          <h2>用你的照片走一遍：入库 → 提问 → 检索作答</h2>
+          <p>把手机拍的照片拖进来，先看系统如何为每张图写 Caption、提取 Visual Token；再选一个问题，左右对照「只靠文字」和「看图特征」整条链路。照片只在浏览器本地处理，不会上传。</p>
+        </div>
+
+        <div class="live-drop ${liveState.busy ? "is-busy" : ""}" id="live-drop" tabindex="0">
+          <input type="file" id="live-file" accept="image/*" multiple hidden />
+          <div class="live-drop-inner">
+            <strong>拖拽图片到这里</strong>
+            <span>或点击选择，最多 8 张 · JPG / PNG / WEBP</span>
+            <button type="button" class="j-btn ghost" id="live-pick" ${liveState.busy ? "disabled" : ""}>选择照片</button>
+          </div>
+        </div>
+
+        ${
+          liveState.items.length
+            ? `<div class="live-toolbar">
+                <div class="live-count">图库 ${liveState.items.length} 张 · 已入库 ${readyN} 张</div>
+                <div class="live-actions">
+                  <button type="button" class="j-btn ghost" id="live-clear" ${liveState.busy ? "disabled" : ""}>清空图库</button>
+                  <button type="button" class="j-btn primary" id="live-index" ${canIndex ? "" : "disabled"}>
+                    ${liveState.busy ? "正在生成 Caption / Visual Token…" : readyN ? "重新生成入库特征" : "开始生成 Caption 与 Visual Token"}
+                  </button>
+                </div>
+              </div>
+              <div class="live-grid">${cards}</div>`
+            : `<p class="live-empty">还没有照片。先拖几张进来，模拟「用户拍了一组照片放进图库」。</p>`
+        }
+
+        <div class="live-ask ${canQuery ? "" : "is-disabled"}">
+          <div class="section-label">选一个问题（或自定义）</div>
+          <div class="mini-q-row">${qChips}</div>
+          <div class="live-custom-row" ${liveState.qid === "custom" ? "" : "hidden"}>
+            <input id="live-custom-q" type="text" placeholder="例如：哪张是室内拍的？哪些偏暗？" value="${(
+              liveState.customQ || ""
+            ).replace(/"/g, "&quot;")}" />
+          </div>
+          <p class="mini-note">${
+            canQuery
+              ? qText
+                ? `将检索：${qText}`
+                : "请填写自定义问题。"
+              : "请先完成入库（Caption + Visual Token）后再提问。"
+          }</p>
+          <button type="button" class="j-btn primary" id="live-run" ${canQuery && qText ? "" : "disabled"}>开始检索并逐步作答 →</button>
+        </div>
+
+        ${
+          liveState.phase === "ran" && liveState.result
+            ? `<div class="live-flow">
+                <div class="j-pin-q">
+                  <div class="j-shared-label">你的问题</div>
+                  <h3 class="j-q">${liveState.result.qText}</h3>
+                  <p class="j-meta">下面左右同步展开；预设题里 Visual Token 用真实像素特征，Caption 路径只读文字（有时会漏写关键线索）。</p>
+                </div>
+                <div class="j-stepper">${flowStepper}</div>
+                <div class="mini-dual">
+                  ${liveFlowColumn("caption")}
+                  ${liveFlowColumn("visual")}
+                </div>
+                <div class="j-controls">
+                  <button type="button" class="j-btn ghost" id="live-prev" ${liveState.runStep <= 0 ? "disabled" : ""}>上一步</button>
+                  <button type="button" class="j-btn primary" id="live-next" ${
+                    liveState.runStep >= LIVE_FLOW.length - 1 ? "disabled" : ""
+                  }>下一步 →</button>
+                </div>
+              </div>`
+            : ""
+        }
+      </div>`;
+
+    const drop = $("#live-drop");
+    const fileInput = $("#live-file");
+    const openPicker = () => fileInput?.click();
+    $("#live-pick")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openPicker();
+    });
+    drop?.addEventListener("click", (e) => {
+      if (e.target.closest("button")) return;
+      openPicker();
+    });
+    fileInput?.addEventListener("change", () => {
+      if (fileInput.files?.length) addLiveFiles(fileInput.files);
+      fileInput.value = "";
+    });
+    ["dragenter", "dragover"].forEach((ev) => {
+      drop?.addEventListener(ev, (e) => {
+        e.preventDefault();
+        drop.classList.add("is-drag");
+      });
+    });
+    ["dragleave", "drop"].forEach((ev) => {
+      drop?.addEventListener(ev, (e) => {
+        e.preventDefault();
+        drop.classList.remove("is-drag");
+      });
+    });
+    drop?.addEventListener("drop", (e) => {
+      const files = e.dataTransfer?.files;
+      if (files?.length) addLiveFiles(files);
+    });
+
+    $("#live-clear")?.addEventListener("click", () => {
+      revokeLiveUrls(liveState.items);
+      liveState.items = [];
+      liveState.phase = "idle";
+      liveState.result = null;
+      liveState.runStep = 0;
+      renderLivePlayground({ stick: true });
+    });
+    $("#live-index")?.addEventListener("click", () => runLiveIndexing());
+    $("#live-run")?.addEventListener("click", () => runLiveQuery());
+
+    root.querySelectorAll("[data-live-del]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.liveDel;
+        const victim = liveState.items.find((x) => x.id === id);
+        if (victim) revokeLiveUrls([victim]);
+        liveState.items = liveState.items.filter((x) => x.id !== id);
+        liveState.result = null;
+        liveState.phase = liveState.items.some((x) => x.ready) ? "indexed" : "idle";
+        renderLivePlayground({ stick: true });
+      });
+    });
+    root.querySelectorAll("[data-live-name]").forEach((input) => {
+      input.addEventListener("change", () => {
+        const it = liveState.items.find((x) => x.id === input.dataset.liveName);
+        if (it) it.name = input.value.trim() || it.name;
+      });
+    });
+    root.querySelectorAll("[data-live-cap]").forEach((ta) => {
+      ta.addEventListener("change", () => {
+        const it = liveState.items.find((x) => x.id === ta.dataset.liveCap);
+        if (it) it.caption = ta.value;
+      });
+    });
+    root.querySelectorAll("[data-live-q]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        liveState.qid = btn.dataset.liveQ;
+        liveState.result = null;
+        liveState.phase = readyN ? "indexed" : "idle";
+        renderLivePlayground({ stick: true });
+      });
+    });
+    $("#live-custom-q")?.addEventListener("input", (e) => {
+      liveState.customQ = e.target.value;
+    });
+    root.querySelectorAll("[data-live-step]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        liveState.runStep = Number(btn.dataset.liveStep) || 0;
+        renderLivePlayground({ stick: true });
+      });
+    });
+    $("#live-prev")?.addEventListener("click", () => {
+      if (liveState.runStep > 0) {
+        liveState.runStep -= 1;
+        renderLivePlayground({ stick: true });
+      }
+    });
+    $("#live-next")?.addEventListener("click", () => {
+      if (liveState.runStep < LIVE_FLOW.length - 1) {
+        liveState.runStep += 1;
+        renderLivePlayground({ stick: true });
+      }
+    });
+
+    if (stick) {
+      // no-op reserved; avoid auto-scroll during indexing redraws
+    }
+  }
+
   function renderMini() {
     hideAllStages();
     $("#picker-section").hidden = true;
+    renderLivePlayground();
     const root = $("#mini-root");
     root.hidden = false;
 
@@ -1773,18 +2379,17 @@
     const gmap = galleryMap();
     const atEnd = miniStep === steps.length - 1;
     const atStart = miniStep === 0;
+    const liveN = liveState.items.length;
 
     $("#overall-stats").innerHTML = `
-      <div class="stat"><label>小图库</label><strong>${miniData.gallery.length} 张图</strong></div>
-      <div class="stat token"><label>当前题</label><strong style="font-size:1.05rem">${q.label}</strong></div>
-      <div class="stat caption"><label>Caption 错在</label><strong style="font-size:1.05rem">${failStepLabel(
-        q.fail_step
-      )}</strong></div>`;
+      <div class="stat"><label>你的图库</label><strong>${liveN ? `${liveN} 张` : "可拖入"}</strong></div>
+      <div class="stat token"><label>预计算小例子</label><strong>${miniData.gallery.length} 张图</strong></div>
+      <div class="stat caption"><label>当前例题</label><strong style="font-size:1.05rem">${q.label}</strong></div>`;
 
-    setFoot("小图库例子为示意性预计算轨迹：题更简单、图更少，方便一眼看清 Caption 在哪一步翻车、看图方法如何走通。", [
-      "性质：教学用小例子（约 8 张图、几道简单题），非正式开放图库评测集。",
-      "左右对照：Caption 路径读预写文字；看图路径用视觉特征（示意）。",
-      "点排序缩略图可查看该图 Caption；这些 caption 与主实验一致，由 VLM（Qwen3-VL-8B）生成。",
+    setFoot("Demo 页上方可用自己的照片走「入库→提问→检索作答」；下方仍是预计算 CLEVR 小例子。", [
+      "上方 live demo：照片仅在浏览器本地处理，不上传服务器；Caption / Visual Token 为示意流程（非线上 8B / Rel）。",
+      "预设问题（最亮 / 偏暖 / 竖构图）会用本地像素特征打分；Caption 路径只读生成的文字，并可能故意漏写关键线索以便对照。",
+      "下方小例子：8 张图、几道简单题的预计算轨迹，非正式开放图库评测。",
       "正式数字请看⑤检索（24 题）、⑥定图（15 题）、⑦跨模型翻译。",
     ]);
 
@@ -1836,8 +2441,8 @@
     root.innerHTML = `
       <div class="mini-shell">
         <div class="mini-intro">
-          <h2>${miniData.title}</h2>
-          <p>${miniData.intro}</p>
+          <h2>预计算小例子（备用对照）</h2>
+          <p>${miniData.intro} 若你更想用自己的照片，请回到上方「用你的照片走一遍」。</p>
         </div>
         <div class="mini-gallery-wrap">
           <div class="section-label">本例子的小图库（共 ${miniData.gallery.length} 张）</div>
