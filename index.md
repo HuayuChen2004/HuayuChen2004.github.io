@@ -2,18 +2,7 @@
 layout: homepage
 ---
 
-## About Me
-
-I’m Huayu Chen, a sophomore in Department of Automation, Tsinghua University. I’m now a member of Software Department of Association of Science and Technology of Automation(ASTA). I’m also selected as a member of Tong Class in 2023, which is a special program targeted at cultivating talents for developing AGI. Now I’m also working as a volunteer in the Beijing Institute for General Artificial Intelligence(BIGAI), where I have two cooperative projects with researchers there. I have also participated in two social practice groups so far, including Δ-Group in Yangtze River Delta and Qianyu Qianxing in Guizhou, investigating how AI and digital industry have benifited the life of the public.
-
-## Research Interests
-
-- **Computer Vision:** 3D vision, articulated object reconstruction
-- **Cognitive Reasoning:** decision making, reinforcement learning
-
-## Projects
-
-- **[Visual Token vs Caption](/visual-rag/)** — Interactive walkthrough demo (question → answer), plus overview metrics and case galleries.
+## [Visual Token Demo](/visual-rag/)
 
 <!-- ## News -->
 
