@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810j";
+  const DATA_V = "20260810k";
 
   let retrieveData = null;
   let qaData = null;
@@ -15,7 +15,7 @@
   let pipelineStep = 0;
   let pipelineTimer = null;
   let mode = "mini"; // mini | pipeline | journey | overview | retrieve | answer
-  let answerSub = "select"; // select | read | pack
+  let answerSub = "select"; // select | read | multi
   let activeId = null;
   let journeyStep = 0;
   let journeyShouldScroll = false;
@@ -240,10 +240,10 @@
       <div class="stat"><label>相对提升</label><strong>+${((o.visual_token_pool_recall - o.caption_pool_recall) * 100).toFixed(1)} pt</strong></div>`;
     $("#picker-title").textContent = "选择问题";
     $("#picker-desc").textContent =
-      "8 道代表性题目（Gallery QA 检索评测）。看相关图进没进候选池：绿框=命中，灰框=噪声，红框=漏检。";
+      "检索 = 从大图库捞出候选池（相关图进没进前 K）。下一步的「定图」才是在这个池子里选出要看的那一张。绿框=命中，灰框=噪声，红框=漏检。";
     $("#answer-subtabs").hidden = true;
     $("#foot-note").textContent =
-      "池内召回率 = 相关图里有多少进了前 K 名候选。本页 Visual Token 对应「全库相关性打分 + tok/2（半精度 token）」；24 题均值 Caption 31.1% → Visual Token 82.3%。名词解释见总览「读懂这些词」。";
+      "检索对比只看「池子好不好」。定图、基于证据作答、多图列表题在「⑥ 答题对比」。本页 Visual Token 对应全库 Rel + tok/2；24 题均值 Caption 31.1% → Visual Token 82.3%。";
   }
 
   function renderAnswerOverall() {
@@ -254,20 +254,20 @@
       $("#overall-stats").innerHTML = `
         <div class="stat caption"><label>Caption 定图准确率</label><strong>${fmtPct(s.caption_locate_acc)}</strong></div>
         <div class="stat token"><label>Visual Token 定图准确率</label><strong>${fmtPct(s.visual_token_locate_acc)}</strong></div>
-        <div class="stat"><label>对照</label><strong style="font-size:1.05rem">同一候选池</strong></div>`;
+        <div class="stat"><label>设定</label><strong style="font-size:1.05rem">池已给定</strong></div>`;
       $("#picker-desc").textContent =
-        "左右对照：同一候选池里，Caption 与 Visual Token 谁更能定对唯一相关图，并据此作答。定错图却答对 = 碰巧对。";
+        "单图定图：检索已经给出同一候选池后，对比 Caption 与 Visual Token 谁更能从池子里选出正确的那一张，并据此作答。定错图却答对 = 碰巧对。";
       $("#foot-note").textContent =
-        "定图对比：两边用不同证据形态在同一候选池里选图再答题。不要只看答题正确率，先看有没有选对图。";
+        "检索 ≠ 定图。检索负责「相关图进不进池」；定图是在池内选唯一图。本页左右对照的是定图环节。";
     } else if (answerSub === "read") {
       $("#overall-stats").innerHTML = `
         <div class="stat caption"><label>金标图 + Caption</label><strong>${fmtPct(s.oracle_caption_acc)}</strong></div>
         <div class="stat token"><label>金标图 + Visual Token</label><strong>${fmtPct(s.oracle_visual_acc)}</strong></div>
         <div class="stat"><label>设定</label><strong style="font-size:1.05rem">图已选对</strong></div>`;
       $("#picker-desc").textContent =
-        "左右对照：图已经是正确唯一图，一边只读 Caption 文字，一边用 Visual Token 看图。比的是证据形态本身。";
+        "单图基于证据：跳过检索与定图，图已经是正确唯一图。一边只读 Caption 文字，一边用 Visual Token 看图，对比证据形态本身。";
       $("#foot-note").textContent =
-        "读证据对比：跳过找图/定图，只换「文字描述 vs 视觉 token」。用来说明 Caption 的信息损失。";
+        "这里不再比找图/选图，只比「喂给模型的是文字还是视觉 token」。用来说明 Caption 的信息损失。";
     } else {
       const agg = packData?.aggregates || [];
       const high = agg.find((a) => String(a.subset).includes("high")) || agg[0];
@@ -278,9 +278,9 @@
           <div class="stat"><label>oracle list F1</label><strong>${high.oracle_f1.toFixed(2)}</strong></div>`;
       }
       $("#picker-desc").textContent =
-        "左右/三列对照：开放图库「列出所有相关图」。Caption 检索、门控看图检索、以及相关图全给对时的看图上限。";
+        "多图检索题型例题：答案是「找出所有满足条件的图」（一堆图），不是只定一张。下面用列表题展示 Caption / 看图检索 / 上限对照。";
       $("#foot-note").textContent =
-        "Pack 列表对比：主看 list F1。oracle 表示检索上限下的看图作答能力；gate 仍受召回上限影响。";
+        "这不是与定图并列的第三阶段，而是另一种题型。主看 list F1；oracle = 相关图全进池后的看图作答上限。";
     }
   }
 
@@ -531,13 +531,14 @@
       mode = "mini";
       activeId = null;
       miniStep = 0;
-    } else if (target === "pack" || target === "answer:pack") {
+    } else if (target === "pack" || target === "multi" || target === "answer:pack" || target === "answer:multi") {
       mode = "answer";
-      answerSub = "pack";
+      answerSub = "multi";
       activeId = null;
     } else if (target.startsWith("answer:")) {
       mode = "answer";
-      answerSub = target.split(":")[1] || "select";
+      const sub = target.split(":")[1] || "select";
+      answerSub = sub === "pack" ? "multi" : sub;
       activeId = null;
     }
     switchMode(mode).then(() => window.scrollTo({ top: 0, behavior: "smooth" }));
@@ -946,7 +947,7 @@
         <div class="story-grid">${story}</div>
         <div class="pipe-ctas" style="margin-top:0.75rem">
           <button type="button" class="j-btn ghost" data-jump="pipeline">先看方法流程 →</button>
-          <button type="button" class="j-btn ghost" data-jump="pack">看 Pack 列表题 →</button>
+          <button type="button" class="j-btn ghost" data-jump="pack">看多图检索例题 →</button>
           <button type="button" class="journey-cta" data-jump="journey">去全程逐步对照 →</button>
         </div>
       </div>
@@ -1873,12 +1874,14 @@
       // 旧链接 #mode=pack 并入答题对比
       if (map.mode === "pack") {
         mode = "answer";
-        answerSub = "pack";
+        answerSub = "multi";
       } else {
         mode = map.mode;
       }
     }
-    if (map.sub === "select" || map.sub === "read" || map.sub === "pack") answerSub = map.sub;
+    if (map.sub === "select" || map.sub === "read" || map.sub === "multi" || map.sub === "pack") {
+      answerSub = map.sub === "pack" ? "multi" : map.sub;
+    }
     if (map.sub === "locate" || map.sub === "list") answerSub = "select";
     if (map.q) activeId = map.q;
     if (map.step != null && map.step !== "") {
@@ -1950,7 +1953,7 @@
         refresh();
       });
       renderRetrieveQuestion(qs.find((q) => q.id === activeId));
-    } else if (answerSub === "pack") {
+    } else if (answerSub === "multi") {
       renderPack();
     } else {
       hideAllStages();
