@@ -1706,10 +1706,68 @@ button.mini-tile.is-peek {
   gap: 0.35rem;
   justify-items: center;
   text-align: center;
-  padding: 1.35rem 1rem;
+  padding: 1.1rem 1rem 0.75rem;
 }
 .live-drop-inner strong { font-size: 1.02rem; }
 .live-drop-inner span { color: var(--muted); font-size: 0.86rem; }
+.live-grid-in-drop {
+  padding: 0 0.85rem 0.95rem;
+}
+.live-pool-wrap { display: grid; gap: 0.45rem; }
+.live-pool {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+.live-pool-item {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  padding: 0;
+  overflow: hidden;
+  cursor: grab;
+  text-align: center;
+  font: inherit;
+}
+.live-pool-item:active { cursor: grabbing; }
+.live-pool-item.is-dragging { opacity: 0.55; }
+.live-pool-item.is-used,
+.live-pool-item:disabled {
+  opacity: 0.4;
+  cursor: default;
+  filter: grayscale(0.2);
+}
+.live-pool-item img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+.live-pool-item span {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--muted);
+  padding: 0.25rem 0.15rem 0.35rem;
+}
+.live-name-static {
+  font-weight: 650;
+  font-size: 0.9rem;
+}
+.live-cap-ro {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted);
+  background: #f7f8fa;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  min-height: 3.6rem;
+}
+@media (max-width: 900px) {
+  .live-pool { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 .live-empty { margin: 0; color: var(--muted); font-size: 0.9rem; }
 .live-toolbar {
   display: flex;
