@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810g";
+  const DATA_V = "20260810h";
 
   let retrieveData = null;
   let qaData = null;
@@ -539,6 +539,15 @@
   }
 
   function pipelineSideCard(side, tone) {
+    const techItems = (side.tech || [])
+      .map((t) => `<li>${t}</li>`)
+      .join("");
+    const techBlock = techItems
+      ? `<details class="pipe-tech">
+          <summary>技术细节</summary>
+          <ul>${techItems}</ul>
+        </details>`
+      : "";
     return `
       <article class="pipe-card ${tone}">
         <div class="pipe-card-top">
@@ -548,6 +557,7 @@
         ${pipelineFlowHTML(side.flow)}
         <p class="pipe-plain">${side.plain}</p>
         <p class="pipe-detail">${side.detail}</p>
+        ${techBlock}
       </article>`;
   }
 

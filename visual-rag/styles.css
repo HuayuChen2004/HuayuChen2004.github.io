@@ -1775,6 +1775,62 @@ details.glossary[open] > summary::before { content: "▾ "; }
 .pipe-plain { margin: 0; font-size: 0.9rem; line-height: 1.55; }
 .pipe-detail { margin: 0; color: var(--muted); font-size: 0.82rem; line-height: 1.5; }
 
+.pipe-tech {
+  margin-top: 0.15rem;
+  border-top: 1px dashed rgba(28,36,48,0.12);
+  padding-top: 0.35rem;
+}
+.pipe-tech summary {
+  cursor: pointer;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  user-select: none;
+}
+.pipe-tech summary::-webkit-details-marker { display: none; }
+.pipe-tech summary::before {
+  content: "+";
+  width: 1rem;
+  height: 1rem;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.pipe-tech[open] summary::before { content: "−"; }
+.pipe-tech[open] summary { color: var(--ink); }
+.pipe-card.caption .pipe-tech[open] summary { color: var(--caption); }
+.pipe-card.token .pipe-tech[open] summary { color: var(--token); }
+.pipe-tech ul {
+  margin: 0.45rem 0 0.1rem;
+  padding: 0.55rem 0.7rem 0.55rem 1.2rem;
+  border-radius: 10px;
+  background: rgba(28,36,48,0.035);
+  border: 1px solid var(--line);
+}
+.pipe-card.caption .pipe-tech ul {
+  background: rgba(154,52,18,0.04);
+  border-color: rgba(154,52,18,0.12);
+}
+.pipe-card.token .pipe-tech ul {
+  background: rgba(15,92,76,0.045);
+  border-color: rgba(15,92,76,0.12);
+}
+.pipe-tech li {
+  margin: 0.35rem 0;
+  color: var(--ink);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
 .pipe-flowline {
   display: flex;
   flex-wrap: wrap;
