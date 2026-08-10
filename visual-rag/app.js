@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810u";
+  const DATA_V = "20260810v";
 
   let retrieveData = null;
   let qaData = null;
@@ -546,7 +546,7 @@
 
 
   function jumpFromOverview(target) {
-    } else if (target === "results") {
+    if (target === "results") {
       mode = "results";
       activeId = null;
     } else if (target === "retrieve") {
