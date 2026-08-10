@@ -2,6 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
+  const DATA_V = "20260810a";
 
   let retrieveData = null;
   let qaData = null;
@@ -14,12 +15,60 @@
   let activeId = null;
   let journeyStep = 0;
   let journeyShouldScroll = false;
+  const loading = {};
 
   function fmtAns(a) {
     if (a == null) return "—";
     if (typeof a === "boolean") return a ? "是" : "否";
     if (typeof a === "object") return JSON.stringify(a);
     return String(a);
+  }
+
+  function failStepLabel(step, kind = "short") {
+    const short = { select: "选图", read: "读文字", rank: "排序", retrieve: "找图" };
+    const long = { select: "选定要看的图", read: "读证据作答", rank: "排序", retrieve: "找图" };
+    return (kind === "long" ? long : short)[step] || step;
+  }
+
+  async function loadJson(path) {
+    const res = await fetch(`${path}?v=${DATA_V}`);
+    if (!res.ok) throw new Error(`${path} 请求失败（HTTP ${res.status}）`);
+    return res.json();
+  }
+
+  async function ensureJson(key, path, getter, setter) {
+    if (getter()) return getter();
+    if (!loading[key]) {
+      loading[key] = loadJson(path)
+        .then((d) => {
+          setter(d);
+          return d;
+        })
+        .finally(() => {
+          delete loading[key];
+        });
+    }
+    return loading[key];
+  }
+
+  async function ensureModeData(targetMode) {
+    const tasks = [];
+    if (targetMode === "mini" || targetMode === "overview") {
+      tasks.push(ensureJson("overview", "./data/overview.json", () => overviewData, (d) => (overviewData = d)));
+    }
+    if (targetMode === "mini") {
+      tasks.push(ensureJson("mini", "./data/mini_demo.json", () => miniData, (d) => (miniData = d)));
+    }
+    if (targetMode === "journey") {
+      tasks.push(ensureJson("journey", "./data/journey.json", () => journeyData, (d) => (journeyData = d)));
+    }
+    if (targetMode === "retrieve") {
+      tasks.push(ensureJson("retrieve", "./data/demo.json", () => retrieveData, (d) => (retrieveData = d)));
+    }
+    if (targetMode === "answer") {
+      tasks.push(ensureJson("answer", "./data/qa_demo.json", () => qaData, (d) => (qaData = d)));
+    }
+    await Promise.all(tasks);
   }
 
   function hideAllStages() {
@@ -1296,9 +1345,7 @@
       <div class="j-answer-bubble">${path.pred_answer}</div>
       <p class="mini-note">${
         isCap
-          ? `Caption 最终答错。关键失误步骤：${
-              { select: "选定要看的图", read: "读证据作答", rank: "排序", retrieve: "找图" }[q.fail_step] || q.fail_step
-            }。`
+          ? `Caption 最终答错。关键失误步骤：${failStepLabel(q.fail_step, "long")}。`
           : "我们的方法选对图且答对。"
       }</p>`;
     }
@@ -1334,9 +1381,9 @@
     $("#overall-stats").innerHTML = `
       <div class="stat"><label>小图库</label><strong>${miniData.gallery.length} 张图</strong></div>
       <div class="stat token"><label>当前题</label><strong style="font-size:1.05rem">${q.label}</strong></div>
-      <div class="stat caption"><label>Caption 错在</label><strong style="font-size:1.05rem">${
-        { select: "选图", read: "读文字", rank: "排序" }[q.fail_step] || q.fail_step
-      }</strong></div>`;
+      <div class="stat caption"><label>Caption 错在</label><strong style="font-size:1.05rem">${failStepLabel(
+        q.fail_step
+      )}</strong></div>`;
 
     $("#foot-note").textContent =
       "小图库例子为示意性预计算轨迹：题更简单、图更少，方便一眼看清 Caption 在哪一步翻车、看图方法如何走通。";
@@ -1400,9 +1447,10 @@
         <div class="j-pin-q">
           <div class="j-shared-label">当前问题</div>
           <h3 class="j-q">${q.question}</h3>
-          <p class="j-meta">标准答案：${q.gt_answer} · Caption 会在「${
-            { select: "选定要看的图", read: "读证据作答" }[q.fail_step] || q.fail_step
-          }」这一步出问题</p>
+          <p class="j-meta">标准答案：${q.gt_answer} · Caption 会在「${failStepLabel(
+            q.fail_step,
+            "long"
+          )}」这一步出问题</p>
         </div>
         <div class="j-stepper">${stepper}</div>
         <div class="j-timeline">${timeline}</div>
@@ -1470,12 +1518,18 @@
   function parseHash() {
     const raw = location.hash.replace(/^#/, "");
     if (!raw) return;
-    const map = Object.fromEntries(
-      raw.split("&").map((kv) => {
-        const [k, v] = kv.split("=");
-        return [k, decodeURIComponent(v || "")];
-      })
-    );
+    const map = {};
+    raw.split("&").forEach((kv) => {
+      if (!kv) return;
+      const eq = kv.indexOf("=");
+      const k = eq >= 0 ? kv.slice(0, eq) : kv;
+      const v = eq >= 0 ? kv.slice(eq + 1) : "";
+      try {
+        map[k] = decodeURIComponent(v || "");
+      } catch (_) {
+        map[k] = v || "";
+      }
+    });
     if (map.mode === "overview" || map.mode === "journey" || map.mode === "retrieve" || map.mode === "answer" || map.mode === "mini") {
       mode = map.mode;
     }
@@ -1486,6 +1540,31 @@
       const n = Math.max(0, Number(map.step) || 0);
       if (mode === "mini") miniStep = n;
       else journeyStep = n;
+    }
+  }
+
+  function showLoadError(err) {
+    console.error(err);
+    $("#overall-stats").innerHTML = `
+      <div class="stat"><label>加载失败</label><strong style="font-size:1rem">${err.message || err}</strong></div>
+      <div class="stat"><label>下一步</label><strong style="font-size:1rem"><button type="button" class="j-btn primary" id="reload-demo" style="margin:0">重试加载</button></strong></div>`;
+    $("#reload-demo")?.addEventListener("click", () => {
+      location.reload();
+    });
+  }
+
+  async function switchMode(nextMode) {
+    mode = nextMode;
+    activeId = null;
+    journeyStep = 0;
+    miniStep = 0;
+    endTour(false);
+    try {
+      $("#overall-stats").innerHTML = `<div class="stat"><label>加载中</label><strong style="font-size:1rem">正在准备该页数据…</strong></div>`;
+      await ensureModeData(mode);
+      refresh();
+    } catch (err) {
+      showLoadError(err);
     }
   }
 
@@ -1538,45 +1617,39 @@
   }
 
   async function main() {
-    const [rRes, qRes, oRes, jRes, mRes] = await Promise.all([
-      fetch("./data/demo.json?v=20260807p"),
-      fetch("./data/qa_demo.json?v=20260807p"),
-      fetch("./data/overview.json?v=20260807p"),
-      fetch("./data/journey.json?v=20260807p"),
-      fetch("./data/mini_demo.json?v=20260807p"),
-    ]);
-    retrieveData = await rRes.json();
-    qaData = await qRes.json();
-    overviewData = await oRes.json();
-    journeyData = await jRes.json();
-    miniData = await mRes.json();
     parseHash();
+    $("#overall-stats").innerHTML = `<div class="stat"><label>加载中</label><strong style="font-size:1rem">正在加载 Demo…</strong></div>`;
+    await ensureModeData(mode);
 
     document.querySelectorAll(".mode-tab").forEach((btn) => {
       btn.addEventListener("click", () => {
-        mode = btn.dataset.mode;
-        activeId = null;
-        journeyStep = 0;
-        miniStep = 0;
-        endTour(false);
-        refresh();
+        switchMode(btn.dataset.mode);
       });
     });
     document.querySelectorAll(".subtab").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         answerSub = btn.dataset.sub;
         activeId = null;
-        refresh();
+        try {
+          await ensureModeData("answer");
+          refresh();
+        } catch (err) {
+          showLoadError(err);
+        }
       });
     });
-    $("#tour-help")?.addEventListener("click", () => startTour({ auto: true }));
+    $("#tour-help")?.addEventListener("click", async () => {
+      try {
+        await ensureModeData("journey");
+        startTour({ auto: true });
+      } catch (err) {
+        showLoadError(err);
+      }
+    });
 
     refresh();
     maybeAutoStartTour();
   }
 
-  main().catch((err) => {
-    console.error(err);
-    $("#overall-stats").innerHTML = `<div class="stat"><label>加载失败</label><strong style="font-size:1rem">${err.message}</strong></div>`;
-  });
+  main().catch(showLoadError);
 })();
