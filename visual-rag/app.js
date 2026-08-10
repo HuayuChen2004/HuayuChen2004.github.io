@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810d";
+  const DATA_V = "20260810e";
 
   let retrieveData = null;
   let qaData = null;
@@ -538,9 +538,9 @@
       .join("")}</div>`;
   }
 
-  function pipelineSideCard(side, tone, { focus = false } = {}) {
+  function pipelineSideCard(side, tone) {
     return `
-      <article class="pipe-card ${tone}${focus ? " is-focus" : ""}">
+      <article class="pipe-card ${tone}">
         <div class="pipe-card-top">
           <h4>${side.title}</h4>
           <span class="pipe-tag">${side.tag}</span>
@@ -553,19 +553,18 @@
 
   function renderPipeline() {
     hideAllStages();
+    stopPipelinePlay();
     const d = pipelineData;
     const stages = d.stages || [];
     if (pipelineStep < 0) pipelineStep = 0;
     if (pipelineStep >= stages.length) pipelineStep = stages.length - 1;
-    const cur = stages[pipelineStep];
-    const playing = !!pipelineTimer;
 
     $("#overall-stats").innerHTML = `
-      <div class="stat caption"><label>左边</label><strong style="font-size:1.05rem">先写成文字</strong></div>
-      <div class="stat token"><label>右边</label><strong style="font-size:1.05rem">尽量直接看图</strong></div>
-      <div class="stat"><label>当前步</label><strong>${pipelineStep + 1} / ${stages.length} · ${cur.title}</strong></div>`;
+      <div class="stat caption"><label>左边一条链</label><strong style="font-size:1.05rem">先写成文字</strong></div>
+      <div class="stat token"><label>右边一条链</label><strong style="font-size:1.05rem">尽量直接看图</strong></div>
+      <div class="stat"><label>同屏</label><strong>${stages.length} 步从头到尾</strong></div>`;
     $("#foot-note").textContent =
-      "方法流程是示意对照：两边要解决的问题一样，差别在证据怎么表示、每一步靠什么打分。";
+      "方法流程一页看完：从上往下是完整链路；左右是同一时刻的两种做法。";
 
     const root = $("#pipeline-root");
     root.hidden = false;
@@ -574,47 +573,28 @@
       .map((x) => `<span class="pipe-chip">${x}</span>`)
       .join("");
 
-    const mapNodes = stages
+    const chain = stages
       .map((s, i) => {
-        const state = i === pipelineStep ? "current" : i < pipelineStep ? "done" : "";
+        const last = i === stages.length - 1;
         return `
-        <button type="button" class="pipe-map-node ${state}" data-pipe-step="${i}">
-          <span class="pipe-map-n">${i + 1}</span>
-          <span class="pipe-map-t">${s.title}</span>
-        </button>
-        ${i < stages.length - 1 ? `<span class="pipe-map-link" aria-hidden="true"></span>` : ""}`;
-      })
-      .join("");
-
-    const rail = stages
-      .map((s, i) => {
-        const on = i === pipelineStep;
-        const seen = i < pipelineStep;
-        return `
-        <button type="button" class="pipe-rail-item ${on ? "current" : seen ? "done" : ""}" data-pipe-step="${i}">
-          <span class="pipe-rail-n">${i + 1}</span>
-          <span class="pipe-rail-body">
-            <strong>${s.title}</strong>
-            <em>${s.diff}</em>
-          </span>
-        </button>`;
-      })
-      .join("");
-
-    const trail = stages
-      .map((s, i) => {
-        if (i > pipelineStep) return "";
-        const on = i === pipelineStep;
-        return `
-        <div class="pipe-row ${on ? "is-current" : "is-seen"}" data-pipe-row="${i}">
-          ${pipelineSideCard(s.caption, "caption", { focus: on })}
-          <div class="pipe-mid">
-            <div class="pipe-mid-n">${i + 1}</div>
-            <div class="pipe-mid-title">${s.title}</div>
-            <div class="pipe-diff">${s.diff}</div>
-            ${i < pipelineStep ? `<div class="pipe-arrow" aria-hidden="true"></div>` : ""}
+        <div class="pipe-stage ${i === pipelineStep ? "is-active" : ""}" id="pipe-stage-${i}" data-pipe-stage="${i}">
+          <div class="pipe-stage-band">
+            <span class="pipe-stage-n">${i + 1}</span>
+            <div class="pipe-stage-copy">
+              <h3>${s.title}</h3>
+              <p>${s.diff}</p>
+            </div>
           </div>
-          ${pipelineSideCard(s.ours, "token", { focus: on })}
+          <div class="pipe-row">
+            ${pipelineSideCard(s.caption, "caption")}
+            <div class="pipe-mid" aria-hidden="true">
+              <div class="pipe-mid-line"></div>
+              <div class="pipe-mid-vs">vs</div>
+              <div class="pipe-mid-line"></div>
+            </div>
+            ${pipelineSideCard(s.ours, "token")}
+          </div>
+          ${last ? "" : `<div class="pipe-chain-arrow" aria-hidden="true"><span></span></div>`}
         </div>`;
       })
       .join("");
@@ -626,96 +606,41 @@
           <p>${d.intro}</p>
         </div>
 
-        <div class="pipe-shared">
-          <span class="pipe-shared-label">${d.shared_input?.label || "共同输入"}</span>
-          <div class="pipe-chips">${inputChips}</div>
-          <div class="pipe-split" aria-hidden="true">
-            <span class="caption">Caption 路径</span>
-            <span class="mid">同一任务</span>
-            <span class="token">看图路径</span>
+        <div class="pipe-chain-wrap">
+          <div class="pipe-shared">
+            <span class="pipe-shared-label">${d.shared_input?.label || "共同输入"}</span>
+            <div class="pipe-chips">${inputChips}</div>
           </div>
-        </div>
 
-        <div class="pipe-map" aria-label="流程总览">${mapNodes}</div>
+          <div class="pipe-chain-down" aria-hidden="true"><span></span></div>
 
-        <div class="pipe-stageboard">
-          <aside class="pipe-rail" aria-label="步骤列表">${rail}</aside>
-          <div class="pipe-focus">
-            <div class="pipe-focus-head">
-              <div>
-                <div class="pipe-focus-kicker">第 ${pipelineStep + 1} 步</div>
-                <h3>${cur.title}</h3>
-                <p>${cur.diff}</p>
-              </div>
-              <div class="pipe-controls">
-                <button type="button" class="j-btn ghost" id="pipe-prev" ${pipelineStep === 0 ? "disabled" : ""}>上一步</button>
-                <button type="button" class="j-btn ghost" id="pipe-play">${playing ? "暂停" : "自动播放"}</button>
-                <button type="button" class="j-btn primary" id="pipe-next" ${pipelineStep >= stages.length - 1 ? "disabled" : ""}>下一步 →</button>
-              </div>
-            </div>
-            <div class="pipe-heads" aria-hidden="true">
-              <div class="pipe-head caption">只靠文字（Caption）</div>
-              <div class="pipe-head mid">差别</div>
-              <div class="pipe-head token">我们的方法（看图）</div>
-            </div>
-            <div class="pipe-focus-pair pipe-reveal">
-              ${pipelineSideCard(cur.caption, "caption", { focus: true })}
-              <div class="pipe-mid pipe-mid-focus">
-                <div class="pipe-mid-n">${pipelineStep + 1}</div>
-                <div class="pipe-mid-title">对照点</div>
-                <div class="pipe-diff">${cur.diff}</div>
-              </div>
-              ${pipelineSideCard(cur.ours, "token", { focus: true })}
-            </div>
+          <div class="pipe-heads pipe-heads-sticky" aria-hidden="true">
+            <div class="pipe-head caption">只靠文字（Caption）· 左边整条链</div>
+            <div class="pipe-head mid">每一步对照</div>
+            <div class="pipe-head token">我们的方法（看图）· 右边整条链</div>
           </div>
-        </div>
 
-        <div class="pipe-trail">
-          <div class="section-label">已展开的步骤（从上往下积累）</div>
-          <div class="pipe-flow">${trail}</div>
-        </div>
+          <div class="pipe-chain">${chain}</div>
 
-        <div class="pipe-takeaway">
-          <h3>一句话记住</h3>
-          <p>${d.takeaway}</p>
-          <div class="pipe-ctas">
-            <button type="button" class="j-btn primary" data-jump="mini">${d.cta?.mini || "去 Demo"}</button>
-            <button type="button" class="j-btn ghost" data-jump="journey">${d.cta?.journey || "去全程逐步"}</button>
+          <div class="pipe-chain-down" aria-hidden="true"><span></span></div>
+
+          <div class="pipe-takeaway">
+            <h3>一句话记住</h3>
+            <p>${d.takeaway}</p>
+            <div class="pipe-ctas">
+              <button type="button" class="j-btn primary" data-jump="mini">${d.cta?.mini || "去 Demo"}</button>
+              <button type="button" class="j-btn ghost" data-jump="journey">${d.cta?.journey || "去全程逐步"}</button>
+            </div>
           </div>
         </div>
       </div>`;
 
-    const go = (i) => {
-      stopPipelinePlay();
-      pipelineStep = Math.max(0, Math.min(stages.length - 1, i));
-      refresh();
-      requestAnimationFrame(() => {
-        document.querySelector(".pipe-focus")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    root.querySelectorAll("[data-pipe-stage]").forEach((el) => {
+      el.addEventListener("click", () => {
+        pipelineStep = Number(el.dataset.pipeStage);
+        root.querySelectorAll(".pipe-stage").forEach((n) => n.classList.toggle("is-active", n === el));
+        syncHash();
       });
-    };
-
-    root.querySelectorAll("[data-pipe-step]").forEach((btn) => {
-      btn.addEventListener("click", () => go(Number(btn.dataset.pipeStep)));
-    });
-    $("#pipe-prev")?.addEventListener("click", () => go(pipelineStep - 1));
-    $("#pipe-next")?.addEventListener("click", () => go(pipelineStep + 1));
-    $("#pipe-play")?.addEventListener("click", () => {
-      if (pipelineTimer) {
-        stopPipelinePlay();
-        refresh();
-        return;
-      }
-      if (pipelineStep >= stages.length - 1) pipelineStep = 0;
-      pipelineTimer = setInterval(() => {
-        if (pipelineStep >= stages.length - 1) {
-          stopPipelinePlay();
-          refresh();
-          return;
-        }
-        pipelineStep += 1;
-        refresh();
-      }, 2200);
-      refresh();
     });
     root.querySelectorAll("[data-jump]").forEach((btn) => {
       btn.addEventListener("click", () => jumpFromOverview(btn.dataset.jump));
