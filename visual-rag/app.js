@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810v";
+  const DATA_V = "20260810w";
 
   let retrieveData = null;
   let qaData = null;
@@ -15,7 +15,7 @@
   let miniStep = 0;
   let pipelineStep = 0;
   let pipelineTimer = null;
-  let mode = "mini"; // mini | pipeline | journey | overview | retrieve | answer | translate
+  let mode = "mini"; // mini | results | pipeline | journey | retrieve | answer | translate
   let answerSub = "select"; // select | read
   let activeId = null;
   let journeyStep = 0;
@@ -76,7 +76,7 @@
 
   async function ensureModeData(targetMode) {
     const tasks = [];
-    if (targetMode === "mini" || targetMode === "overview") {
+    if (targetMode === "mini") {
       tasks.push(ensureJson("overview", "./data/overview.json", () => overviewData, (d) => (overviewData = d)));
     }
     if (targetMode === "results") {
@@ -105,7 +105,7 @@
 
   /** Demo 先出来；其余 Tab 数据在空闲时后台预取，切换时通常已就绪。 */
   function prefetchRemainingData() {
-    const queue = ["results", "pipeline", "journey", "overview", "retrieve", "answer", "translate", "mini"];
+    const queue = ["results", "pipeline", "journey", "retrieve", "answer", "translate", "mini"];
     const run = async () => {
       for (const m of queue) {
         try {
@@ -127,8 +127,11 @@
   }
 
   function hideAllStages() {
-    $("#overview-root").hidden = true;
-    $("#overview-root").innerHTML = "";
+    const ov = $("#overview-root");
+    if (ov) {
+      ov.hidden = true;
+      ov.innerHTML = "";
+    }
     $("#results-root").hidden = true;
     $("#results-root").innerHTML = "";
     $("#pipeline-root").hidden = true;
@@ -247,9 +250,9 @@
     $("#picker-desc").textContent =
       "检索 = 从大图库捞出候选池（相关图进没进前 K）。下一步的「定图」才是在这个池子里选出要看的那一张。绿框=命中，灰框=噪声，红框=漏检。";
     $("#answer-subtabs").hidden = true;
-    setFoot("检索对比只看「池子好不好」。定图与读证据在「⑦」；跨模型译后作答在「⑧」。", [
+    setFoot("检索对比只看「池子好不好」。定图与读证据在「⑥」；跨模型译后作答在「⑦」。", [
       "任务：开放图库检索；主指标 = 池内召回（相关图是否进前 K），不是定图准确率。",
-      "题集：汇总统计来自 24 道 gallery QA；本页下方展示其中 8 道样例（如 gal_qa_*）。与⑦的 15 道定图题不是同一套题。",
+      "题集：汇总统计来自 24 道 gallery QA；本页下方展示其中 8 道样例（如 gal_qa_*）。与⑥的 15 道定图题不是同一套题。",
       "Caption：Qwen3-VL-8B 看图写中文 caption，再做文本混合检索（embedding + 关键词）。",
       "Visual Token：全库相关性 Rel + tok/2（半量 token）；同模型原生 visual token，无跨模型翻译。",
       "顶栏均值：Caption 池召回 31.1% → Visual Token 82.3%（24 题）。一页数字总览见「②」。",
@@ -282,11 +285,11 @@
         <div class="stat"><label>设定</label><strong style="font-size:1.05rem">图已选对</strong></div>`;
       $("#picker-desc").textContent =
         "读证据对比：跳过检索与定图，图已经是正确唯一图。一边只读 Caption 文字，一边用 Visual Token 看图，对比证据形态本身。";
-      setFoot("这里不再比找图/选图，只比证据形态。跨模型翻译请看「⑧」。", [
+      setFoot("这里不再比找图/选图，只比证据形态。跨模型翻译请看「⑦」。", [
         "任务：Oracle 单图答题——跳过检索与定图，直接给定金标图。",
         "对照：一边只读该图的 Caption 文字；一边用原生 Visual Token 看图。",
         "Caption 文本：Qwen3-VL-8B 生成；用来说明「文字压缩」本身的信息损失。",
-        "与⑥检索、⑦定图、⑧跨模型翻译都不是同一设定；本页只隔离「证据形态」。更大样本读证据表见「②」。",
+        "与⑤检索、⑥定图、⑦跨模型翻译都不是同一设定；本页只隔离「证据形态」。更大样本读证据表见「②」。",
       ]);
     }
   }
@@ -304,12 +307,12 @@
     $("#overall-stats").innerHTML =
       cards ||
       `<div class="stat"><label>机制</label><strong style="font-size:1.05rem">8B → 译 → 4B</strong></div>`;
-    setFoot("本页独立于⑦：⑦ 是同模型 Caption vs 原生 Visual Token；这里是跨模型翻译后再作答。", [
+    setFoot("本页独立于⑥：⑥ 是同模型 Caption vs 原生 Visual Token；这里是跨模型翻译后再作答。", [
       "机制（Phase G）：Teacher Qwen3-VL-8B 编码图特征 → Translator（Ridge + 残差 MLP）→ 冻结 Consumer Qwen3.5-4B 注入译后 vis 答题。",
       "载体：译后 image embedding（vis），不是 KV；Consumer 全程冻结。",
       "单图 held-out：译后 vis 答题 EM ≈ 0.963（n=1000）。",
       "下方列表题：答案是「找出所有…的图」；三列都用译后 vis 作答，差别主要在候选池（Caption / gate / oracle）。",
-      "与⑦的 15 道定图题、⑥的 24 道检索题都不是同一实验协议。",
+      "与⑥的 15 道定图题、⑤的 24 道检索题都不是同一实验协议。",
     ]);
   }
 
@@ -926,7 +929,7 @@
     setFoot(d.takeaway || "", [
       "主表：15 道定图+答题，协议对齐，baseline = Caption，我们的方法 = Visual Token Rel。",
       "副表：检索 24 题池召回；定图 15 题；读证据 160 题 oracle（图已给对）。",
-      "跨模型翻译（8B→4B）不在本页主表，见「⑧」。",
+      "跨模型翻译（8B→4B）不在本页主表，见「⑦」。",
     ]);
 
     const list = (block) =>
@@ -1470,7 +1473,7 @@
     {
       sel: ".mode-tabs",
       title: "你现在在「全程逐步」",
-      text: "默认最直观的是这个 Tab。总览数字、检索网格、答题对比可以稍后再看。",
+      text: "默认最直观的是这个 Tab。数据总览、检索样例、答题对比可以稍后再看。",
       place: "bottom",
     },
     {
@@ -2288,7 +2291,7 @@
       "可选图固定为这 8 张；不可上传外部照片，不可自定义问题。",
       "Caption 与 Visual Token 排序来自预计算轨迹；只对你拖入图库的子集截取名次。",
       "三道题：紫色球有几个 / 有没有黄球 / 大立方体是金属吗。",
-      "正式评测数字请看②数据总览；样例见⑥检索、⑦定图、⑧跨模型翻译。",
+      "正式评测数字请看②数据总览；样例见⑤检索、⑥定图、⑦跨模型翻译。",
     ]);
   }
 
@@ -2299,7 +2302,7 @@
     if (mode === "journey") parts.push(`step=${journeyStep}`);
     if (mode === "mini") parts.push(`step=${miniStep}`);
     if (mode === "pipeline") parts.push(`step=${pipelineStep}`);
-    if (mode !== "overview" && mode !== "pipeline" && activeId) {
+    if (mode !== "pipeline" && mode !== "results" && activeId) {
       parts.push(`q=${encodeURIComponent(activeId)}`);
     }
     history.replaceState(null, "", `#${parts.join("&")}`);
@@ -2334,6 +2337,8 @@
       // 旧链接 #mode=pack / answer&sub=multi → 跨模型翻译页
       if (map.mode === "pack") {
         mode = "translate";
+      } else if (map.mode === "overview") {
+        mode = "results";
       } else if (map.mode === "answer" && (map.sub === "multi" || map.sub === "pack")) {
         mode = "translate";
       } else {
@@ -2400,8 +2405,6 @@
       renderResults();
     } else if (mode === "pipeline") {
       renderPipeline();
-    } else if (mode === "overview") {
-      renderOverview();
     } else if (mode === "journey") {
       renderJourney();
     } else if (mode === "retrieve") {
