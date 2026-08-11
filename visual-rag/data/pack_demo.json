@@ -922,16 +922,61 @@
         "hint": "n=1000，译后 vis"
       },
       {
-        "label": "Pack list F1（high / oracle 池）",
-        "value": "~0.87",
-        "hint": "小 pack FT 后"
+        "label": "相对 T2T 加速",
+        "value": "11.5×",
+        "hint": "online encode+译；cached 约 12.6×"
       },
       {
-        "label": "Pack list F1（medium / oracle 池）",
-        "value": "~0.95",
-        "hint": "小 pack FT 后"
+        "label": "Pack list F1（oracle）",
+        "value": "0.87–0.95",
+        "hint": "小 pack FT 后 high/medium"
       }
     ],
-    "vs_old": "⑥ 答题对比：同模型 Caption vs 原生 visual token。本页：跨模型翻译后的看图作答，并用列表题展示真实开放图库场景。"
+    "latency": {
+      "title": "加速对照：写 Caption 中转 vs 直接译 vis",
+      "blurb": "对齐 Cache-to-Cache（C2C）的效率叙事：多模型协作时，中间文本要逐 token 生成，又慢又丢信息。我们测的是同一设定下「8B 写一段图描述再给 4B」vs「8B 只抽特征 → 翻译器 → 4B 注入」。40 道 held-out 单图题；Teacher 与 Consumer 分卡。",
+      "paths": [
+        {
+          "id": "t2t",
+          "name": "T2T：8B 写 Caption → 4B 读文字",
+          "role": "baseline",
+          "total_ms": 4794,
+          "speedup": "1.0×",
+          "em": 0.25,
+          "parts": [
+            { "label": "8B 生成描述", "ms": 4437 },
+            { "label": "4B 文本答题", "ms": 357 }
+          ]
+        },
+        {
+          "id": "vis_online",
+          "name": "Vis online：8B encode → 译 → 4B",
+          "role": "ours",
+          "total_ms": 416,
+          "speedup": "11.5×",
+          "em": 0.925,
+          "parts": [
+            { "label": "8B 只抽特征", "ms": 39 },
+            { "label": "翻译器", "ms": 0.7 },
+            { "label": "4B 注入答题", "ms": 377 }
+          ]
+        },
+        {
+          "id": "vis_cached",
+          "name": "Vis cached：读特征缓存 → 译 → 4B",
+          "role": "upper",
+          "total_ms": 380,
+          "speedup": "12.6×",
+          "em": 0.925,
+          "parts": [
+            { "label": "读缓存", "ms": 2.4 },
+            { "label": "翻译器", "ms": 0.7 },
+            { "label": "4B 注入答题", "ms": 377 }
+          ]
+        }
+      ],
+      "takeaway": "和 C2C 一样，大头在「中间文本的逐 token 解码」（这里约 4.4 秒）。翻译器本身不到 1 ms；省掉写 Caption 后，端到端大约快一个数量级，答题也更准。"
+    },
+    "vs_old": "⑥ 答题对比：同模型 Caption vs 原生 visual token。本页：跨模型翻译后的看图作答，并用列表题展示真实开放图库场景；上方补了相对「写 Caption 再传」的延迟对照。"
   }
 }

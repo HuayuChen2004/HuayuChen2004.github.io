@@ -311,6 +311,7 @@
       "机制（Phase G）：Teacher Qwen3-VL-8B 编码图特征 → Translator（Ridge + 残差 MLP）→ 冻结 Consumer Qwen3.5-4B 注入译后 vis 答题。",
       "载体：译后 image embedding（vis），不是 KV；Consumer 全程冻结。",
       "单图 held-out：译后 vis 答题 EM ≈ 0.963（n=1000）。",
+      "加速：相对「8B 写 Caption → 4B 读」约 11.5×（online）/ 12.6×（cached），EM 0.25 → 0.93。",
       "下方列表题：答案是「找出所有…的图」；三列都用译后 vis 作答，差别主要在候选池（Caption / gate / oracle）。",
       "与⑥的 15 道定图题、⑤的 24 道检索题都不是同一实验协议。",
     ]);
@@ -767,6 +768,48 @@
       )
       .join("");
 
+    const lat = t.latency;
+    const maxMs = lat
+      ? Math.max(...(lat.paths || []).map((p) => Number(p.total_ms) || 0), 1)
+      : 1;
+    const latencyHTML = lat
+      ? `
+      <div class="xlate-latency">
+        <div class="pack-intro">
+          <h2>${lat.title}</h2>
+          <p>${lat.blurb || ""}</p>
+        </div>
+        <div class="lat-paths">
+          ${(lat.paths || [])
+            .map((p) => {
+              const w = Math.max(6, (Number(p.total_ms) / maxMs) * 100);
+              const cls =
+                p.role === "ours" ? "ours" : p.role === "upper" ? "upper" : "baseline";
+              const parts = (p.parts || [])
+                .map((x) => `<li><span>${x.label}</span><b>${Number(x.ms).toLocaleString()} ms</b></li>`)
+                .join("");
+              return `
+              <article class="lat-card ${cls}">
+                <div class="lat-card-top">
+                  <h3>${p.name}</h3>
+                  <div class="lat-badges">
+                    <span class="lat-speed">${p.speedup}</span>
+                    <span class="lat-em">EM ${(Number(p.em) * 100).toFixed(0)}%</span>
+                  </div>
+                </div>
+                <div class="lat-bar-track" aria-hidden="true">
+                  <div class="lat-bar-fill ${cls}" style="width:${w}%"></div>
+                </div>
+                <div class="lat-total"><span>端到端</span><strong>${Number(p.total_ms).toLocaleString()} ms</strong></div>
+                <ul class="lat-parts">${parts}</ul>
+              </article>`;
+            })
+            .join("")}
+        </div>
+        <p class="pack-takeaway">${lat.takeaway || ""}</p>
+      </div>`
+      : "";
+
     const agg = d.aggregates || [];
     const aggCards = agg
       .map((a) => {
@@ -843,6 +886,7 @@
         </div>
         <div class="xlate-flow" aria-label="翻译流程">${flowHTML}</div>
         <div class="xlate-metrics">${metricHTML}</div>
+        ${latencyHTML}
         <div class="pack-intro">
           <h2>例题：译后看图 · 多图列表</h2>
           <p>${d.note || ""}</p>

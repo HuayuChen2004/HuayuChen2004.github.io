@@ -2332,6 +2332,116 @@ button.mini-tile.is-peek {
   .xlate-metrics { grid-template-columns: 1fr; }
   .xlate-arrow { display: none; }
 }
+
+.xlate-latency {
+  margin: 1.25rem 0 1.75rem;
+}
+.lat-paths {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+}
+.lat-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.95rem 1rem 1.05rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  box-shadow: var(--shadow);
+}
+.lat-card.ours {
+  border-color: rgba(15, 118, 110, 0.35);
+  background: linear-gradient(180deg, rgba(240, 253, 250, 0.95), #fff 42%);
+}
+.lat-card.upper {
+  border-color: rgba(37, 99, 235, 0.28);
+  background: linear-gradient(180deg, rgba(239, 246, 255, 0.92), #fff 42%);
+}
+.lat-card h3 {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  font-weight: 600;
+}
+.lat-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.lat-speed,
+.lat-em {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.lat-speed {
+  background: #0f766e;
+  color: #fff;
+  border-color: transparent;
+}
+.lat-card.baseline .lat-speed {
+  background: #94a3b8;
+}
+.lat-em {
+  color: #334155;
+  background: #f8fafc;
+}
+.lat-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+.lat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #94a3b8;
+}
+.lat-bar-fill.ours { background: #0f766e; }
+.lat-bar-fill.upper { background: #2563eb; }
+.lat-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.lat-total strong {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+.lat-parts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.28rem;
+}
+.lat-parts li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #475569;
+  border-top: 1px dashed rgba(15, 23, 42, 0.08);
+  padding-top: 0.28rem;
+}
+.lat-parts b {
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+@media (max-width: 900px) {
+  .lat-paths { grid-template-columns: 1fr; }
+}
+
 .pack-agg {
   display: grid;
   grid-template-columns: 1fr 1fr;
