@@ -308,6 +308,7 @@
       cards ||
       `<div class="stat"><label>机制</label><strong style="font-size:1.05rem">8B → 译 → 4B</strong></div>`;
     setFoot("本页独立于⑥：⑥ 是同模型 Caption vs 原生 Visual Token；这里是跨模型翻译后再作答。", [
+      "上方总览图：Caption 基线 vs 门控视觉检索 → 定图 → 翻译 → 视觉答题。",
       "机制（Phase G）：Teacher Qwen3-VL-8B 编码图特征 → Translator（Ridge + 残差 MLP）→ 冻结 Consumer Qwen3.5-4B 注入译后 vis 答题。",
       "载体：译后 image embedding（vis），不是 KV；Consumer 全程冻结。",
       "单图 held-out：译后 vis 答题 EM ≈ 0.963（n=1000）。",
@@ -634,7 +635,7 @@
     setFoot("方法流程一页看完：从上往下是完整链路；左右是同一时刻的两种做法。", [
       "性质：概念流程示意，对应主实验「Caption 路径 vs Visual Token 路径」，不是单独一张评测表。",
       "Caption 路径：图 → Qwen3-VL-8B 写 caption → 文本检索 / 定图 / 读文字答题。",
-      "Visual Token 路径：保留视觉特征做检索与答题；本页讲的是同模型原生 token，不是⑦的跨模型翻译。",
+      "Visual Token 路径：保留视觉特征做检索与答题；本页讲同模型原生 token。含翻译的总览图见「⑦」。",
     ]);
 
     const root = $("#pipeline-root");
@@ -884,6 +885,17 @@
           <p class="pack-note">${t.why || ""}</p>
           <p class="pack-note">${t.vs_old || ""}</p>
         </div>
+        <figure class="xlate-hero-fig">
+          <img
+            src="./assets/pipeline-e2e.png"
+            alt="端到端流程：Caption 基线 vs 门控视觉检索、定图、跨模型翻译与视觉答题"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>
+            总览：粗召 / 门控视觉检索 → 定图 → Capsule 翻译 → 视觉答题；上轨为 Caption 基线对照。
+          </figcaption>
+        </figure>
         <div class="xlate-flow" aria-label="翻译流程">${flowHTML}</div>
         <div class="xlate-metrics">${metricHTML}</div>
         ${latencyHTML}
@@ -973,7 +985,7 @@
     setFoot(d.takeaway || "", [
       "主表：15 道定图+答题，协议对齐，baseline = Caption，我们的方法 = Visual Token Rel。",
       "副表：检索 24 题池召回；定图 15 题；读证据 160 题 oracle（图已给对）。",
-      "跨模型翻译（8B→4B）不在本页主表，见「⑦」。",
+      "跨模型翻译（8B→4B / gate_tok2）不在本页主表，见「⑦」。",
     ]);
 
     const list = (block) =>
@@ -1943,22 +1955,72 @@
   }
 
   function liveAnswerFor(q, selectedId, sideKey) {
+    if (!selectedId) return q.empty_message || "所选图片中没有满足题目要求的图。";
+    const table = q.answer_by_image && q.answer_by_image[selectedId];
+    if (table) {
+      return sideKey === "caption" ? table.caption : table.ours;
+    }
     const path = sideKey === "caption" ? q.caption : q.ours;
-    if (!selectedId) return "未选中图片";
     if (selectedId === path.selected_id) return path.pred_answer;
     if (selectedId === q.gold_id) return q.gt_answer;
-    return sideKey === "caption"
-      ? "（示意）这段 caption 信息不够稳，答案容易偏"
-      : "（示意）看图后给出与画面一致的判断";
+    return "（该图无预计算作答轨迹）";
+  }
+
+  function liveReadNote(q, selectedId, sideKey) {
+    const table = q.answer_by_image && q.answer_by_image[selectedId];
+    if (table) {
+      const note = sideKey === "caption" ? table.note_caption : table.note_ours;
+      if (note) return note;
+    }
+    const path = sideKey === "caption" ? q.caption : q.ours;
+    return path.read_note || "";
+  }
+
+  function liveGoldInSubset(q, subset) {
+    return !!(q.gold_id && subset.has(q.gold_id));
+  }
+
+  function liveStatusLabel(status) {
+    if (status === "empty") return "未放入图片";
+    if (status === "no_evidence") return "无满足约束的图";
+    if (status === "wrong_select") return "定图选错";
+    if (status === "ok_select") return "定图正确";
+    if (status === "relative") return "子集内相对定图";
+    return "—";
+  }
+
+  function liveGoldSlotHTML(q, subset, selectedOk) {
+    if (liveGoldInSubset(q, subset)) {
+      return `<div class="slot"><label>标准相关图（已在你的小图库）</label><img src="${thumb(q.gold_id)}" alt="" /></div>`;
+    }
+    return `<div class="slot"><label>标准相关图</label><div class="live-missing-gold">未放入小图库<br/><span>全库金标仅作参考，不参与本次作答</span></div></div>`;
+  }
+
+  function liveRefAnswerHTML(q, side) {
+    const mode = q.select_mode || "argmax";
+    if (side.status === "no_evidence" || side.status === "empty") {
+      return `<p class="mini-note">全库参考答案（你的小图库未覆盖目标，本次不评分）：<b>${q.gt_answer}</b></p>`;
+    }
+    if (mode === "argmax" && !side.goldInSubset) {
+      return `<p class="mini-note">本次答案是「拖入子集内相对最相关图」上的结果；全库参考答案为 <b>${q.gt_answer}</b>（金标图未放入）。</p>`;
+    }
+    if (side.status === "wrong_select") {
+      return `<p class="mini-note">若定对金标图，全库参考答案应为 <b>${q.gt_answer}</b>；上面是当前选中图上的离线答案。</p>`;
+    }
+    return `<p class="mini-note">全库参考答案：<b>${q.gt_answer}</b></p>`;
   }
 
   function buildLiveResult() {
     const q = liveActiveQuestion();
     const subset = new Set(liveState.items.filter((it) => it.ready).map((it) => it.id));
     const gmap = galleryMap();
+    const satisfying = new Set(q.satisfying_ids || (q.gold_id ? [q.gold_id] : []));
+    const mode = q.select_mode || (q.satisfying_ids ? "constraint" : "argmax");
+    const goldInSubset = liveGoldInSubset(q, subset);
+
     const rankSide = (sideKey) => {
       const path = sideKey === "caption" ? q.caption : q.ours;
-      const ranks = (path.ranks || [])
+      const ranksAll = (path.ranks || [])
         .filter((r) => subset.has(r.id))
         .map((r) => ({
           id: r.id,
@@ -1968,21 +2030,74 @@
           caption: gmap[r.id]?.caption || "",
           role: r.role,
         }));
+
+      const base = {
+        ranks: ranksAll,
+        goldInSubset,
+        mode,
+        subsetSize: subset.size,
+      };
+
+      if (!subset.size) {
+        return {
+          ...base,
+          selected: null,
+          selectedOk: false,
+          noMatch: true,
+          status: "empty",
+          answer: q.empty_message || "你还没有拖入任何图片。",
+          correct: false,
+          readNote: "请先从下方拖入图片并入库。",
+        };
+      }
+
+      if (mode === "constraint") {
+        const anyOk = [...subset].some((id) => satisfying.has(id));
+        if (!anyOk) {
+          return {
+            ...base,
+            selected: null,
+            selectedOk: false,
+            noMatch: true,
+            status: "no_evidence",
+            answer: q.empty_message || "所选图片中没有满足题目要求的图。",
+            correct: false,
+            readNote: "离线约束检查：当前小图库与题目过滤条件无交集，故不作答（不会退回全库金标）。",
+          };
+        }
+      }
+
+      const ranks = ranksAll;
       const top = ranks[0] || null;
-      const selectedOk = !!(top && top.id === q.gold_id);
+      const selectedOk = !!(top && (top.id === q.gold_id || satisfying.has(top.id)));
+      let status = "relative";
+      if (mode === "constraint") {
+        status = selectedOk ? "ok_select" : "wrong_select";
+      } else if (goldInSubset) {
+        status = selectedOk ? "ok_select" : "wrong_select";
+      } else {
+        status = "relative";
+      }
+
       return {
-        ranks,
+        ...base,
         selected: top,
         selectedOk,
+        noMatch: false,
+        status,
         answer: liveAnswerFor(q, top?.id, sideKey),
-        correct: sideKey === "caption" ? path.correct && selectedOk : path.correct && selectedOk,
+        correct: !!path.correct && selectedOk && goldInSubset,
+        readNote: liveReadNote(q, top?.id, sideKey),
       };
     };
+
     return {
       q,
       qText: q.question,
+      subset,
+      goldInSubset,
       caption: rankSide("caption"),
-      visual: rankSide("visual"),
+      visual: rankSide("ours"),
     };
   }
 
@@ -2052,43 +2167,74 @@
     const title = isCap ? "只靠文字（Caption）" : "我们的方法（Visual Token）";
     const tone = isCap ? "caption" : "token";
     const step = LIVE_FLOW[liveState.runStep] || LIVE_FLOW[0];
+    const subset = res.subset || new Set();
+    const statusTxt = liveStatusLabel(side.status);
     let body = "";
     if (step.key === "ask") {
       body = `<p class="mini-note">同一道题：</p><h3 class="j-q" style="font-size:1rem">${res.qText}</h3>
-        <p class="mini-note">${isCap ? "用图库里已写入的 Caption 做文字相关排序。" : "用预计算 Visual Token 相关性分排序。"}</p>`;
+        <p class="mini-note">${isCap ? "用图库里已写入的 Caption 做文字相关排序。" : "用预计算 Visual Token 相关性分排序。"}</p>
+        <p class="mini-note">${res.q.scope_note || ""}</p>`;
     } else if (step.key === "retrieve") {
       body = `<p class="mini-note">按相关分从高到低（来自预计算轨迹，只保留你拖入图库的图）。</p>${liveRankGrid(
         side.ranks,
         side.selected?.id
       )}`;
     } else if (step.key === "select") {
-      body = `<p class="mini-note">取第 1 名作为要看的图。</p>
+      if (side.status === "empty" || side.status === "no_evidence") {
+        body = `<p class="mini-note">${
+          side.status === "empty"
+            ? "尚未拖入任何图片，无法定图。"
+            : "你拖入的图库里，没有满足本题约束的图片（不是「选错了」，而是证据缺失）。"
+        }</p>
+          <div class="verdict bad" style="margin-top:0.55rem">${statusTxt}</div>
+          <div class="pair-imgs" style="margin-top:0.7rem">${liveGoldSlotHTML(res.q, subset, false)}</div>
+          <p class="mini-note">右侧占位表示金标未在你的小图库中；不会假装它已被选中。</p>`;
+      } else {
+        const selectMsg =
+          side.status === "relative"
+            ? "只在你拖入的图里相对排序，取第 1 名（金标未必在子集中）。"
+            : "只在你拖入的图里排序，取第 1 名作为要看的图。";
+        body = `<p class="mini-note">${selectMsg}</p>
         ${liveRankGrid(side.ranks.slice(0, Math.min(4, side.ranks.length)), side.selected?.id)}
         <div class="pair-imgs" style="margin-top:0.7rem">
-          <div class="slot"><label>选中</label>${
+          <div class="slot"><label>选中（子集内）</label>${
             side.selected ? `<img src="${side.selected.url}" alt="" />` : "—"
           }</div>
-          <div class="slot"><label>标准相关图</label><img src="${thumb(res.q.gold_id)}" alt="" /></div>
+          ${liveGoldSlotHTML(res.q, subset, side.selectedOk)}
         </div>
-        <div class="verdict ${side.selectedOk ? "ok" : "bad"}" style="margin-top:0.55rem">${
-          side.selectedOk ? "选对了" : "选错了"
-        }</div>`;
+        <div class="verdict ${
+          side.status === "relative" ? "warn" : side.selectedOk ? "ok" : "bad"
+        }" style="margin-top:0.55rem">${statusTxt}</div>`;
+      }
     } else {
-      body = `<p class="section-label">${isCap ? "读 Caption 作答" : "看 Visual Token 作答"}</p>
+      if (side.status === "empty" || side.status === "no_evidence") {
+        body = `<p class="section-label">无法作答（${statusTxt}）</p>
+          <div class="j-answer-bubble" style="margin-top:0.55rem">${side.answer}</div>
+          <p class="mini-note">${side.readNote || ""}</p>
+          ${liveRefAnswerHTML(res.q, side)}`;
+      } else {
+        body = `<p class="section-label">${isCap ? "读 Caption 作答" : "看 Visual Token 作答"}</p>
         <p class="cap-text">${
           isCap
             ? side.selected?.caption || ""
             : "同一张图的视觉 token（不依赖 caption 是否写对颜色/材质）。"
         }</p>
-        <p class="mini-note">${
-          isCap ? res.q.caption.read_note || "" : res.q.ours.read_note || ""
-        }</p>
+        <p class="mini-note">${side.readNote || ""}</p>
         <div class="j-answer-bubble" style="margin-top:0.55rem">${side.answer}</div>
-        <p class="mini-note">标准答案：${res.q.gt_answer}</p>`;
+        ${liveRefAnswerHTML(res.q, side)}`;
+      }
+    }
+    let headVerdict;
+    if (side.status === "empty" || side.status === "no_evidence") {
+      headVerdict = `<div class="verdict bad">${statusTxt}</div>`;
+    } else if (side.status === "relative") {
+      headVerdict = `<div class="verdict warn">${statusTxt}</div>`;
+    } else {
+      headVerdict = `<div class="verdict ${side.selectedOk ? "ok" : "bad"}">${statusTxt}</div>`;
     }
     return `<article class="panel ${tone}-panel mini-col">
       <div class="panel-head"><div><h3>${title}</h3></div>
-        <div class="verdict ${side.selectedOk ? "ok" : "bad"}">${side.selectedOk ? "定图倾向对" : "定图易错"}</div>
+        ${headVerdict}
       </div>
       ${body}
     </article>`;
@@ -2166,7 +2312,7 @@
         <div class="live-intro">
           <p class="live-kicker">贴近真实使用</p>
           <h2>把照片放进图库 → 生成证据 → 提问检索</h2>
-          <p>从下方 8 张示例图中拖入（或点击）组成你的图库，再生成 Caption / Visual Token，最后用三道固定题走完整流程。Caption 与排序均来自预计算，结果可复现。</p>
+          <p>从下方 8 张示例图中拖入（或点击）组成你的图库，再生成 Caption / Visual Token，最后用三道固定题走完整流程。只在你拖入的子集里检索；约束题缺证据会提示「没有符合的图」，argmax 题则给子集相对答案，并与全库参考答案分开标注。</p>
         </div>
 
         <div class="live-drop ${liveState.busy ? "is-busy" : ""}" id="live-drop" tabindex="0">
@@ -2333,8 +2479,8 @@
 
     setFoot("从 8 张预计算图中拖入图库，生成 Caption / Visual Token，再用三道固定题走检索作答。", [
       "可选图固定为这 8 张；不可上传外部照片，不可自定义问题。",
-      "Caption 与 Visual Token 排序来自预计算轨迹；只对你拖入图库的子集截取名次。",
-      "三道题：紫色球有几个 / 有没有黄球 / 大立方体是金属吗。",
+      "只对你拖入的子集截取排名；金标未放入时不会假装已入库。",
+      "约束题无交集 →「无满足约束的图」；argmax 题 → 子集相对答案 + 全库参考分栏。",
       "正式评测数字请看②数据总览；样例见⑤检索、⑥定图、⑦跨模型翻译。",
     ]);
   }

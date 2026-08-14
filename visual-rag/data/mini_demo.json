@@ -1,6 +1,6 @@
 {
   "title": "小图库互动例子",
-  "intro": "下面只有 8 张图、3 道简单题。选一道题后，左右同时走完「只靠文字」和「直接看图」两条路，看答案差在哪一步。",
+  "intro": "下面只有 8 张图、3 道简单题。把图拖进上方小图库后提问：系统只在你拖入的图里检索作答（离线预计算）。约束题若拖入集合不含目标图，会提示没有符合要求的图；argmax 题则在你的子集里相对排序作答，并与全库参考答案区分开。",
   "gallery": [
     {
       "id": "CLEVR_train_022058.png",
@@ -47,12 +47,35 @@
     {
       "id": "q_count_purple",
       "label": "紫色球有几个？",
-      "question": "这 8 张图里，请找到「紫色球最多」的那一张：上面一共有几个紫色球？",
-      "hint": "题很简单：先找对图，再数紫色球。",
+      "question": "在你拖入的图里，请找到「紫色球最多」的那一张：上面一共有几个紫色球？",
+      "hint": "只在你拖入的图里比谁紫球多；答案是「子集相对最多」那张上的个数，不一定等于全库金标答案。",
+      "select_mode": "argmax",
       "gt_answer": "3",
       "gold_id": "CLEVR_train_022058.png",
+      "empty_message": "你还没有拖入任何图片。",
+      "scope_note": "本题在拖入子集内做相对排序，不是全库绝对检索。",
       "fail_step": "read",
       "fail_plain": "Caption 找到的图其实对了，但文字把颜色写乱了，数球数错。",
+      "answer_by_image": {
+        "CLEVR_train_022058.png": {
+          "caption": "2",
+          "ours": "3",
+          "note_caption": "文字把一只紫球写成偏红，数成 2。",
+          "note_ours": "看图数到 3 个紫色球。"
+        },
+        "CLEVR_train_035872.png": {
+          "caption": "1",
+          "ours": "1",
+          "note_caption": "子集内相对最相关的是这张；图里约 1 个偏紫的球。",
+          "note_ours": "子集内选中此图，紫球约 1 个（不是全库最多的那张）。"
+        },
+        "CLEVR_train_066033.png": { "caption": "0", "ours": "0", "note_caption": "此图几乎无紫色球。", "note_ours": "看图：几乎无紫色球。" },
+        "CLEVR_train_056027.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" },
+        "CLEVR_train_002234.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" },
+        "CLEVR_train_001024.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" },
+        "CLEVR_train_055302.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" },
+        "CLEVR_train_047690.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" }
+      },
       "caption": {
         "ranks": [
           { "id": "CLEVR_train_022058.png", "score": 0.91, "role": "gold" },
@@ -91,12 +114,54 @@
     {
       "id": "q_exists_yellow",
       "label": "有没有黄球？",
-      "question": "请找到同时有「绿色圆柱」和「黄色立方体」的那张图：这张图里有没有黄色的球？",
-      "hint": "只要判断有没有黄球，不要被「金色」这种别名骗到。",
+      "question": "请在你拖入的图里找到同时有「绿色圆柱」和「黄色立方体」的那张：这张图里有没有黄色的球？",
+      "hint": "若拖入集合不含目标图，会提示找不到，不会强行答金标题。",
+      "select_mode": "constraint",
+      "satisfying_ids": ["CLEVR_train_002234.png"],
+      "empty_message": "你拖入的图片中，没有同时具有「绿色圆柱」和「黄色立方体」的图。",
+      "scope_note": "本题先检查拖入集合是否覆盖目标图，再在集合内排序定图。",
       "gt_answer": "有",
       "gold_id": "CLEVR_train_002234.png",
       "fail_step": "read",
       "fail_plain": "Caption 选对了图，但文字把黄球写成「金色金属球体」，存在性判断变成「没有」。",
+      "answer_by_image": {
+        "CLEVR_train_002234.png": {
+          "caption": "没有",
+          "ours": "有",
+          "note_caption": "Caption 把黄球写成金色金属球，答「没有」。",
+          "note_ours": "看图确认有黄色球体，答「有」。"
+        },
+        "CLEVR_train_056027.png": {
+          "caption": "（该图不满足「绿柱+黄立方」约束）",
+          "ours": "（该图不满足「绿柱+黄立方」约束）",
+          "note_caption": "有绿柱但没有黄色立方体。",
+          "note_ours": "有绿柱但没有黄色立方体。"
+        },
+        "CLEVR_train_001024.png": {
+          "caption": "（该图不满足「绿柱+黄立方」约束）",
+          "ours": "（该图不满足「绿柱+黄立方」约束）"
+        },
+        "CLEVR_train_055302.png": {
+          "caption": "（该图不满足「绿柱+黄立方」约束）",
+          "ours": "（该图不满足「绿柱+黄立方」约束）"
+        },
+        "CLEVR_train_066033.png": {
+          "caption": "（该图不满足「绿柱+黄立方」约束）",
+          "ours": "（该图不满足「绿柱+黄立方」约束）"
+        },
+        "CLEVR_train_047690.png": {
+          "caption": "（该图不满足「绿柱+黄立方」约束）",
+          "ours": "（该图不满足「绿柱+黄立方」约束）"
+        },
+        "CLEVR_train_035872.png": {
+          "caption": "（该图不满足「绿柱+黄立方」约束）",
+          "ours": "（该图不满足「绿柱+黄立方」约束）"
+        },
+        "CLEVR_train_022058.png": {
+          "caption": "（该图不满足「绿柱+黄立方」约束）",
+          "ours": "（该图不满足「绿柱+黄立方」约束）"
+        }
+      },
       "caption": {
         "ranks": [
           { "id": "CLEVR_train_002234.png", "score": 0.88, "role": "gold" },
@@ -135,12 +200,54 @@
     {
       "id": "q_pick_metal",
       "label": "大立方体是金属吗？",
-      "question": "请找到「有一个很大的青绿色立方体」的那张图：这个大立方体是金属材质吗？",
-      "hint": "关键是先选对那张有青绿大立方体的图，不要被别的金属球吸走。",
+      "question": "请在你拖入的图里找到「有一个很大的青绿色立方体」的那张：这个大立方体是金属材质吗？",
+      "hint": "若没有青绿大立方体那张图，会提示不满足要求；若拖入了但 Caption 被金属球吸走，仍可能选错。",
+      "select_mode": "constraint",
+      "satisfying_ids": ["CLEVR_train_055302.png"],
+      "empty_message": "你拖入的图片中，没有「很大的青绿色立方体」那张图。",
+      "scope_note": "本题先检查拖入集合是否覆盖目标图；Caption 仍可能在有金标时选错旁图。",
       "gt_answer": "不是（哑光/橡胶）",
       "gold_id": "CLEVR_train_055302.png",
       "fail_step": "select",
       "fail_plain": "Caption 被「金属球」关键词吸走，选错了图，后面答案建立在错误场景上。",
+      "answer_by_image": {
+        "CLEVR_train_055302.png": {
+          "caption": "不是（哑光）",
+          "ours": "不是（哑光）",
+          "note_caption": "若选对这张图，读 Caption 也能判断大立方偏哑光。",
+          "note_ours": "看图判断大立方为哑光。"
+        },
+        "CLEVR_train_001024.png": {
+          "caption": "是金属",
+          "ours": "（选中图不是青绿大立方体目标）",
+          "note_caption": "选错图：图里金属球很多，答「是金属」。",
+          "note_ours": "看图可知这不是青绿大立方体目标图。"
+        },
+        "CLEVR_train_047690.png": {
+          "caption": "（该图不是青绿大立方体目标）",
+          "ours": "（该图不是青绿大立方体目标）"
+        },
+        "CLEVR_train_002234.png": {
+          "caption": "（该图不是青绿大立方体目标）",
+          "ours": "（该图不是青绿大立方体目标）"
+        },
+        "CLEVR_train_056027.png": {
+          "caption": "（该图不是青绿大立方体目标）",
+          "ours": "（该图不是青绿大立方体目标）"
+        },
+        "CLEVR_train_066033.png": {
+          "caption": "（该图不是青绿大立方体目标）",
+          "ours": "（该图不是青绿大立方体目标）"
+        },
+        "CLEVR_train_035872.png": {
+          "caption": "（该图不是青绿大立方体目标）",
+          "ours": "（该图不是青绿大立方体目标）"
+        },
+        "CLEVR_train_022058.png": {
+          "caption": "（该图不是青绿大立方体目标）",
+          "ours": "（该图不是青绿大立方体目标）"
+        }
+      },
       "caption": {
         "ranks": [
           { "id": "CLEVR_train_001024.png", "score": 0.86, "role": "wrong" },

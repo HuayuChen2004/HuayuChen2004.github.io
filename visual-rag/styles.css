@@ -1903,6 +1903,31 @@ button.mini-tile.is-peek {
 }
 .live-rank-tile .n { top: 0.28rem; left: 0.28rem; }
 .live-rank-tile .s { top: 0.28rem; right: 0.28rem; color: var(--muted); }
+.live-missing-gold {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 0.55rem;
+  text-align: center;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--muted);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(0, 0, 0, 0.04),
+    rgba(0, 0, 0, 0.04) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  border: 1px dashed rgba(0, 0, 0, 0.18);
+  border-radius: 0.35rem;
+}
+.live-missing-gold span {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
 .live-rank-tile .nm {
   display: block;
   font-size: 0.68rem;
@@ -1937,8 +1962,34 @@ button.mini-tile.is-peek {
 .pipe-intro p {
   margin: 0;
   color: var(--muted);
-  line-height: 1.65;
+  line-height: 1.55;
   max-width: 52rem;
+}
+.pipe-hero-fig,
+.xlate-hero-fig {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: #f7f4ef;
+  box-shadow: var(--shadow);
+}
+.pipe-hero-fig img,
+.xlate-hero-fig img {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+.pipe-hero-fig figcaption,
+.xlate-hero-fig figcaption {
+  margin: 0;
+  padding: 0.65rem 0.9rem 0.8rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  background: rgba(255, 252, 245, 0.95);
 }
 
 .pipe-chain-wrap {

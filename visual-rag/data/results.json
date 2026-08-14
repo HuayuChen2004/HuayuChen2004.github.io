@@ -1,7 +1,7 @@
 {
   "title": "数据总览",
   "kicker": "给领导 / 客户的一页纸",
-  "lede": "用最少文字和两张表说明：相对 Caption baseline，Visual Token 在找图、定图、作答上分别强在哪里。",
+  "lede": "用最少文字和两张表说明：相对 Caption baseline，Visual Token 在找图、定图、作答上分别强在哪里。跨模型翻译（8B→4B）见「⑦」。",
   "contributions": {
     "title": "我们做了什么",
     "items": [
@@ -25,7 +25,7 @@
       "每张图：原图 + 一条 Caption + 一组 Visual Token（视觉特征）。",
       "检索题（24 题均值）：问「哪些图满足…」——相关图往往有多张；主看池内召回（有用图进没进前 K）。",
       "定图+答题题（15 题）：池已给定（约 170 张），池内只有一张金标图；先定图再答题。主看定图准确率，答题准确率作对照（需警惕碰巧对）。",
-      "读证据题（160 题）：跳过找图，直接给金标图；只比「读 Caption」vs「看 Visual Token」。"
+      "读证据题（160 题）：跳过找图，直接给金标图；只比「读 Caption」vs「看 Visual Token」。跨模型翻译见「⑦」。"
     ]
   },
   "main_table": {
@@ -55,7 +55,7 @@
         "tone": "good"
       }
     ],
-    "note": "只看答题准确率会高估 Caption：它一张金标图都没定对，却仍能「蒙对」约三分之二。"
+    "note": "只看答题准确率会高估 Caption：它一张金标图都没定对，却仍能「蒙对」约三分之二。gate_tok2 + 翻译器端到端见「⑦」。"
   },
   "step_tables": [
     {
@@ -140,10 +140,11 @@
       "note": "说明瓶颈不只在「找不到图」：图对了，Caption 压缩仍会丢数量/属性信息。"
     }
   ],
-  "takeaway": "一句话：Caption 便宜但不稳——漏检、定错、读错都会发生；Visual Token 把证据链补全，门控让成本可落地。细节案例见 Demo / 检索对比 / 答题对比。",
+  "takeaway": "一句话：Caption 便宜但不稳——漏检、定错、读错都会发生；Visual Token 把证据链补全，门控让成本可落地。跨模型翻译见「⑦」；细节案例见 Demo / 检索对比 / 答题对比。",
   "links": [
     { "label": "去 Demo 小例子", "jump": "mini" },
     { "label": "看检索样例", "jump": "retrieve" },
-    { "label": "看定图样例", "jump": "answer:select" }
+    { "label": "看定图样例", "jump": "answer:select" },
+    { "label": "看跨模型翻译", "jump": "pack" }
   ]
 }
