@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260817f";
+  const DATA_V = "20260817g";
 
   let retrieveData = null;
   let qaData = null;
@@ -2580,6 +2580,11 @@
 
     const api = await callVisualAskApi(q, scope);
     let visual = null;
+    let caption = {
+      ranks: capRanked,
+      evidence_ids: capDraft.evidence_ids,
+      answer: capDraft.text,
+    };
     if (api.ok && api.visual) {
       liveState.freeApiStatus = "ok";
       visual = {
@@ -2590,6 +2595,14 @@
         tok2_n_computed: api.visual.tok2_n_computed,
         note: api.note || "",
       };
+      if (api.caption?.answer) {
+        caption = {
+          ranks: api.caption.ranks || capRanked,
+          evidence_ids: api.caption.evidence_ids || capDraft.evidence_ids,
+          answer: api.caption.answer,
+          note: api.caption.note || "",
+        };
+      }
     } else {
       liveState.freeApiStatus = api.error || "API 不可用";
       visual = {
@@ -2606,11 +2619,7 @@
       scope_mode: `固定小图库 ${scope.length} 张`,
       top_k: topK,
       api_base: resolveAskApiBase() || "",
-      caption: {
-        ranks: capRanked,
-        evidence_ids: capDraft.evidence_ids,
-        answer: capDraft.text,
-      },
+      caption,
       visual,
     };
     liveState.freeBusy = false;
@@ -2645,8 +2654,9 @@
           </div>
           <div class="free-dual">
             <article class="free-arm caption-arm">
-              <header><h4>Caption 路径</h4><span>词面匹配草稿</span></header>
+              <header><h4>Caption 路径</h4><span>文字检索 + 文本答题</span></header>
               <pre class="free-answer">${cap.answer || "—"}</pre>
+              ${cap.note ? `<p class="mini-note">${cap.note}</p>` : ""}
               <div class="section-label">排序（高亮=依据图）</div>
               <div class="free-rank-grid">${freeRankTiles(cap.ranks, cap.evidence_ids)}</div>
             </article>
