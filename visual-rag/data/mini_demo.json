@@ -294,9 +294,9 @@
   ],
   "free_ask": {
     "enabled": true,
-    "title": "自由提问（小图库）",
-    "blurb": "在当前 8 张示例图上自由输入问题。左侧 Caption 草稿随时可用；右侧接 Visual Token（tok/2 精排 + 同模 8B 答题，无翻译）。后续把 gallery/thumbs 换成真实场景图即可。",
-    "method_note": "Caption：纯前端词面匹配。Visual Token：需 demo_mini_vt_api（Slurm GPU）。配置 API：URL 加 ?api=http://127.0.0.1:7865（先 SSH 隧道），或 localStorage visual_rag_api。",
+    "title": "自由提问",
+    "blurb": "在固定 8 张示例图上输入问题。左侧 Caption 草稿；右侧 Visual Token（tok/2 + 同模 8B，无翻译）。后续替换 gallery/thumbs 即可换成真实场景。",
+    "method_note": "Caption：纯前端。Visual Token：需 demo_mini_vt_api；用 ?api=http://127.0.0.1:7865（SSH 隧道）或 localStorage visual_rag_api。",
     "top_k": 3,
     "placeholder": "例如：哪张图紫色球最多？有没有蓝色金属立方体？",
     "examples": [

@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260817d";
+  const DATA_V = "20260817e";
 
   let retrieveData = null;
   let qaData = null;
@@ -2467,10 +2467,6 @@
   }
 
   function freeAskScopeIds() {
-    const ready = liveState.items.filter((it) => it.ready).map((it) => it.id);
-    if (ready.length) return ready;
-    const any = liveState.items.map((it) => it.id);
-    if (any.length) return any;
     return livePoolIds();
   }
 
@@ -2601,7 +2597,7 @@
     liveState.freeResult = {
       question: q,
       scope_n: scope.length,
-      scope_mode: liveState.items.length ? "图库子集" : "全部 8 张",
+      scope_mode: `固定小图库 ${scope.length} 张`,
       top_k: topK,
       api_base: resolveAskApiBase() || "",
       caption: {
@@ -2691,7 +2687,7 @@
           <button type="button" class="j-btn primary" id="free-ask-run" ${
             liveState.freeBusy ? "disabled" : ""
           }>${liveState.freeBusy ? "检索 / VT 答题中…" : "提问（Caption + Visual Token）→"}</button>
-          <span class="mini-note">未拖入图库时默认搜全部 8 张；已入库则只在子集内搜。</span>
+          <span class="mini-note">固定在这 ${ (miniData.gallery || []).length } 张示例图上检索作答。</span>
         </div>
         ${resultHTML}
       </section>`;
@@ -2701,223 +2697,27 @@
     const root = $("#live-root");
     if (!root || !miniData) return;
     root.hidden = false;
-    const readyN = liveState.items.filter((it) => it.ready).length;
-    const canIndex = liveState.items.length > 0 && !liveState.busy;
-    const canQuery = readyN > 0 && !liveState.busy;
-    const q = liveActiveQuestion();
     const pool = miniData.gallery || [];
-
     const poolHTML = pool
-      .map((g) => {
-        const inLib = liveInLibrary(g.id);
-        return `<button type="button" class="live-pool-item ${inLib ? "is-used" : ""}" draggable="${
-          inLib || liveState.busy ? "false" : "true"
-        }" data-pool-id="${g.id}" ${inLib || liveState.busy ? "disabled" : ""} title="${
-          inLib ? "已在图库中" : "拖到上方图库，或点击加入"
-        }">
-          <img src="${thumb(g.id)}" alt="" draggable="false" />
-          <span>${g.short}</span>
-        </button>`;
-      })
-      .join("");
-
-    const cards = liveState.items
-      .map((it) => {
-        const pct = Math.round((it.tokenProgress || 0) * 100);
-        return `<article class="live-card ${it.ready ? "is-ready" : ""}">
-          <div class="live-card-media">
-            <img src="${thumb(it.id)}" alt="" />
-            <button type="button" class="live-remove" data-live-del="${it.id}" title="移出图库" ${
-              liveState.busy ? "disabled" : ""
-            }>×</button>
-          </div>
-          <div class="live-card-body">
-            <div class="live-name-static">${it.short}</div>
-            <div class="live-status">
-              <span>${it.captionStatus}</span>
-              <span>${it.tokenStatus}</span>
-            </div>
-            <div class="live-token-bar"><i style="width:${pct}%"></i></div>
-            <label class="live-cap-label">Caption</label>
-            <p class="live-cap-ro">${it.caption || "入库后显示预计算 Caption"}</p>
-          </div>
-        </article>`;
-      })
-      .join("");
-
-    const qChips = (miniData.questions || [])
       .map(
-        (p) =>
-          `<button type="button" class="mini-q ${liveState.qid === p.id ? "active" : ""}" data-live-q="${p.id}" ${
-            !canQuery ? "disabled" : ""
-          }>${p.label}</button>`
+        (g) => `<figure class="free-gallery-item">
+          <img src="${thumb(g.id)}" alt="${g.short}" loading="lazy" />
+          <figcaption>${g.short}</figcaption>
+        </figure>`
       )
       .join("");
 
-    const flowStepper =
-      liveState.phase === "ran"
-        ? LIVE_FLOW.map(
-            (s, i) =>
-              `<button type="button" class="j-step ${i === liveState.runStep ? "current" : i < liveState.runStep ? "done" : ""}" data-live-step="${i}">
-                <span class="n">${i + 1}</span><span class="t">${s.title}</span>
-              </button>`
-          ).join("")
-        : "";
-
     root.innerHTML = `
-      <div class="live-shell">
+      <div class="live-shell free-only">
         <div class="live-intro">
-          <p class="live-kicker">贴近真实使用</p>
-          <h2>把照片放进图库 → 生成证据 → 提问检索</h2>
-          <p>从下方 8 张示例图中拖入（或点击）组成你的图库，再生成 Caption / Visual Token，最后用三道固定题走完整流程；也可以直接在下方「自由提问」里输入任意问题（当前为 Caption 路径草稿，无翻译）。</p>
+          <p class="live-kicker">小图库自由提问</p>
+          <h2>在这 ${pool.length} 张图上提问</h2>
+          <p>图库固定如下。输入任意问题后，左侧走 Caption 草稿，右侧走 Visual Token（tok/2 精排 + 同模 8B 答题，无翻译）。</p>
         </div>
-
-        <div class="live-drop ${liveState.busy ? "is-busy" : ""}" id="live-drop" tabindex="0">
-          <div class="live-drop-inner">
-            <strong>我的图库（拖到这里）</strong>
-            <span>只能使用下方这 8 张图 · 已放入 ${liveState.items.length} / 8</span>
-          </div>
-          ${
-            liveState.items.length
-              ? `<div class="live-grid live-grid-in-drop">${cards}</div>`
-              : `<p class="live-empty">图库还是空的。请从下面拖几张进来。</p>`
-          }
-        </div>
-
-        <div class="live-pool-wrap">
-          <div class="section-label">可选照片（共 8 张，拖到上方或点击加入）</div>
-          <div class="live-pool">${poolHTML}</div>
-        </div>
-
-        ${
-          liveState.items.length
-            ? `<div class="live-toolbar">
-                <div class="live-count">已入库特征 ${readyN} / ${liveState.items.length}</div>
-                <div class="live-actions">
-                  <button type="button" class="j-btn ghost" id="live-clear" ${liveState.busy ? "disabled" : ""}>清空图库</button>
-                  <button type="button" class="j-btn primary" id="live-index" ${canIndex ? "" : "disabled"}>
-                    ${liveState.busy ? "正在写入 Caption / Visual Token…" : readyN === liveState.items.length && readyN ? "重新生成入库特征" : "开始生成 Caption 与 Visual Token"}
-                  </button>
-                </div>
-              </div>`
-            : ""
-        }
-
-        <div class="live-ask ${canQuery ? "" : "is-disabled"}">
-          <div class="section-label">选择问题（三道固定题）</div>
-          <div class="mini-q-row">${qChips}</div>
-          <p class="mini-note">${
-            canQuery && q
-              ? q.question
-              : "请先把图拖入图库并完成入库，再选题。"
-          }</p>
-          <button type="button" class="j-btn primary" id="live-run" ${canQuery ? "" : "disabled"}>开始检索并逐步作答 →</button>
-        </div>
-
-        ${
-          liveState.phase === "ran" && liveState.result
-            ? `<div class="live-flow">
-                <div class="j-pin-q">
-                  <div class="j-shared-label">当前问题</div>
-                  <h3 class="j-q">${liveState.result.qText}</h3>
-                  <p class="j-meta">左右同步展开；排序分数来自预计算，仅保留你图库里的图片。</p>
-                </div>
-                <div class="j-stepper">${flowStepper}</div>
-                <div class="mini-dual">
-                  ${liveFlowColumn("caption")}
-                  ${liveFlowColumn("visual")}
-                </div>
-                <div class="j-controls">
-                  <button type="button" class="j-btn ghost" id="live-prev" ${liveState.runStep <= 0 ? "disabled" : ""}>上一步</button>
-                  <button type="button" class="j-btn primary" id="live-next" ${
-                    liveState.runStep >= LIVE_FLOW.length - 1 ? "disabled" : ""
-                  }>下一步 →</button>
-                </div>
-              </div>`
-            : ""
-        }
-
+        <div class="section-label">当前图库</div>
+        <div class="free-gallery">${poolHTML}</div>
         ${freeAskHTML()}
       </div>`;
-
-    const drop = $("#live-drop");
-    ["dragenter", "dragover"].forEach((ev) => {
-      drop?.addEventListener(ev, (e) => {
-        e.preventDefault();
-        drop.classList.add("is-drag");
-      });
-    });
-    ["dragleave", "drop"].forEach((ev) => {
-      drop?.addEventListener(ev, (e) => {
-        e.preventDefault();
-        drop.classList.remove("is-drag");
-      });
-    });
-    drop?.addEventListener("drop", (e) => {
-      const id = e.dataTransfer?.getData("text/live-id") || liveState.dragId;
-      if (id) addLiveFromPool(id);
-      liveState.dragId = null;
-    });
-
-    root.querySelectorAll("[data-pool-id]").forEach((btn) => {
-      btn.addEventListener("dragstart", (e) => {
-        const id = btn.dataset.poolId;
-        liveState.dragId = id;
-        e.dataTransfer?.setData("text/live-id", id);
-        e.dataTransfer.effectAllowed = "copy";
-        btn.classList.add("is-dragging");
-      });
-      btn.addEventListener("dragend", () => {
-        btn.classList.remove("is-dragging");
-        liveState.dragId = null;
-      });
-      btn.addEventListener("click", () => addLiveFromPool(btn.dataset.poolId));
-    });
-
-    $("#live-clear")?.addEventListener("click", () => {
-      liveState.items = [];
-      liveState.phase = "idle";
-      liveState.result = null;
-      liveState.runStep = 0;
-      renderLivePlayground();
-    });
-    $("#live-index")?.addEventListener("click", () => runLiveIndexing());
-    $("#live-run")?.addEventListener("click", () => runLiveQuery());
-
-    root.querySelectorAll("[data-live-del]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        liveState.items = liveState.items.filter((x) => x.id !== btn.dataset.liveDel);
-        liveState.result = null;
-        liveState.phase = liveState.items.some((x) => x.ready) ? "indexed" : "idle";
-        renderLivePlayground();
-      });
-    });
-    root.querySelectorAll("[data-live-q]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        liveState.qid = btn.dataset.liveQ;
-        liveState.result = null;
-        liveState.phase = readyN ? "indexed" : "idle";
-        renderLivePlayground();
-      });
-    });
-    root.querySelectorAll("[data-live-step]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        liveState.runStep = Number(btn.dataset.liveStep) || 0;
-        renderLivePlayground();
-      });
-    });
-    $("#live-prev")?.addEventListener("click", () => {
-      if (liveState.runStep > 0) {
-        liveState.runStep -= 1;
-        renderLivePlayground();
-      }
-    });
-    $("#live-next")?.addEventListener("click", () => {
-      if (liveState.runStep < LIVE_FLOW.length - 1) {
-        liveState.runStep += 1;
-        renderLivePlayground();
-      }
-    });
 
     const freeInput = $("#free-ask-input");
     freeInput?.addEventListener("input", () => {
@@ -2947,19 +2747,15 @@
     $("#mini-root").innerHTML = "";
     renderLivePlayground();
 
-    const liveN = liveState.items.length;
-    const q = liveActiveQuestion();
+    const n = miniData.gallery?.length || 0;
     $("#overall-stats").innerHTML = `
-      <div class="stat"><label>可选照片</label><strong>${miniData.gallery.length} 张</strong></div>
-      <div class="stat token"><label>已入图库</label><strong>${liveN} 张</strong></div>
-      <div class="stat caption"><label>固定题</label><strong style="font-size:1.05rem">${
-        q?.label || "三道"
-      }</strong></div>`;
+      <div class="stat"><label>小图库</label><strong>${n} 张</strong></div>
+      <div class="stat token"><label>作答路径</label><strong style="font-size:1.05rem">Caption · VT</strong></div>
+      <div class="stat caption"><label>翻译</label><strong style="font-size:1.05rem">无</strong></div>`;
 
-    setFoot("自由提问：Caption 草稿 + Visual Token（tok/2 + 同模 8B，无翻译）。", [
-      "Caption 路径纯前端；VT 路径需 sbatch 启动 demo_mini_vt_api，再用 ?api= 或 localStorage 指向服务。",
-      "固定题仍为预计算 Caption vs Visual Token 逐步对照。",
-      "后续换真实场景：替换 gallery/thumbs，并换对应 visual_cache。",
+    setFoot("固定小图库自由提问：Caption 草稿 + Visual Token（tok/2 + 同模 8B，无翻译）。", [
+      "Caption 路径纯前端；VT 路径需 demo_mini_vt_api，用 ?api= 或 localStorage 指向服务。",
+      "后续换真实场景：替换 gallery/thumbs 与对应 visual_cache。",
       "正式评测数字请看②数据总览。",
     ]);
   }
