@@ -22,7 +22,7 @@
   let journeyShouldScroll = false;
   const loading = {};
 
-  /** Demo 页：从预计算 8 张图中拖入图库，走入库→提问→检索 */
+  /** Demo 页：固定小图库自由提问（Caption + Visual Token） */
   const liveState = {
     items: [], // { id, short, caption, ready, captionStatus, tokenStatus, tokenProgress }
     busy: false,
@@ -2515,7 +2515,7 @@
     const top = ranked.filter((r) => r.score > 0).slice(0, topK);
     if (!top.length) {
       return {
-        text: "在当前小图库里，没有找到与问题明显相关的图（Caption 词面几乎无重叠）。可以换个问法，或先拖入更多相关图。",
+        text: "在当前小图库里，没有找到与问题明显相关的图（Caption 词面几乎无重叠）。可以换个问法再试。",
         evidence_ids: [],
       };
     }
