@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260817c";
+  const DATA_V = "20260817d";
 
   let retrieveData = null;
   let qaData = null;
@@ -34,7 +34,9 @@
     freeQ: "",
     freeBusy: false,
     freeResult: null,
+    freeApiStatus: null, // null | ok | err string
   };
+  let askConfig = null;
   const LIVE_FLOW = [
     { key: "ask", title: "提出问题" },
     { key: "retrieve", title: "检索排序" },
@@ -87,6 +89,11 @@
     }
     if (targetMode === "mini") {
       tasks.push(ensureJson("mini", "./data/mini_demo.json", () => miniData, (d) => (miniData = d)));
+      tasks.push(
+        ensureJson("ask_config", "./data/ask_config.json", () => askConfig, (d) => (askConfig = d)).catch(() => {
+          askConfig = { api_base: "", ask_path: "/ask", health_path: "/health" };
+        })
+      );
     }
     if (targetMode === "pipeline") {
       tasks.push(ensureJson("pipeline", "./data/pipeline.json", () => pipelineData, (d) => (pipelineData = d)));
@@ -2417,6 +2424,48 @@
     </article>`;
   }
 
+  function resolveAskApiBase() {
+    try {
+      const sp = new URLSearchParams(location.search);
+      const q = sp.get("api");
+      if (q) return q.replace(/\/$/, "");
+    } catch (_) {}
+    try {
+      const ls = localStorage.getItem("visual_rag_api");
+      if (ls) return ls.replace(/\/$/, "");
+    } catch (_) {}
+    const cfg = (askConfig && askConfig.api_base) || "";
+    return String(cfg).replace(/\/$/, "");
+  }
+
+  async function callVisualAskApi(question, imageIds) {
+    const base = resolveAskApiBase();
+    if (!base) {
+      return { ok: false, error: "未配置 Visual Token API（URL ?api= 或 localStorage visual_rag_api）" };
+    }
+    const path = (askConfig && askConfig.ask_path) || "/ask";
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 180000);
+    try {
+      const res = await fetch(`${base}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, image_ids: imageIds }),
+        signal: ctrl.signal,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        return { ok: false, error: data.error || `HTTP ${res.status}` };
+      }
+      return data;
+    } catch (err) {
+      const msg = err?.name === "AbortError" ? "请求超时" : err?.message || String(err);
+      return { ok: false, error: msg };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   function freeAskScopeIds() {
     const ready = liveState.items.filter((it) => it.ready).map((it) => it.id);
     if (ready.length) return ready;
@@ -2492,29 +2541,75 @@
     if (/金属|哑光|橡胶/.test(q)) {
       lines.push("材质判断目前仅根据 Caption 用词，不是看图像素。");
     }
-    lines.push("（本交互 demo：Caption 排序 + 草稿作答；无翻译。后续可换成真实图 + Visual tok/2。）");
+    lines.push("（Caption 路径：词面匹配 + 草稿作答。）");
     return { text: lines.join("\n"), evidence_ids: top.map((t) => t.id) };
   }
 
-  function runFreeAsk() {
+  function freeRankTiles(ranked, evidenceIds) {
+    const evidence = new Set(evidenceIds || []);
+    return (ranked || [])
+      .map((row, i) => {
+        const on = evidence.has(row.id);
+        const pct = Math.round(Math.min(1, Number(row.score) || 0) * 100);
+        return `<article class="free-rank-tile ${on ? "is-evidence" : ""}">
+          <img src="${thumb(row.id)}" alt="${row.short || ""}" loading="lazy" />
+          <div class="free-rank-meta">
+            <b>#${i + 1} ${row.short || row.id}</b>
+            <span>${pct}%</span>
+          </div>
+          <p>${row.caption || ""}</p>
+        </article>`;
+      })
+      .join("");
+  }
+
+  async function runFreeAsk() {
     const cfg = miniData?.free_ask;
     if (!cfg?.enabled || liveState.freeBusy) return;
     const q = String(liveState.freeQ || "").trim();
     if (!q) return;
     liveState.freeBusy = true;
+    liveState.freeApiStatus = null;
     renderLivePlayground();
     const scope = freeAskScopeIds();
     const topK = Number(cfg.top_k) || 3;
-    const ranked = rankGalleryByQuestion(q, scope);
-    const draft = draftFreeAnswer(q, ranked, topK);
+    const capRanked = rankGalleryByQuestion(q, scope);
+    const capDraft = draftFreeAnswer(q, capRanked, topK);
+
+    const api = await callVisualAskApi(q, scope);
+    let visual = null;
+    if (api.ok && api.visual) {
+      liveState.freeApiStatus = "ok";
+      visual = {
+        ranks: api.visual.ranks || [],
+        evidence_ids: api.visual.evidence_ids || [],
+        answer: api.visual.answer || "",
+        tok2_compute_s: api.visual.tok2_compute_s,
+        tok2_n_computed: api.visual.tok2_n_computed,
+        note: api.note || "",
+      };
+    } else {
+      liveState.freeApiStatus = api.error || "API 不可用";
+      visual = {
+        ranks: [],
+        evidence_ids: [],
+        answer: "",
+        error: liveState.freeApiStatus,
+      };
+    }
+
     liveState.freeResult = {
       question: q,
       scope_n: scope.length,
       scope_mode: liveState.items.length ? "图库子集" : "全部 8 张",
-      ranked,
       top_k: topK,
-      answer: draft.text,
-      evidence_ids: draft.evidence_ids,
+      api_base: resolveAskApiBase() || "",
+      caption: {
+        ranks: capRanked,
+        evidence_ids: capDraft.evidence_ids,
+        answer: capDraft.text,
+      },
+      visual,
     };
     liveState.freeBusy = false;
     renderLivePlayground();
@@ -2527,6 +2622,7 @@
     const cfg = miniData?.free_ask;
     if (!cfg?.enabled) return "";
     const r = liveState.freeResult;
+    const apiBase = resolveAskApiBase();
     const examples = (cfg.examples || [])
       .map(
         (ex) =>
@@ -2535,39 +2631,56 @@
       .join("");
     let resultHTML = "";
     if (r) {
-      const evidence = new Set(r.evidence_ids || []);
-      const tiles = (r.ranked || [])
-        .map((row, i) => {
-          const on = evidence.has(row.id);
-          const pct = Math.round(Math.min(1, row.score) * 100);
-          return `<article class="free-rank-tile ${on ? "is-evidence" : ""}">
-            <img src="${thumb(row.id)}" alt="${row.short}" loading="lazy" />
-            <div class="free-rank-meta">
-              <b>#${i + 1} ${row.short}</b>
-              <span>相关 ${pct}%</span>
-            </div>
-            <p>${row.caption}</p>
-          </article>`;
-        })
-        .join("");
+      const cap = r.caption || {};
+      const vis = r.visual || {};
+      const visOk = !vis.error && vis.answer;
       resultHTML = `
         <div class="free-result" id="free-ask-result">
           <div class="free-steps">
             <div class="free-step"><span>1</span><div><b>问题</b><p>${r.question}</p></div></div>
-            <div class="free-step"><span>2</span><div><b>检索范围</b><p>${r.scope_mode} · ${r.scope_n} 张（Caption 词面匹配排序）</p></div></div>
-            <div class="free-step"><span>3</span><div><b>依据图 Top-${r.top_k}</b><p>高亮为作答所用证据图</p></div></div>
-            <div class="free-step"><span>4</span><div><b>答案草稿</b><pre class="free-answer">${r.answer}</pre></div></div>
+            <div class="free-step"><span>2</span><div><b>检索范围</b><p>${r.scope_mode} · ${r.scope_n} 张</p></div></div>
+            <div class="free-step"><span>3</span><div><b>双路径</b><p>左 Caption · 右 Visual Token（tok/2 精排 + 同模 VT 答题，无翻译）</p></div></div>
           </div>
-          <div class="section-label">中间过程：图库排序</div>
-          <div class="free-rank-grid">${tiles}</div>
+          <div class="free-dual">
+            <article class="free-arm caption-arm">
+              <header><h4>Caption 路径</h4><span>词面匹配草稿</span></header>
+              <pre class="free-answer">${cap.answer || "—"}</pre>
+              <div class="section-label">排序（高亮=依据图）</div>
+              <div class="free-rank-grid">${freeRankTiles(cap.ranks, cap.evidence_ids)}</div>
+            </article>
+            <article class="free-arm token-arm">
+              <header><h4>Visual Token 路径</h4><span>tok/2 + 8B VT</span></header>
+              ${
+                visOk
+                  ? `<pre class="free-answer">${vis.answer}</pre>
+                     <p class="mini-note">精排耗时 ${Number(vis.tok2_compute_s || 0).toFixed(2)}s · 新算 ${vis.tok2_n_computed ?? "—"} 张${
+                       vis.note ? ` · ${vis.note}` : ""
+                     }</p>
+                     <div class="section-label">排序（高亮=作答 Top-K）</div>
+                     <div class="free-rank-grid">${freeRankTiles(vis.ranks, vis.evidence_ids)}</div>`
+                  : `<div class="free-vt-miss">
+                       <p><b>Visual Token 服务未连通</b></p>
+                       <p>${vis.error || "未知错误"}</p>
+                       <p class="mini-note">启动：<code>sbatch scripts/demo_mini_vt_api.sbatch</code>，再用
+                       <code>?api=http://&lt;节点&gt;:7865</code> 或
+                       <code>localStorage.setItem('visual_rag_api','http://127.0.0.1:7865')</code>（SSH 隧道）。
+                       GitHub Pages 的 HTTPS 页无法直连 HTTP API。</p>
+                     </div>`
+              }
+            </article>
+          </div>
         </div>`;
     }
+    const apiHint = apiBase
+      ? `VT API：${apiBase}`
+      : "VT API 未配置（Caption 仍可用）";
     return `
       <section class="free-ask" aria-label="自由提问">
         <div class="free-ask-head">
           <h3>${cfg.title}</h3>
           <p>${cfg.blurb}</p>
           <p class="mini-note">${cfg.method_note}</p>
+          <p class="mini-note">${apiHint}</p>
         </div>
         <label class="free-ask-label" for="free-ask-input">输入你的问题</label>
         <textarea id="free-ask-input" class="free-ask-input" rows="3" placeholder="${cfg.placeholder || ""}">${
@@ -2577,7 +2690,7 @@
         <div class="free-ask-actions">
           <button type="button" class="j-btn primary" id="free-ask-run" ${
             liveState.freeBusy ? "disabled" : ""
-          }>${liveState.freeBusy ? "检索中…" : "提问并展示过程 →"}</button>
+          }>${liveState.freeBusy ? "检索 / VT 答题中…" : "提问（Caption + Visual Token）→"}</button>
           <span class="mini-note">未拖入图库时默认搜全部 8 张；已入库则只在子集内搜。</span>
         </div>
         ${resultHTML}
@@ -2843,11 +2956,11 @@
         q?.label || "三道"
       }</strong></div>`;
 
-    setFoot("从 8 张预计算图中拖入图库走固定题，或直接自由提问看排序依据与答案草稿。", [
-      "自由提问：默认搜全部 8 张；已入库则只在子集内。当前为 Caption 匹配 + 草稿作答，无翻译、无需 GPU。",
+    setFoot("自由提问：Caption 草稿 + Visual Token（tok/2 + 同模 8B，无翻译）。", [
+      "Caption 路径纯前端；VT 路径需 sbatch 启动 demo_mini_vt_api，再用 ?api= 或 localStorage 指向服务。",
       "固定题仍为预计算 Caption vs Visual Token 逐步对照。",
-      "后续换真实场景：替换 mini_demo.json 的 gallery 与 thumbs 即可复用同一自由提问 UI。",
-      "正式评测数字请看②数据总览；样例见⑤检索、⑥定图、⑦跨模型翻译。",
+      "后续换真实场景：替换 gallery/thumbs，并换对应 visual_cache。",
+      "正式评测数字请看②数据总览。",
     ]);
   }
 

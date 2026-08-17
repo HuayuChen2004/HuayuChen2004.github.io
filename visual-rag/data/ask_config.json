@@ -1,0 +1,6 @@
+{
+  "api_base": "",
+  "comment": "留空则自动读 URL ?api=... 或 localStorage visual_rag_api。例：http://sd01:7865 。GitHub Pages 为 HTTPS 时浏览器会拦 HTTP API，请用 SSH 隧道后设 http://127.0.0.1:7865，或之后用 frpc HTTPS。",
+  "health_path": "/health",
+  "ask_path": "/ask"
+}
