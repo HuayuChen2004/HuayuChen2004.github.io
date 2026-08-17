@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260817b";
+  const DATA_V = "20260817c";
 
   let retrieveData = null;
   let qaData = null;
@@ -31,6 +31,9 @@
     runStep: 0,
     result: null,
     dragId: null,
+    freeQ: "",
+    freeBusy: false,
+    freeResult: null,
   };
   const LIVE_FLOW = [
     { key: "ask", title: "提出问题" },
@@ -2414,6 +2417,173 @@
     </article>`;
   }
 
+  function freeAskScopeIds() {
+    const ready = liveState.items.filter((it) => it.ready).map((it) => it.id);
+    if (ready.length) return ready;
+    const any = liveState.items.map((it) => it.id);
+    if (any.length) return any;
+    return livePoolIds();
+  }
+
+  function tokenizeAsk(text) {
+    const s = String(text || "").toLowerCase();
+    const parts = s
+      .replace(/[^\u4e00-\u9fff\w]+/g, " ")
+      .split(/\s+/)
+      .filter(Boolean);
+    const chars = [...s.replace(/\s+/g, "")].filter((ch) => /[\u4e00-\u9fff]/.test(ch));
+    const grams = [];
+    for (let i = 0; i < chars.length - 1; i++) grams.push(chars[i] + chars[i + 1]);
+    return [...new Set([...parts, ...grams, ...chars])];
+  }
+
+  function rankGalleryByQuestion(question, scopeIds) {
+    const terms = tokenizeAsk(question);
+    const scope = new Set(scopeIds);
+    const rows = (miniData.gallery || [])
+      .filter((g) => scope.has(g.id))
+      .map((g) => {
+        const hay = `${g.short || ""} ${g.caption || ""}`.toLowerCase();
+        let hit = 0;
+        let weight = 0;
+        for (const t of terms) {
+          if (!t || t.length < 1) continue;
+          if (hay.includes(t)) {
+            hit += 1;
+            weight += t.length >= 2 ? 2 : 1;
+          }
+        }
+        const score = terms.length ? weight / (terms.length + 2) : 0;
+        return {
+          id: g.id,
+          short: g.short,
+          caption: g.caption,
+          score,
+          hit,
+        };
+      })
+      .sort((a, b) => b.score - a.score || b.hit - a.hit);
+    return rows;
+  }
+
+  function draftFreeAnswer(question, ranked, topK) {
+    const top = ranked.filter((r) => r.score > 0).slice(0, topK);
+    if (!top.length) {
+      return {
+        text: "在当前小图库里，没有找到与问题明显相关的图（Caption 词面几乎无重叠）。可以换个问法，或先拖入更多相关图。",
+        evidence_ids: [],
+      };
+    }
+    const lines = [
+      `在当前 ${ranked.length} 张检索范围内，最相关的是「${top[0].short}」。`,
+      `依据图 Caption：${top[0].caption}`,
+    ];
+    if (top.length > 1) {
+      lines.push(
+        `同时参考 Top-${top.length}：` +
+          top.map((t, i) => `${i + 1}. ${t.short}`).join("；")
+      );
+    }
+    const q = String(question || "");
+    if (/几个|多少|几张/.test(q) && /\d+/.test(top[0].caption)) {
+      const nums = top[0].caption.match(/\d+/g);
+      if (nums?.length) lines.push(`Caption 中出现的数量线索：${nums.join("、")}（草稿，非正式计数模型）。`);
+    }
+    if (/金属|哑光|橡胶/.test(q)) {
+      lines.push("材质判断目前仅根据 Caption 用词，不是看图像素。");
+    }
+    lines.push("（本交互 demo：Caption 排序 + 草稿作答；无翻译。后续可换成真实图 + Visual tok/2。）");
+    return { text: lines.join("\n"), evidence_ids: top.map((t) => t.id) };
+  }
+
+  function runFreeAsk() {
+    const cfg = miniData?.free_ask;
+    if (!cfg?.enabled || liveState.freeBusy) return;
+    const q = String(liveState.freeQ || "").trim();
+    if (!q) return;
+    liveState.freeBusy = true;
+    renderLivePlayground();
+    const scope = freeAskScopeIds();
+    const topK = Number(cfg.top_k) || 3;
+    const ranked = rankGalleryByQuestion(q, scope);
+    const draft = draftFreeAnswer(q, ranked, topK);
+    liveState.freeResult = {
+      question: q,
+      scope_n: scope.length,
+      scope_mode: liveState.items.length ? "图库子集" : "全部 8 张",
+      ranked,
+      top_k: topK,
+      answer: draft.text,
+      evidence_ids: draft.evidence_ids,
+    };
+    liveState.freeBusy = false;
+    renderLivePlayground();
+    requestAnimationFrame(() => {
+      document.getElementById("free-ask-result")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  }
+
+  function freeAskHTML() {
+    const cfg = miniData?.free_ask;
+    if (!cfg?.enabled) return "";
+    const r = liveState.freeResult;
+    const examples = (cfg.examples || [])
+      .map(
+        (ex) =>
+          `<button type="button" class="free-ex" data-free-ex="${encodeURIComponent(ex)}">${ex}</button>`
+      )
+      .join("");
+    let resultHTML = "";
+    if (r) {
+      const evidence = new Set(r.evidence_ids || []);
+      const tiles = (r.ranked || [])
+        .map((row, i) => {
+          const on = evidence.has(row.id);
+          const pct = Math.round(Math.min(1, row.score) * 100);
+          return `<article class="free-rank-tile ${on ? "is-evidence" : ""}">
+            <img src="${thumb(row.id)}" alt="${row.short}" loading="lazy" />
+            <div class="free-rank-meta">
+              <b>#${i + 1} ${row.short}</b>
+              <span>相关 ${pct}%</span>
+            </div>
+            <p>${row.caption}</p>
+          </article>`;
+        })
+        .join("");
+      resultHTML = `
+        <div class="free-result" id="free-ask-result">
+          <div class="free-steps">
+            <div class="free-step"><span>1</span><div><b>问题</b><p>${r.question}</p></div></div>
+            <div class="free-step"><span>2</span><div><b>检索范围</b><p>${r.scope_mode} · ${r.scope_n} 张（Caption 词面匹配排序）</p></div></div>
+            <div class="free-step"><span>3</span><div><b>依据图 Top-${r.top_k}</b><p>高亮为作答所用证据图</p></div></div>
+            <div class="free-step"><span>4</span><div><b>答案草稿</b><pre class="free-answer">${r.answer}</pre></div></div>
+          </div>
+          <div class="section-label">中间过程：图库排序</div>
+          <div class="free-rank-grid">${tiles}</div>
+        </div>`;
+    }
+    return `
+      <section class="free-ask" aria-label="自由提问">
+        <div class="free-ask-head">
+          <h3>${cfg.title}</h3>
+          <p>${cfg.blurb}</p>
+          <p class="mini-note">${cfg.method_note}</p>
+        </div>
+        <label class="free-ask-label" for="free-ask-input">输入你的问题</label>
+        <textarea id="free-ask-input" class="free-ask-input" rows="3" placeholder="${cfg.placeholder || ""}">${
+          liveState.freeQ || ""
+        }</textarea>
+        <div class="free-ex-row">${examples}</div>
+        <div class="free-ask-actions">
+          <button type="button" class="j-btn primary" id="free-ask-run" ${
+            liveState.freeBusy ? "disabled" : ""
+          }>${liveState.freeBusy ? "检索中…" : "提问并展示过程 →"}</button>
+          <span class="mini-note">未拖入图库时默认搜全部 8 张；已入库则只在子集内搜。</span>
+        </div>
+        ${resultHTML}
+      </section>`;
+  }
+
   function renderLivePlayground() {
     const root = $("#live-root");
     if (!root || !miniData) return;
@@ -2486,7 +2656,7 @@
         <div class="live-intro">
           <p class="live-kicker">贴近真实使用</p>
           <h2>把照片放进图库 → 生成证据 → 提问检索</h2>
-          <p>从下方 8 张示例图中拖入（或点击）组成你的图库，再生成 Caption / Visual Token，最后用三道固定题走完整流程。只在你拖入的子集里检索；约束题缺证据会提示「没有符合的图」，argmax 题则给子集相对答案，并与全库参考答案分开标注。</p>
+          <p>从下方 8 张示例图中拖入（或点击）组成你的图库，再生成 Caption / Visual Token，最后用三道固定题走完整流程；也可以直接在下方「自由提问」里输入任意问题（当前为 Caption 路径草稿，无翻译）。</p>
         </div>
 
         <div class="live-drop ${liveState.busy ? "is-busy" : ""}" id="live-drop" tabindex="0">
@@ -2553,6 +2723,8 @@
               </div>`
             : ""
         }
+
+        ${freeAskHTML()}
       </div>`;
 
     const drop = $("#live-drop");
@@ -2633,6 +2805,26 @@
         renderLivePlayground();
       }
     });
+
+    const freeInput = $("#free-ask-input");
+    freeInput?.addEventListener("input", () => {
+      liveState.freeQ = freeInput.value;
+    });
+    $("#free-ask-run")?.addEventListener("click", () => {
+      if (freeInput) liveState.freeQ = freeInput.value;
+      runFreeAsk();
+    });
+    root.querySelectorAll("[data-free-ex]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        try {
+          liveState.freeQ = decodeURIComponent(btn.dataset.freeEx || "");
+        } catch (_) {
+          liveState.freeQ = btn.dataset.freeEx || "";
+        }
+        renderLivePlayground();
+        $("#free-ask-input")?.focus();
+      });
+    });
   }
 
   function renderMini() {
@@ -2651,10 +2843,10 @@
         q?.label || "三道"
       }</strong></div>`;
 
-    setFoot("从 8 张预计算图中拖入图库，生成 Caption / Visual Token，再用三道固定题走检索作答。", [
-      "可选图固定为这 8 张；不可上传外部照片，不可自定义问题。",
-      "只对你拖入的子集截取排名；金标未放入时不会假装已入库。",
-      "约束题无交集 →「无满足约束的图」；argmax 题 → 子集相对答案 + 全库参考分栏。",
+    setFoot("从 8 张预计算图中拖入图库走固定题，或直接自由提问看排序依据与答案草稿。", [
+      "自由提问：默认搜全部 8 张；已入库则只在子集内。当前为 Caption 匹配 + 草稿作答，无翻译、无需 GPU。",
+      "固定题仍为预计算 Caption vs Visual Token 逐步对照。",
+      "后续换真实场景：替换 mini_demo.json 的 gallery 与 thumbs 即可复用同一自由提问 UI。",
       "正式评测数字请看②数据总览；样例见⑤检索、⑥定图、⑦跨模型翻译。",
     ]);
   }
