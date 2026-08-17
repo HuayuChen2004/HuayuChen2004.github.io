@@ -296,7 +296,7 @@
     "enabled": true,
     "title": "自由提问",
     "blurb": "在固定 8 张示例图上输入问题。左侧 Caption 草稿；右侧 Visual Token（tok/2 + 同模 8B，无翻译）。后续替换 gallery/thumbs 即可换成真实场景。",
-    "method_note": "Caption：纯前端。Visual Token：需 demo_mini_vt_api；用 ?api=http://127.0.0.1:7865（SSH 隧道）或 localStorage visual_rag_api。",
+    "method_note": "测 Visual Token 请用同源代理页 http://127.0.0.1:7866/#mode=mini（先 SSH -L 7866），不要用 GitHub Pages（HTTPS 无法连 HTTP API）。",
     "top_k": 3,
     "placeholder": "例如：哪张图紫色球最多？有没有蓝色金属立方体？",
     "examples": [

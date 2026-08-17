@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260817e";
+  const DATA_V = "20260817f";
 
   let retrieveData = null;
   let qaData = null;
@@ -2434,6 +2434,12 @@
       const ls = localStorage.getItem("visual_rag_api");
       if (ls) return ls.replace(/\/$/, "");
     } catch (_) {}
+    const host = (location.hostname || "").toLowerCase();
+    // Same-origin when served from demo_mini_vt_proxy / API host (HTTP).
+    // GitHub Pages is HTTPS and cannot call HTTP APIs (browser mixed-content block).
+    if (host && !host.endsWith("github.io")) {
+      return location.origin.replace(/\/$/, "");
+    }
     const cfg = (askConfig && askConfig.api_base) || "";
     return String(cfg).replace(/\/$/, "");
   }
@@ -2657,10 +2663,11 @@
                   : `<div class="free-vt-miss">
                        <p><b>Visual Token 服务未连通</b></p>
                        <p>${vis.error || "未知错误"}</p>
-                       <p class="mini-note">启动：<code>sbatch scripts/demo_mini_vt_api.sbatch</code>，再用
-                       <code>?api=http://&lt;节点&gt;:7865</code> 或
-                       <code>localStorage.setItem('visual_rag_api','http://127.0.0.1:7865')</code>（SSH 隧道）。
-                       GitHub Pages 的 HTTPS 页无法直连 HTTP API。</p>
+                       <p class="mini-note"><b>不要用 GitHub Pages 测 VT</b>（HTTPS 页无法请求 HTTP API，会报 Failed to fetch）。</p>
+                       <p class="mini-note">正确用法：在集群登录节点跑
+                       <code>python3 scripts/demo_mini_vt_proxy.py</code>，本机
+                       <code>ssh -L 7866:127.0.0.1:7866 &lt;工作站&gt;</code>，浏览器打开
+                       <code>http://127.0.0.1:7866/#mode=mini</code>（同源，自动接 API）。</p>
                      </div>`
               }
             </article>

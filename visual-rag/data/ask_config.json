@@ -1,6 +1,6 @@
 {
   "api_base": "",
-  "comment": "留空则自动读 URL ?api=... 或 localStorage visual_rag_api。例：http://sd01:7865 。GitHub Pages 为 HTTPS 时浏览器会拦 HTTP API，请用 SSH 隧道后设 http://127.0.0.1:7865，或之后用 frpc HTTPS。",
+  "comment": "GitHub Pages(HTTPS) 不能直连 HTTP API。请用 scripts/demo_mini_vt_proxy.py 同源页：ssh -L 7866:127.0.0.1:7866 → http://127.0.0.1:7866/#mode=mini。非 github.io 时前端会自动用 location.origin。",
   "health_path": "/health",
   "ask_path": "/ask"
 }
