@@ -308,14 +308,82 @@
       cards ||
       `<div class="stat"><label>机制</label><strong style="font-size:1.05rem">8B → 译 → 4B</strong></div>`;
     setFoot("本页独立于⑥：⑥ 是同模型 Caption vs 原生 Visual Token；这里是跨模型翻译后再作答。", [
-      "上方总览图：Caption 基线 vs 门控视觉检索 → 定图 → 翻译 → 视觉答题。",
-      "机制（Phase G）：Teacher Qwen3-VL-8B 编码图特征 → Translator（Ridge + 残差 MLP）→ 冻结 Consumer Qwen3.5-4B 注入译后 vis 答题。",
-      "载体：译后 image embedding（vis），不是 KV；Consumer 全程冻结。",
+      "问题→答案主路径：题面抽场景短语 → Caption 向量粗筛 Top-90 → Visual tok/2 精排 →（交付）8B→4B Visual Token 翻译 → 4B 答题。",
+      "粗筛不是用 GT scene_scope 硬切图库；场景短语来自题面，在全库 caption 上召回。",
+      "本页的「翻译」= Teacher 8B image embeds → Translator → Consumer 4B 注入空间，不是题面/caption 机器翻译。",
+      "机制（Phase G）：Ridge + 残差 MLP；载体是译后 vis，不是 KV；Consumer 冻结。",
       "单图 held-out：译后 vis 答题 EM ≈ 0.963（n=1000）。",
       "加速：相对「8B 写 Caption → 4B 读」约 11.5×（online）/ 12.6×（cached），EM 0.25 → 0.93。",
-      "下方列表题：答案是「找出所有…的图」；三列都用译后 vis 作答，差别主要在候选池（Caption / gate / oracle）。",
-      "与⑥的 15 道定图题、⑤的 24 道检索题都不是同一实验协议。",
+      "下方列表题：三列都用译后 vis 作答，差别主要在候选池（Caption / gate / oracle）。",
     ]);
+  }
+
+  function qaEndToEndFlowHTML() {
+    const steps = [
+      {
+        n: "①",
+        title: "题面 → 场景短语",
+        body: "从中文问题抽出场景短语（如「厨房台面」），不是用 GT 场景标签硬切。",
+        tag: "抽取",
+      },
+      {
+        n: "②",
+        title: "Caption 粗筛",
+        body: "场景短语 × 全库 caption 向量相似度，取 Top-90；失败则回退全库。",
+        tag: "粗召",
+      },
+      {
+        n: "③",
+        title: "Visual 精排",
+        body: "仅在粗召池上用 8B visual token（tok/2）打相关性分，再按题的 K 截断。",
+        tag: "精排",
+      },
+      {
+        n: "④",
+        title: "跨模型翻译",
+        body: "Teacher 8B 的 image embeds 经 Translator 映到 Consumer 4B 注入空间（交付形态）。",
+        tag: "翻译",
+        accent: true,
+      },
+      {
+        n: "⑤",
+        title: "4B 答题",
+        body: "冻结 Consumer 注入译后 vis，生成并解析答案，与 GT 对比。",
+        tag: "作答",
+      },
+    ];
+    const cards = steps
+      .map(
+        (s, i) => `
+      ${i ? `<div class="qa-flow-arrow" aria-hidden="true"><span></span></div>` : ""}
+      <article class="qa-flow-card${s.accent ? " accent" : ""}">
+        <div class="qa-flow-top">
+          <span class="qa-flow-n">${s.n}</span>
+          <span class="qa-flow-tag">${s.tag}</span>
+        </div>
+        <h3>${s.title}</h3>
+        <p>${s.body}</p>
+      </article>`
+      )
+      .join("");
+    return `
+      <section class="qa-flow" aria-label="问题到答案端到端流程">
+        <div class="qa-flow-head">
+          <p class="xlate-kicker">Question → Answer</p>
+          <h2>问题如何走到答案</h2>
+          <p>
+            正式交付线不是「只在 GT 场景 batch 里检索」，而是
+            <b>Caption 粗筛 → Visual 精排 → Visual Token 翻译 → 轻量模型答题</b>。
+            下方「翻译」专指跨模型 visual embedding 映射。
+          </p>
+        </div>
+        <div class="qa-flow-track">${cards}</div>
+        <ul class="qa-flow-notes">
+          <li><b>scene_scope</b> 只用于出题 / 重算 GT，不作为推理硬过滤。</li>
+          <li><b>MAPPING 物体词</b> 发生在出题与生成 prompt；推理时题面已是中文真实物体名。</li>
+          <li>过渡实验也可同模 8B 直接注入 VT 答题（跳过④）；本页展示的是带翻译的交付形态。</li>
+        </ul>
+      </section>`;
   }
 
   function renderRetrievePicker(onSelect) {
@@ -885,6 +953,7 @@
           <p class="pack-note">${t.why || ""}</p>
           <p class="pack-note">${t.vs_old || ""}</p>
         </div>
+        ${qaEndToEndFlowHTML()}
         <figure class="xlate-hero-fig">
           <img
             src="./assets/pipeline-e2e.png"
