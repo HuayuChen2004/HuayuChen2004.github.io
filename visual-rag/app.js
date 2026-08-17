@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260810w";
+  const DATA_V = "20260817b";
 
   let retrieveData = null;
   let qaData = null;
@@ -314,8 +314,112 @@
       "机制（Phase G）：Ridge + 残差 MLP；载体是译后 vis，不是 KV；Consumer 冻结。",
       "单图 held-out：译后 vis 答题 EM ≈ 0.963（n=1000）。",
       "加速：相对「8B 写 Caption → 4B 读」约 11.5×（online）/ 12.6×（cached），EM 0.25 → 0.93。",
+      "下方记分板列出要测的阶段指标与端到端准确率（Ours vs Caption）；测完填 pack_demo.json。",
       "下方列表题：三列都用译后 vis 作答，差别主要在候选池（Caption / gate / oracle）。",
     ]);
+  }
+
+  function cellPending(v) {
+    if (v === null || v === undefined || v === "") return `<span class="sc-pending">待测</span>`;
+    if (typeof v === "number") {
+      if (v >= 0 && v <= 1) return `${(v * 100).toFixed(1)}%`;
+      return String(v);
+    }
+    return String(v);
+  }
+
+  function scorecardHTML(sc) {
+    if (!sc) return "";
+    const protocolRows = (sc.protocol || [])
+      .map((r) => `<tr><th scope="row">${r.item}</th><td>${r.value}</td></tr>`)
+      .join("");
+    const retrievalRows = (sc.retrieval_rows || [])
+      .map(
+        (r) => `<tr>
+        <td class="sc-stage">${r.stage || ""}</td>
+        <td>${r.metric}</td>
+        <td class="sc-num">${cellPending(r.ours)}</td>
+        <td class="sc-num">${cellPending(r.caption)}</td>
+        <td class="sc-note">${r.note || ""}</td>
+      </tr>`
+      )
+      .join("");
+    const e2eCols = sc.e2e_columns || [];
+    const e2eHead = e2eCols.map((c) => `<th>${c}</th>`).join("");
+    const e2eRows = (sc.e2e_rows || [])
+      .map((r) => {
+        const cells = (r.values || []).map((v) => `<td class="sc-num">${cellPending(v)}</td>`).join("");
+        return `<tr><th scope="row">${r.metric}</th>${cells}<td class="sc-note">${r.note || ""}</td></tr>`;
+      })
+      .join("");
+    const oracleRows = (sc.oracle_rows || [])
+      .map(
+        (r) => `<tr>
+        <th scope="row">${r.metric}</th>
+        <td class="sc-num">${cellPending(r.value)}</td>
+        <td class="sc-note">${r.note || ""}</td>
+      </tr>`
+      )
+      .join("");
+    return `
+      <section class="scorecard" aria-label="评测记分板">
+        <div class="qa-flow-head">
+          <p class="xlate-kicker">Evaluation</p>
+          <h2>${sc.title || "评测记分板"}</h2>
+          <p>${sc.blurb || ""}</p>
+        </div>
+        <div class="sc-block">
+          <h3>0 · 评测设定</h3>
+          <div class="sc-table-wrap">
+            <table class="sc-table">
+              <thead><tr><th>项</th><th>约定 / 数值</th></tr></thead>
+              <tbody>${protocolRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sc-block">
+          <h3>1 · 阶段准确率：检索召回 → 池内精排</h3>
+          <div class="sc-table-wrap">
+            <table class="sc-table">
+              <thead>
+                <tr>
+                  <th>阶段</th>
+                  <th>指标</th>
+                  <th>Ours<br/><span class="sc-sub">scene_emb→tok/2</span></th>
+                  <th>Caption<br/><span class="sc-sub">hybrid</span></th>
+                  <th>备注</th>
+                </tr>
+              </thead>
+              <tbody>${retrievalRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sc-block">
+          <h3>2 · 端到端答题准确率（方法 × 答题臂）</h3>
+          <div class="sc-table-wrap">
+            <table class="sc-table">
+              <thead>
+                <tr>
+                  <th>指标</th>
+                  ${e2eHead}
+                  <th>备注</th>
+                </tr>
+              </thead>
+              <tbody>${e2eRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sc-block">
+          <h3>3 · 上限对照（Oracle 池）</h3>
+          <div class="sc-table-wrap">
+            <table class="sc-table">
+              <thead><tr><th>指标</th><th>数值</th><th>备注</th></tr></thead>
+              <tbody>${oracleRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <p class="sc-hint">${sc.fill_hint || ""}</p>
+      </section>`;
   }
 
   function qaEndToEndFlowHTML() {
@@ -954,6 +1058,7 @@
           <p class="pack-note">${t.vs_old || ""}</p>
         </div>
         ${qaEndToEndFlowHTML()}
+        ${scorecardHTML(d.scorecard)}
         <figure class="xlate-hero-fig">
           <img
             src="./assets/pipeline-e2e.png"

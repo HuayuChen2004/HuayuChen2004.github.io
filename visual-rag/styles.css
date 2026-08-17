@@ -2450,6 +2450,98 @@ button.mini-tile.is-peek {
   }
 }
 
+.scorecard {
+  margin: 0 0 1.15rem;
+  padding: 1.05rem 1.1rem 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    linear-gradient(160deg, rgba(255, 248, 240, 0.7), transparent 42%),
+    linear-gradient(210deg, rgba(229, 244, 239, 0.45), transparent 48%),
+    #fffcf5;
+  box-shadow: var(--shadow);
+}
+.sc-block {
+  margin-top: 1rem;
+}
+.sc-block h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
+  letter-spacing: -0.015em;
+}
+.sc-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+.sc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+.sc-table th,
+.sc-table td {
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid rgba(28, 36, 48, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+.sc-table thead th {
+  background: rgba(255, 252, 245, 0.95);
+  font-weight: 650;
+  white-space: nowrap;
+}
+.sc-table tbody tr:last-child th,
+.sc-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.sc-table th[scope="row"] {
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.sc-stage {
+  color: var(--muted);
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+.sc-num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sc-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  min-width: 7rem;
+}
+.sc-sub {
+  display: block;
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.72rem;
+  margin-top: 0.15rem;
+}
+.sc-pending {
+  display: inline-block;
+  padding: 0.08rem 0.4rem;
+  border-radius: 6px;
+  border: 1px dashed rgba(28, 36, 48, 0.22);
+  background: rgba(255, 252, 245, 0.9);
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+.sc-hint {
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
 .xlate-flow {
   display: flex;
   flex-wrap: wrap;

@@ -978,5 +978,50 @@
       "takeaway": "和 C2C 一样，大头在「中间文本的逐 token 解码」（这里约 4.4 秒）。翻译器本身不到 1 ms；省掉写 Caption 后，端到端大约快一个数量级，答题也更准。"
     },
     "vs_old": "⑥ 答题对比：同模型 Caption vs 原生 visual token。本页：跨模型翻译后的看图作答，并用列表题展示真实开放图库场景；上方补了相对「写 Caption 再传」的延迟对照。"
+  },
+  "scorecard": {
+    "title": "评测记分板（待填）",
+    "blurb": "正式对照：Ours = 场景短语×Caption 向量粗召 Top-90 → tok/2 精排；Caption = Caption hybrid 检索。答题臂分「同模 8B VT」与「译后 4B」。测完把数字填进下列空格即可。",
+    "protocol": [
+      { "item": "图库规模", "value": "待测（目标 full gallery / 拒图后有效集）" },
+      { "item": "题数 n", "value": "待测" },
+      { "item": "相关图定义", "value": "valid_evidence_ids（E*）" },
+      { "item": "粗召池", "value": "Top-90（失败回退全库）" },
+      { "item": "精排截断 K", "value": "按 |E*| risk 映射（如 low→300 / med→100 / else→50）" },
+      { "item": "主交付答题", "value": "8B→4B Visual Token 翻译后 4B 作答" },
+      { "item": "过渡对照答题", "value": "同模 8B 直接注入 VT（无翻译）" }
+    ],
+    "retrieval_rows": [
+      { "stage": "② 粗召", "metric": "Top-90 相关图召回（scene_pool_recall）", "ours": null, "caption": null, "note": "只看粗召池是否盖住 E*" },
+      { "stage": "③ 精排后", "metric": "Top-K pool recall", "ours": null, "caption": null, "note": "主检索指标" },
+      { "stage": "③ 精排后", "metric": "MRR", "ours": null, "caption": null, "note": "" },
+      { "stage": "③ 精排后", "metric": "名次比 mean ↓", "ours": null, "caption": null, "note": "越接近 1 越好" },
+      { "stage": "③ 精排后", "metric": "名次比 median ↓", "ours": null, "caption": null, "note": "" },
+      { "stage": "③ 精排后", "metric": "Recall@1", "ours": null, "caption": null, "note": "" },
+      { "stage": "③ 精排后", "metric": "Recall@5", "ours": null, "caption": null, "note": "" },
+      { "stage": "③ 精排后", "metric": "Recall@10", "ours": null, "caption": null, "note": "" },
+      { "stage": "③ 精排后", "metric": "Recall@50", "ours": null, "caption": null, "note": "" },
+      { "stage": "③ 精排后", "metric": "Recall@100", "ours": null, "caption": null, "note": "" },
+      { "stage": "耗时", "metric": "检索 s/题 ↓", "ours": null, "caption": null, "note": "可选" }
+    ],
+    "e2e_columns": [
+      "Ours + 同模 8B",
+      "Ours + 译后 4B",
+      "Caption + 同模 8B",
+      "Caption + 译后 4B"
+    ],
+    "e2e_rows": [
+      { "metric": "总体 QA Acc ↑", "values": [null, null, null, null], "note": "端到端主指标" },
+      { "metric": "qa_boolean Acc", "values": [null, null, null, null], "note": "" },
+      { "metric": "qa_locate Acc", "values": [null, null, null, null], "note": "" },
+      { "metric": "qa_count Acc", "values": [null, null, null, null], "note": "" },
+      { "metric": "qa_compare Acc", "values": [null, null, null, null], "note": "" },
+      { "metric": "qa_smallset / list F1", "values": [null, null, null, null], "note": "列表题可用 F1" }
+    ],
+    "oracle_rows": [
+      { "metric": "Oracle 池 + 同模 8B QA Acc / F1", "value": null, "note": "检索上限：E* 全进池" },
+      { "metric": "Oracle 池 + 译后 4B QA Acc / F1", "value": null, "note": "翻译+答题上限" }
+    ],
+    "fill_hint": "填数约定：比例写 0.xxx 或 xx.x%；空着显示「待测」。测完改 data/pack_demo.json 的 scorecard 字段即可刷新本页。"
   }
 }
