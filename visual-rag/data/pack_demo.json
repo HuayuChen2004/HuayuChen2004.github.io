@@ -22,7 +22,7 @@
       "gate_recall": 0.522
     }
   ],
-  "takeaway": "池给全时（oracle），译后 visual token 答题 list F1 可到约 0.87–0.95；真实检索下 gate_tok2 明显好于 Caption，但仍受召回上限拖累。",
+  "takeaway": "v523-842：检索 Ours>Caption；列表 soft F1 同模 8B Oracle 0.454 / Ours 0.214 / Caption 0.175；译后 4B（pack-ft bf16）Oracle 0.547 / Ours 0.235 / Caption 0.208。",
   "cases": [
     {
       "id": "clevr_q_new_000014",
@@ -944,8 +944,14 @@
           "speedup": "1.0×",
           "em": 0.25,
           "parts": [
-            { "label": "8B 生成描述", "ms": 4437 },
-            { "label": "4B 文本答题", "ms": 357 }
+            {
+              "label": "8B 生成描述",
+              "ms": 4437
+            },
+            {
+              "label": "4B 文本答题",
+              "ms": 357
+            }
           ]
         },
         {
@@ -956,9 +962,18 @@
           "speedup": "11.5×",
           "em": 0.925,
           "parts": [
-            { "label": "8B 只抽特征", "ms": 39 },
-            { "label": "翻译器", "ms": 0.7 },
-            { "label": "4B 注入答题", "ms": 377 }
+            {
+              "label": "8B 只抽特征",
+              "ms": 39
+            },
+            {
+              "label": "翻译器",
+              "ms": 0.7
+            },
+            {
+              "label": "4B 注入答题",
+              "ms": 377
+            }
           ]
         },
         {
@@ -969,9 +984,18 @@
           "speedup": "12.6×",
           "em": 0.925,
           "parts": [
-            { "label": "读缓存", "ms": 2.4 },
-            { "label": "翻译器", "ms": 0.7 },
-            { "label": "4B 注入答题", "ms": 377 }
+            {
+              "label": "读缓存",
+              "ms": 2.4
+            },
+            {
+              "label": "翻译器",
+              "ms": 0.7
+            },
+            {
+              "label": "4B 注入答题",
+              "ms": 377
+            }
           ]
         }
       ],
@@ -980,29 +1004,116 @@
     "vs_old": "⑥ 答题对比：同模型 Caption vs 原生 visual token。本页：跨模型翻译后的看图作答，并用列表题展示真实开放图库场景；上方补了相对「写 Caption 再传」的延迟对照。"
   },
   "scorecard": {
-    "title": "评测记分板（待填）",
-    "blurb": "正式对照：Ours = 场景短语×Caption 向量粗召 Top-90 → tok/2 精排；Caption = Caption hybrid 检索。答题臂分「同模 8B VT」与「译后 4B」。测完把数字填进下列空格即可。",
+    "title": "评测记分板（v523-842 expand150）",
+    "blurb": "842 实景 + expand150。Ours=场景粗召 Top-90→tok/2；译后 4B = ridge + pack Answer-CE（bf16）。主看列表 soft F1。",
     "protocol": [
-      { "item": "图库规模", "value": "待测（目标 full gallery / 拒图后有效集）" },
-      { "item": "题数 n", "value": "待测" },
-      { "item": "相关图定义", "value": "valid_evidence_ids（E*）" },
-      { "item": "粗召池", "value": "Top-90（失败回退全库）" },
-      { "item": "精排截断 K", "value": "按 |E*| risk 映射（如 low→300 / med→100 / else→50）" },
-      { "item": "主交付答题", "value": "8B→4B Visual Token 翻译后 4B 作答" },
-      { "item": "过渡对照答题", "value": "同模 8B 直接注入 VT（无翻译）" }
+      {
+        "item": "图库规模",
+        "value": "842"
+      },
+      {
+        "item": "题数 n",
+        "value": "150（expand150 scene v2）"
+      },
+      {
+        "item": "相关图定义",
+        "value": "global_relevant_images"
+      },
+      {
+        "item": "粗召池",
+        "value": "Top-90（scene phrase × VLM caption）"
+      },
+      {
+        "item": "精排截断 K",
+        "value": "题面 K（high→50 / medium→100）"
+      },
+      {
+        "item": "主交付答题",
+        "value": "8B→4B VT 翻译后 4B（rw842_pack_ft_bf16）"
+      },
+      {
+        "item": "过渡对照答题",
+        "value": "同模 8B 直接注入 VT"
+      }
     ],
     "retrieval_rows": [
-      { "stage": "② 粗召", "metric": "Top-90 相关图召回（scene_pool_recall）", "ours": null, "caption": null, "note": "只看粗召池是否盖住 E*" },
-      { "stage": "③ 精排后", "metric": "Top-K pool recall", "ours": null, "caption": null, "note": "主检索指标" },
-      { "stage": "③ 精排后", "metric": "MRR", "ours": null, "caption": null, "note": "" },
-      { "stage": "③ 精排后", "metric": "名次比 mean ↓", "ours": null, "caption": null, "note": "越接近 1 越好" },
-      { "stage": "③ 精排后", "metric": "名次比 median ↓", "ours": null, "caption": null, "note": "" },
-      { "stage": "③ 精排后", "metric": "Recall@1", "ours": null, "caption": null, "note": "" },
-      { "stage": "③ 精排后", "metric": "Recall@5", "ours": null, "caption": null, "note": "" },
-      { "stage": "③ 精排后", "metric": "Recall@10", "ours": null, "caption": null, "note": "" },
-      { "stage": "③ 精排后", "metric": "Recall@50", "ours": null, "caption": null, "note": "" },
-      { "stage": "③ 精排后", "metric": "Recall@100", "ours": null, "caption": null, "note": "" },
-      { "stage": "耗时", "metric": "检索 s/题 ↓", "ours": null, "caption": null, "note": "可选" }
+      {
+        "stage": "② 粗召",
+        "metric": "Top-90 相关图召回（scene_pool_recall）",
+        "ours": 0.569,
+        "caption": null,
+        "note": "Caption 臂无场景粗召"
+      },
+      {
+        "stage": "③ 精排后",
+        "metric": "Top-K pool recall",
+        "ours": 0.559,
+        "caption": 0.421,
+        "note": "主检索指标"
+      },
+      {
+        "stage": "③ 精排后",
+        "metric": "MRR",
+        "ours": 0.708,
+        "caption": 0.352,
+        "note": ""
+      },
+      {
+        "stage": "③ 精排后",
+        "metric": "名次比 mean ↓",
+        "ours": 3.657,
+        "caption": 8.439,
+        "note": "越接近 1 越好"
+      },
+      {
+        "stage": "③ 精排后",
+        "metric": "名次比 median ↓",
+        "ours": 2.336,
+        "caption": 5.833,
+        "note": ""
+      },
+      {
+        "stage": "③ 精排后",
+        "metric": "Recall@1",
+        "ours": 0.082,
+        "caption": 0.037,
+        "note": ""
+      },
+      {
+        "stage": "③ 精排后",
+        "metric": "Recall@5",
+        "ours": 0.237,
+        "caption": 0.094,
+        "note": ""
+      },
+      {
+        "stage": "③ 精排后",
+        "metric": "Recall@10",
+        "ours": 0.349,
+        "caption": 0.15,
+        "note": ""
+      },
+      {
+        "stage": "③ 精排后",
+        "metric": "Recall@50",
+        "ours": 0.554,
+        "caption": 0.407,
+        "note": ""
+      },
+      {
+        "stage": "③ 精排后",
+        "metric": "Recall@100",
+        "ours": 0.571,
+        "caption": 0.597,
+        "note": ""
+      },
+      {
+        "stage": "耗时",
+        "metric": "检索 s/题 ↓",
+        "ours": 34.245,
+        "caption": 0.018,
+        "note": ""
+      }
     ],
     "e2e_columns": [
       "Ours + 同模 8B",
@@ -1011,17 +1122,79 @@
       "Caption + 译后 4B"
     ],
     "e2e_rows": [
-      { "metric": "总体 QA Acc ↑", "values": [null, null, null, null], "note": "端到端主指标" },
-      { "metric": "qa_boolean Acc", "values": [null, null, null, null], "note": "" },
-      { "metric": "qa_locate Acc", "values": [null, null, null, null], "note": "" },
-      { "metric": "qa_count Acc", "values": [null, null, null, null], "note": "" },
-      { "metric": "qa_compare Acc", "values": [null, null, null, null], "note": "" },
-      { "metric": "qa_smallset / list F1", "values": [null, null, null, null], "note": "列表题可用 F1" }
+      {
+        "metric": "总体 QA Acc ↑（soft EM）",
+        "values": [
+          0.027,
+          0.0,
+          0.027,
+          0.0
+        ],
+        "note": "端到端主指标"
+      },
+      {
+        "metric": "image_list F1",
+        "values": [
+          0.214,
+          0.235,
+          0.175,
+          0.208
+        ],
+        "note": "133 道列表题"
+      },
+      {
+        "metric": "boolean Acc",
+        "values": [
+          0.6,
+          0.0,
+          0.6,
+          0.0
+        ],
+        "note": "5 道"
+      },
+      {
+        "metric": "number Acc",
+        "values": [
+          0.1,
+          0.0,
+          0.1,
+          0.0
+        ],
+        "note": "10 道"
+      },
+      {
+        "metric": "mapping F1",
+        "values": [
+          0.052,
+          0.0,
+          0.023,
+          0.0
+        ],
+        "note": "2 道"
+      },
+      {
+        "metric": "答题 s/题 ↓",
+        "values": [
+          65.722,
+          30.555,
+          65.418,
+          30.902
+        ],
+        "note": ""
+      }
     ],
     "oracle_rows": [
-      { "metric": "Oracle 池 + 同模 8B QA Acc / F1", "value": null, "note": "检索上限：E* 全进池" },
-      { "metric": "Oracle 池 + 译后 4B QA Acc / F1", "value": null, "note": "翻译+答题上限" }
+      {
+        "metric": "Oracle 池 + 同模 8B QA Acc / F1",
+        "value": 0.073,
+        "note": "检索上限：E* 全进池；list soft F1=0.454"
+      },
+      {
+        "metric": "Oracle 池 + 译后 4B QA Acc / F1",
+        "value": 0.127,
+        "note": "翻译+答题上限；list soft F1=0.547（pack-ft bf16）"
+      }
     ],
-    "fill_hint": "填数约定：比例写 0.xxx 或 xx.x%；空着显示「待测」。测完改 data/pack_demo.json 的 scorecard 字段即可刷新本页。"
+    "fill_hint": "译后 4B ckpt: rw842_pack_ft_bf16_translator.pt；ridge-only 已归档。"
   }
 }
