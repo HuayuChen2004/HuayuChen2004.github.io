@@ -22,7 +22,7 @@
       "gate_recall": 0.522
     }
   ],
-  "takeaway": "v523-842：检索 Ours>Caption；列表 soft F1 同模 8B Oracle 0.454 / Ours 0.214 / Caption 0.175；译后 4B（pack-ft bf16）Oracle 0.547 / Ours 0.235 / Caption 0.208。",
+  "takeaway": "v523-842 主指标 list F1：Caption真基线 0.175 → Ours译后4B 0.235；Oracle译后4B 0.547。不用总体 soft EM。",
   "cases": [
     {
       "id": "clevr_q_new_000014",
@@ -1004,8 +1004,8 @@
     "vs_old": "⑥ 答题对比：同模型 Caption vs 原生 visual token。本页：跨模型翻译后的看图作答，并用列表题展示真实开放图库场景；上方补了相对「写 Caption 再传」的延迟对照。"
   },
   "scorecard": {
-    "title": "评测记分板（v523-842 expand150）",
-    "blurb": "842 实景 + expand150。Ours=场景粗召 Top-90→tok/2；译后 4B = ridge + pack Answer-CE（bf16）。主看列表 soft F1。",
+    "title": "评测记分板（v523-842；主指标=列表 soft F1）",
+    "blurb": "主指标：检索 + 列表 soft F1（不用总体 soft EM）。Caption 真基线=池 caption 文本→4B；Ours 交付=译后 VT→4B。",
     "protocol": [
       {
         "item": "图库规模",
@@ -1029,11 +1029,19 @@
       },
       {
         "item": "主交付答题",
-        "value": "8B→4B VT 翻译后 4B（rw842_pack_ft_bf16）"
+        "value": "8B→4B Visual Token 翻译后 4B 作答"
       },
       {
         "item": "过渡对照答题",
         "value": "同模 8B 直接注入 VT"
+      },
+      {
+        "item": "Caption 真基线",
+        "value": "Caption 检索池 + 候选图 VLM caption 文本 → 4B（无 VT）"
+      },
+      {
+        "item": "主指标",
+        "value": "检索 pool recall/MRR + 列表 soft F1（不用总体 soft EM）"
       }
     ],
     "retrieval_rows": [
@@ -1116,68 +1124,48 @@
       }
     ],
     "e2e_columns": [
-      "Ours + 同模 8B",
-      "Ours + 译后 4B",
-      "Caption + 同模 8B",
-      "Caption + 译后 4B"
+      "Ours + 同模 8B VT",
+      "Ours + 译后 4B VT",
+      "Caption 真基线 + 4B 文本",
+      "Caption 池 + 译后 4B VT（消融）"
     ],
     "e2e_rows": [
       {
-        "metric": "总体 QA Acc ↑（soft EM）",
-        "values": [
-          0.027,
-          0.0,
-          0.027,
-          0.0
-        ],
-        "note": "端到端主指标"
-      },
-      {
-        "metric": "image_list F1",
+        "metric": "image_list soft F1 ↑（主指标）",
         "values": [
           0.214,
           0.235,
           0.175,
           0.208
         ],
-        "note": "133 道列表题"
+        "note": "133 道；不用总体 soft EM"
       },
       {
-        "metric": "boolean Acc",
+        "metric": "list Precision",
         "values": [
-          0.6,
-          0.0,
-          0.6,
-          0.0
+          0.312,
+          0.275,
+          0.207,
+          0.276
         ],
-        "note": "5 道"
+        "note": ""
       },
       {
-        "metric": "number Acc",
+        "metric": "list Recall",
         "values": [
-          0.1,
-          0.0,
-          0.1,
-          0.0
+          0.194,
+          0.261,
+          0.203,
+          0.212
         ],
-        "note": "10 道"
-      },
-      {
-        "metric": "mapping F1",
-        "values": [
-          0.052,
-          0.0,
-          0.023,
-          0.0
-        ],
-        "note": "2 道"
+        "note": ""
       },
       {
         "metric": "答题 s/题 ↓",
         "values": [
           65.722,
           30.555,
-          65.418,
+          12.055,
           30.902
         ],
         "note": ""
@@ -1186,15 +1174,20 @@
     "oracle_rows": [
       {
         "metric": "Oracle 池 + 同模 8B QA Acc / F1",
-        "value": 0.073,
-        "note": "检索上限：E* 全进池；list soft F1=0.454"
+        "value": 0.454,
+        "note": "另见 list_f1 | 展示值为 list soft F1"
       },
       {
         "metric": "Oracle 池 + 译后 4B QA Acc / F1",
-        "value": 0.127,
-        "note": "翻译+答题上限；list soft F1=0.547（pack-ft bf16）"
+        "value": 0.547,
+        "note": "展示值为 list soft F1"
+      },
+      {
+        "metric": "Caption 真基线（Caption 池 + 4B 文本）QA Acc / F1",
+        "value": 0.175,
+        "note": "全程无 VT | list soft F1"
       }
     ],
-    "fill_hint": "译后 4B ckpt: rw842_pack_ft_bf16_translator.pt；ridge-only 已归档。"
+    "fill_hint": "比较方法请看 list F1；soft EM 已退出主表。"
   }
 }
