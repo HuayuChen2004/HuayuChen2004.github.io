@@ -1005,7 +1005,7 @@
   },
   "scorecard": {
     "title": "评测记分板（v523-842；主指标=列表 soft F1）",
-    "blurb": "主指标：检索 + 列表 soft F1（不用总体 soft EM）。Caption 真基线=池 caption 文本→4B；Ours 交付=译后 VT→4B。",
+    "blurb": "主指标 list soft F1。含 Caption+同模8B VT 对照；Caption真基线=文本→4B；Ours交付=译后VT→4B。",
     "protocol": [
       {
         "item": "图库规模",
@@ -1126,6 +1126,7 @@
     "e2e_columns": [
       "Ours + 同模 8B VT",
       "Ours + 译后 4B VT",
+      "Caption + 同模 8B VT",
       "Caption 真基线 + 4B 文本",
       "Caption 池 + 译后 4B VT（消融）"
     ],
@@ -1136,15 +1137,17 @@
           0.214,
           0.235,
           0.175,
+          0.175,
           0.208
         ],
-        "note": "133 道；不用总体 soft EM"
+        "note": "133 道"
       },
       {
         "metric": "list Precision",
         "values": [
           0.312,
           0.275,
+          0.27,
           0.207,
           0.276
         ],
@@ -1155,6 +1158,7 @@
         "values": [
           0.194,
           0.261,
+          0.156,
           0.203,
           0.212
         ],
@@ -1165,6 +1169,7 @@
         "values": [
           65.722,
           30.555,
+          65.418,
           12.055,
           30.902
         ],
