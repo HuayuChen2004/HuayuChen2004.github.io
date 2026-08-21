@@ -2492,8 +2492,9 @@
     const terms = tokenizeAsk(question);
     const scope = new Set(scopeIds);
     const rows = (miniData.gallery || [])
-      .filter((g) => scope.has(g.id))
-      .map((g) => {
+      .map((g, idx) => ({ g, no: idx + 1 }))
+      .filter(({ g }) => scope.has(g.id))
+      .map(({ g, no }) => {
         const hay = `${g.short || ""} ${g.caption || ""}`.toLowerCase();
         let hit = 0;
         let weight = 0;
@@ -2507,13 +2508,15 @@
         const score = terms.length ? weight / (terms.length + 2) : 0;
         return {
           id: g.id,
+          no,
+          label: `图${no}`,
           short: g.short,
           caption: g.caption,
           score,
           hit,
         };
       })
-      .sort((a, b) => b.score - a.score || b.hit - a.hit);
+      .sort((a, b) => b.score - a.score || b.hit - a.hit || a.no - b.no);
     return rows;
   }
 
@@ -2525,14 +2528,20 @@
         evidence_ids: [],
       };
     }
+    const label0 = top[0].no ? `图${top[0].no}` : top[0].short || top[0].id;
     const lines = [
-      `在当前 ${ranked.length} 张检索范围内，最相关的是「${top[0].short}」。`,
+      `在当前 ${ranked.length} 张检索范围内，最相关的是${label0}（${top[0].short || ""}）。`,
       `依据图 Caption：${top[0].caption}`,
     ];
     if (top.length > 1) {
       lines.push(
         `同时参考 Top-${top.length}：` +
-          top.map((t, i) => `${i + 1}. ${t.short}`).join("；")
+          top
+            .map((t) => {
+              const lab = t.no ? `图${t.no}` : t.short || t.id;
+              return `${lab}${t.short ? `（${t.short}）` : ""}`;
+            })
+            .join("；")
       );
     }
     const q = String(question || "");
@@ -2547,16 +2556,24 @@
     return { text: lines.join("\n"), evidence_ids: top.map((t) => t.id) };
   }
 
+  function galleryNo(id) {
+    const pool = miniData.gallery || [];
+    const idx = pool.findIndex((g) => g.id === id);
+    return idx >= 0 ? idx + 1 : 0;
+  }
+
   function freeRankTiles(ranked, evidenceIds) {
     const evidence = new Set(evidenceIds || []);
     return (ranked || [])
       .map((row, i) => {
         const on = evidence.has(row.id);
         const pct = Math.round(Math.min(1, Number(row.score) || 0) * 100);
+        const no = Number(row.no) || galleryNo(row.id);
+        const label = no ? `图${no}` : `#${i + 1}`;
         return `<article class="free-rank-tile ${on ? "is-evidence" : ""}">
           <img src="${thumb(row.id)}" alt="${row.short || ""}" loading="lazy" />
           <div class="free-rank-meta">
-            <b>#${i + 1} ${row.short || row.id}</b>
+            <b>${label} · 排${i + 1} ${row.short || ""}</b>
             <span>${pct}%</span>
           </div>
           <p>${row.caption || ""}</p>
@@ -2717,8 +2734,9 @@
     const pool = miniData.gallery || [];
     const poolHTML = pool
       .map(
-        (g) => `<figure class="free-gallery-item">
-          <img src="${thumb(g.id)}" alt="${g.short}" loading="lazy" />
+        (g, i) => `<figure class="free-gallery-item">
+          <span class="free-gallery-no" aria-label="图${i + 1}">图${i + 1}</span>
+          <img src="${thumb(g.id)}" alt="图${i + 1} ${g.short}" loading="lazy" />
           <figcaption>${g.short}</figcaption>
         </figure>`
       )
@@ -2729,7 +2747,7 @@
         <div class="live-intro">
           <p class="live-kicker">小图库自由提问</p>
           <h2>在这 ${pool.length} 张图上提问</h2>
-          <p>图库固定如下。输入任意问题后，左侧走 Caption 草稿，右侧走 Visual Token（tok/2 精排 + 同模 8B 答题，无翻译）。</p>
+          <p>图库固定如下（图1–图${pool.length}）。模型作答时用这些编号指图，不写文件名。左侧 Caption，右侧 Visual Token（tok/2 + 同模 8B，无翻译）。</p>
         </div>
         <div class="section-label">当前图库</div>
         <div class="free-gallery">${poolHTML}</div>
