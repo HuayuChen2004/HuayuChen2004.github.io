@@ -1,6 +1,6 @@
 {
-  "api_base": "https://appreciate-characterized-sectors-characters.trycloudflare.com",
-  "comment": "Cloudflare quick tunnel → Slurm job demo-vt-tun (mini VT API)。URL 随作业重启会变；更新本文件后 push。本地调试也可用 ?api= 或 localStorage visual_rag_api。",
+  "api_base": "https://priority-clear-surfaces-occurred.trycloudflare.com",
+  "comment": "Cloudflare quick tunnel → Slurm job demo-vt-tun（mini VT API）。URL 随作业重启会变；更新本文件后 push。指图用页面「图1…图N」，不写 image_id。",
   "health_path": "/health",
   "ask_path": "/ask",
   "tunnel_job": "demo-vt-tun",
