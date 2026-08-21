@@ -140,11 +140,11 @@
       "note": "说明瓶颈不只在「找不到图」：图对了，Caption 压缩仍会丢数量/属性信息。"
     }
   ],
-  "takeaway": "一句话：Caption 便宜但不稳——漏检、定错、读错都会发生；Visual Token 把证据链补全，门控让成本可落地。跨模型翻译见「⑦」；细节案例见 Demo / 检索对比 / 答题对比。",
+  "takeaway": "一句话：Caption 便宜但不稳——漏检、定错、读错都会发生；Visual Token 把证据链补全，门控让成本可落地。跨模型翻译与 NL Read（先滤图再自然语言作答）记分板见「⑦」。",
   "links": [
     { "label": "去 Demo 小例子", "jump": "mini" },
     { "label": "看检索样例", "jump": "retrieve" },
     { "label": "看定图样例", "jump": "answer:select" },
-    { "label": "看跨模型翻译", "jump": "pack" }
+    { "label": "看跨模型翻译 / NL Read", "jump": "pack" }
   ]
 }

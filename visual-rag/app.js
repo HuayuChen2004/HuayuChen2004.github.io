@@ -432,6 +432,70 @@
       </section>`;
   }
 
+  function nlReadScorecardHTML(sc) {
+    if (!sc) return "";
+    const protocolRows = (sc.protocol || [])
+      .map((r) => `<tr><th scope="row">${r.item}</th><td>${r.value}</td></tr>`)
+      .join("");
+    const e2eCols = sc.e2e_columns || [];
+    const e2eHead = e2eCols.map((c) => `<th>${c}</th>`).join("");
+    const e2eRows = (sc.e2e_rows || [])
+      .map((r) => {
+        const cells = (r.values || []).map((v) => `<td class="sc-num">${cellPending(v)}</td>`).join("");
+        return `<tr><th scope="row">${r.metric}</th>${cells}<td class="sc-note">${r.note || ""}</td></tr>`;
+      })
+      .join("");
+    const mtHead = `<th>臂</th>` + mtCols.map((c) => `<th>${c}</th>`).join("") + `<th>备注</th>`;
+    const mtRows = (sc.mt_rows || [])
+      .map((r) => {
+        const cells = (r.values || []).map((v) => `<td class="sc-num">${cellPending(v)}</td>`).join("");
+        return `<tr><th scope="row">${r.metric}</th>${cells}<td class="sc-note">${r.note || ""}</td></tr>`;
+      })
+      .join("");
+    return `
+      <section class="scorecard" aria-label="NL Read 评测记分板">
+        <div class="qa-flow-head">
+          <p class="xlate-kicker">NL Read</p>
+          <h2>${sc.title || "NL Read 评测"}</h2>
+          <p>${sc.blurb || ""}</p>
+        </div>
+        <div class="sc-block">
+          <h3>设定</h3>
+          <div class="sc-table-wrap">
+            <table class="sc-table">
+              <thead><tr><th>项</th><th>约定 / 数值</th></tr></thead>
+              <tbody>${protocolRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sc-block">
+          <h3>端到端 Acc（list-only 译后 CE）</h3>
+          <div class="sc-table-wrap">
+            <table class="sc-table">
+              <thead>
+                <tr>
+                  <th>臂</th>
+                  ${e2eHead}
+                  <th>备注</th>
+                </tr>
+              </thead>
+              <tbody>${e2eRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sc-block">
+          <h3>译后 4B：list CE → 多题型 CE</h3>
+          <div class="sc-table-wrap">
+            <table class="sc-table">
+              <thead><tr>${mtHead}</tr></thead>
+              <tbody>${mtRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <p class="sc-hint">${sc.fill_hint || ""}</p>
+      </section>`;
+  }
+
   function qaEndToEndFlowHTML() {
     const steps = [
       {
@@ -1069,6 +1133,7 @@
         </div>
         ${qaEndToEndFlowHTML()}
         ${scorecardHTML(d.scorecard)}
+        ${nlReadScorecardHTML(d.nl_read_scorecard)}
         <figure class="xlate-hero-fig">
           <img
             src="./assets/pipeline-e2e.png"
