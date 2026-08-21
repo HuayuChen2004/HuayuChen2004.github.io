@@ -1,6 +1,8 @@
 {
-  "api_base": "",
-  "comment": "GitHub Pages(HTTPS) 不能直连 HTTP API。请用 scripts/demo_mini_vt_proxy.py 同源页：ssh -L 7866:127.0.0.1:7866 → http://127.0.0.1:7866/#mode=mini。非 github.io 时前端会自动用 location.origin。",
+  "api_base": "https://appreciate-characterized-sectors-characters.trycloudflare.com",
+  "comment": "Cloudflare quick tunnel → Slurm job demo-vt-tun (mini VT API)。URL 随作业重启会变；更新本文件后 push。本地调试也可用 ?api= 或 localStorage visual_rag_api。",
   "health_path": "/health",
-  "ask_path": "/ask"
+  "ask_path": "/ask",
+  "tunnel_job": "demo-vt-tun",
+  "updated_at": "2026-08-21"
 }
