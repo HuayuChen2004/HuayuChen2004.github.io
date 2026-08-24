@@ -1197,13 +1197,13 @@
   },
   "nl_read_scorecard": {
     "title": "NL Read 评测（先滤图再自然语言作答；无 list）",
-    "blurb": "139 题（原 49 + 新 90，去重后扩充）：boolean / material / number / spatial。瞎猜≈0.35（number 开放域计 0）。译后交付为 Ask-B pack-ft（作业 1210/1223）。",
+    "blurb": "138 题（原 49 + 新 89）：去掉棕杯相对红杯 spatial；水杯 number GT 3→2（视觉覆盖）。瞎猜≈0.35。译后 Ask-B（1210/1223）。",
     "protocol": [
-      { "item": "图库", "value": "842（与 expand150 同库）" },
-      { "item": "题数", "value": "139（nl_boolean 69 / nl_material 25 / nl_number 40 / nl_spatial 5）；无 image_list" },
+      { "item": "图库", "value": "842（与 expand150 同库；048707 图保留）" },
+      { "item": "题数", "value": "138（nl_boolean 69 / nl_material 25 / nl_number 40 / nl_spatial 4）；无 image_list" },
       { "item": "协议", "value": "number 分块局部计数再求和；材质比较先计 metal/rubber 再比" },
       { "item": "候选截断", "value": "答题 Top-8；max_images_per_forward=1" },
-      { "item": "检索", "value": "Ours pool_recall 0.625 > Caption 0.498（139 题合并）" },
+      { "item": "检索", "value": "Ours pool_recall 0.622 > Caption 0.494（138 题合并）" },
       { "item": "译后 CE", "value": "rw842_pack_ft_ask_b（number/boolean/material/spatial；非 list）" },
       { "item": "瞎猜基线", "value": "≈0.35；开放计数无选项，number 按 0 计" }
     ],
@@ -1217,35 +1217,35 @@
     "e2e_rows": [
       {
         "metric": "Caption 真基线 · 文本4B",
-        "values": [0.259, 0.406, 0.32, 0.0, 0.0],
+        "values": [0.261, 0.406, 0.32, 0.0, 0.0],
         "note": "无 VT"
       },
       {
         "metric": "Caption + 同模 8B VT",
-        "values": [0.317, 0.507, 0.32, 0.0, 0.2],
+        "values": [0.319, 0.507, 0.32, 0.0, 0.25],
         "note": ""
       },
       {
         "metric": "Ours + 同模 8B VT",
-        "values": [0.439, 0.667, 0.44, 0.075, 0.2],
+        "values": [0.435, 0.667, 0.44, 0.05, 0.25],
         "note": ""
       },
       {
         "metric": "Ours + 译后4B（Ask-B）",
-        "values": [0.41, 0.58, 0.52, 0.075, 0.2],
+        "values": [0.413, 0.58, 0.52, 0.075, 0.25],
         "note": "交付"
       },
       {
         "metric": "Oracle + 同模 8B VT",
-        "values": [0.489, 0.681, 0.52, 0.1, 0.8],
+        "values": [0.5, 0.681, 0.52, 0.125, 1.0],
         "note": ""
       },
       {
         "metric": "Oracle + 译后4B（Ask-B）",
-        "values": [0.59, 0.71, 0.88, 0.2, 0.6],
+        "values": [0.587, 0.71, 0.88, 0.2, 0.5],
         "note": "上限"
       }
     ],
-    "fill_hint": "交付 Ask-B Acc 0.41 > 瞎猜≈0.35；Oracle Ask-B 0.59。number 仍是主瓶颈；检索 Ours > Caption。"
+    "fill_hint": "交付 Ask-B Acc 0.413 > 瞎猜≈0.35；Oracle Ask-B 0.587。number 仍是主瓶颈；检索 Ours > Caption。"
   }
 }

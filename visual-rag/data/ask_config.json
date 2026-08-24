@@ -1,8 +1,9 @@
 {
-  "api_base": "https://group-salmon-minimum-equity.trycloudflare.com",
-  "comment": "Cloudflare quick tunnel → Slurm job demo-vt-tun（mini VT API）。URL 随作业重启会变；更新本文件后 push。指图用页面「图1…图N」，不写 image_id。",
+  "api_base": "",
+  "comment": "HTTPS tunnel → Slurm demo-vt-tun。当前无可用 tunnel（上次作业 1142 已超时；Cloudflare quick tunnel 在集群网络被 reset）。重启 sbatch_demo_mini_vt_tunnel.sbatch 后运行 push_demo_tunnel_url.py --push。",
   "health_path": "/health",
   "ask_path": "/ask",
   "tunnel_job": "demo-vt-tun",
-  "updated_at": "2026-08-21"
+  "updated_at": "2026-08-24",
+  "status": "offline"
 }
