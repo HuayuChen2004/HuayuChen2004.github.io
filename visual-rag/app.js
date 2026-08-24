@@ -445,6 +445,7 @@
         return `<tr><th scope="row">${r.metric}</th>${cells}<td class="sc-note">${r.note || ""}</td></tr>`;
       })
       .join("");
+    const mtCols = sc.mt_columns || [];
     const mtHead = `<th>臂</th>` + mtCols.map((c) => `<th>${c}</th>`).join("") + `<th>备注</th>`;
     const mtRows = (sc.mt_rows || [])
       .map((r) => {
@@ -2755,11 +2756,12 @@
                   : `<div class="free-vt-miss">
                        <p><b>Visual Token 服务未连通</b></p>
                        <p>${vis.error || "未知错误"}</p>
-                       <p class="mini-note"><b>不要用 GitHub Pages 测 VT</b>（HTTPS 页无法请求 HTTP API，会报 Failed to fetch）。</p>
-                       <p class="mini-note">正确用法：在集群登录节点跑
+                       <p class="mini-note">常见原因：① Tunnel 作业已超时下线；② <code>ask_config.json</code> 里的 URL 过期；
+                       ③ 集群到 Cloudflare quick tunnel 被 reset（需换 localhost.run 或重启 demo-vt-tun）。</p>
+                       <p class="mini-note">本地调试：登录节点跑
                        <code>python3 scripts/demo_mini_vt_proxy.py</code>，本机
-                       <code>ssh -L 7866:127.0.0.1:7866 &lt;工作站&gt;</code>，浏览器打开
-                       <code>http://127.0.0.1:7866/#mode=mini</code>（同源，自动接 API）。</p>
+                       <code>ssh -L 7866:127.0.0.1:7866 &lt;工作站&gt;</code>，打开
+                       <code>http://127.0.0.1:7866/#mode=mini</code>。</p>
                      </div>`
               }
             </article>
