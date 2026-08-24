@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260824g";
+  const DATA_V = "20260824h";
 
   let retrieveData = null;
   let qaData = null;
@@ -324,7 +324,7 @@
       "机制（Phase G）：Ridge + 残差 MLP；载体是译后 vis，不是 KV；Consumer 冻结。",
       "单图 held-out：译后 vis 答题 EM ≈ 0.963（n=1000）。",
       "加速：相对「8B 写 Caption → 4B 读」约 11.5×（online）/ 12.6×（cached），EM 0.25 → 0.93。",
-      "下方记分板：主结果 NL Read（端到端 Acc）在上；expand150 列表题为附表。各表内均为端到端优先、检索阶段在后。",
+      "下方记分板为主结果 NL Read（端到端 Acc；无 list）。各表内先端到端，检索设定在后。",
       "下方列表题：三列都用译后 vis 作答，差别主要在候选池（Caption / gate / oracle）。",
     ]);
   }
@@ -1117,7 +1117,7 @@
         </div>
         ${qaEndToEndFlowHTML()}
         ${nlReadScorecardHTML(d.nl_read_scorecard)}
-        ${scorecardHTML(d.scorecard)}
+        ${"" /* expand150 list 附表暂不展示 */}
         <figure class="xlate-hero-fig">
           <img
             src="./assets/pipeline-e2e.png"
