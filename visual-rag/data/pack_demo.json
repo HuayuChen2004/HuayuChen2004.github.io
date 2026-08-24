@@ -1183,7 +1183,7 @@
         "note": "展示值为 list soft F1"
       },
       {
-        "metric": "Caption 真基线（Caption 池 + 4B 文本）QA Acc / F1",
+        "metric": "Caption 基线（Caption 池 + 4B 文本）QA Acc / F1",
         "value": 0.175,
         "note": "全程无 VT | list soft F1"
       }
@@ -1200,6 +1200,7 @@
       { "item": "候选截断", "value": "答题 Top-8；max_images_per_forward=1" },
       { "item": "检索", "value": "Ours pool_recall 0.622 > Caption 0.494（138 题合并）" },
       { "item": "译后 CE", "value": "rw842_pack_ft_ask_b（number/boolean/material/spatial；非 list）" },
+      { "item": "Caption 基线", "value": "Caption 检索 + 读 caption 文本（4B / 8B）；无 VT" },
       { "item": "瞎猜基线", "value": "≈0.35；开放计数无选项，number 按 0 计" }
     ],
     "e2e_columns": [
@@ -1214,6 +1215,11 @@
         "metric": "Caption 基线（纯文本 4B）",
         "values": [0.261, 0.406, 0.32, 0.0, 0.0],
         "note": "Caption 检索 + 读 caption 文本；无 VT"
+      },
+      {
+        "metric": "Caption 基线（纯文本 8B）",
+        "values": [0.304, 0.478, 0.36, 0.0, 0.0],
+        "note": "同上，8B 读 caption；作业 1232"
       },
       {
         "metric": "Ours + 同模 8B VT",
@@ -1236,6 +1242,6 @@
         "note": "上限"
       }
     ],
-    "fill_hint": "交付 Ask-B Acc 0.413 > 瞎猜≈0.35 / Caption 纯文本 0.261；Oracle Ask-B 0.587。number 仍是主瓶颈；检索 Ours > Caption。"
+    "fill_hint": "交付 Ask-B Acc 0.413 > Caption 8B 0.304 > 4B 0.261 > 瞎猜≈0.35；Oracle Ask-B 0.587。number 仍是主瓶颈。"
   }
 }
