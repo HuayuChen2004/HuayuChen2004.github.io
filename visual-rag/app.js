@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260824k";
+  const DATA_V = "20260824l";
 
   let retrieveData = null;
   let qaData = null;

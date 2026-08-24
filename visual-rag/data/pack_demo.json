@@ -1242,6 +1242,6 @@
         "note": "上限"
       }
     ],
-    "fill_hint": "交付 Ask-B Acc 0.413 > Caption 8B 0.304 > 4B 0.261 > 瞎猜≈0.35；Oracle Ask-B 0.587。number 仍是主瓶颈。"
+    "fill_hint": "Ours+Ask-B 0.413（略低于同池 8B 0.435）；Oracle Ask-B 0.587 > 8B 0.500。净池 material 译后涨最多；脏池 boolean 8B 更耐噪——端到端差距主要在检索。Caption 8B/4B 0.304/0.261；number 仍弱。"
   }
 }
