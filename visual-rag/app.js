@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260824c";
+  const DATA_V = "20260824d";
 
   let retrieveData = null;
   let qaData = null;
@@ -445,14 +445,6 @@
         return `<tr><th scope="row">${r.metric}</th>${cells}<td class="sc-note">${r.note || ""}</td></tr>`;
       })
       .join("");
-    const mtCols = sc.mt_columns || [];
-    const mtHead = `<th>臂</th>` + mtCols.map((c) => `<th>${c}</th>`).join("") + `<th>备注</th>`;
-    const mtRows = (sc.mt_rows || [])
-      .map((r) => {
-        const cells = (r.values || []).map((v) => `<td class="sc-num">${cellPending(v)}</td>`).join("");
-        return `<tr><th scope="row">${r.metric}</th>${cells}<td class="sc-note">${r.note || ""}</td></tr>`;
-      })
-      .join("");
     return `
       <section class="scorecard" aria-label="NL Read 评测记分板">
         <div class="qa-flow-head">
@@ -472,15 +464,6 @@
                 </tr>
               </thead>
               <tbody>${e2eRows}</tbody>
-            </table>
-          </div>
-        </div>
-        <div class="sc-block">
-          <h3>2 · 译后 4B：list CE → 多题型 pack-ft</h3>
-          <div class="sc-table-wrap">
-            <table class="sc-table">
-              <thead><tr>${mtHead}</tr></thead>
-              <tbody>${mtRows}</tbody>
             </table>
           </div>
         </div>

@@ -1197,15 +1197,14 @@
   },
   "nl_read_scorecard": {
     "title": "NL Read 评测（先滤图再自然语言作答）",
-    "blurb": "上周主实验：49 题 boolean/material/number/spatial，先检索再中文作答。瞎猜基线≈0.379。数据更新至 2026-08-21（作业 1145 / 1162）。",
+    "blurb": "上周主实验：49 题 boolean/material/number/spatial，先检索再中文作答。瞎猜基线≈0.379。译后交付为 list-only pack-ft（作业 1145）。",
     "protocol": [
       { "item": "图库", "value": "842（与 expand150 同库）" },
       { "item": "题数", "value": "49（nl_boolean 24 / nl_material 9 / nl_number 12 / nl_spatial 4）" },
       { "item": "协议", "value": "number 分块局部计数再求和；材质比较先计 metal/rubber 再比" },
       { "item": "候选截断", "value": "答题 Top-8；max_images_per_forward=1" },
       { "item": "检索", "value": "Ours pool_recall 0.612 > Caption 0.507（未因本表重跑）" },
-      { "item": "译后 CE（主表）", "value": "rw842_pack_ft_bf16（仅 image_list）" },
-      { "item": "译后 CE（对照）", "value": "rw842_pack_ft_multitype（list+number+boolean+qa_boolean）" }
+      { "item": "译后 CE", "value": "rw842_pack_ft_bf16（仅 image_list）" }
     ],
     "e2e_columns": [
       "Acc",
@@ -1251,24 +1250,6 @@
         "note": ""
       }
     ],
-    "mt_columns": ["list CE Acc", "multitype Acc", "Δ"],
-    "mt_rows": [
-      {
-        "metric": "Oracle + 译后4B",
-        "values": [0.51, 0.592, "+0.082"],
-        "note": "boolean/material 升；number 仍 3/12"
-      },
-      {
-        "metric": "Ours + 译后4B",
-        "values": [0.408, 0.347, "−0.061"],
-        "note": "检索臂回落"
-      },
-      {
-        "metric": "Caption + 译后4B",
-        "values": [0.429, 0.306, "−0.122"],
-        "note": "检索臂回落"
-      }
-    ],
-    "fill_hint": "多题型 CE 抬高 Oracle 池 boolean/material；number 与带噪检索臂仍是瓶颈。"
+    "fill_hint": "交付臂看 list-only 译后 CE；number 与带噪检索池仍是瓶颈。"
   }
 }
