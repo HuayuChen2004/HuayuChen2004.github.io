@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260824f";
+  const DATA_V = "20260824g";
 
   let retrieveData = null;
   let qaData = null;
@@ -453,7 +453,7 @@
           <p>${sc.blurb || ""}</p>
         </div>
         <div class="sc-block">
-          <h3>1 · 端到端 Acc（译后 4B，list-only CE）</h3>
+          <h3>1 · 端到端 Acc（译后 4B，Ask-B）</h3>
           <div class="sc-table-wrap">
             <table class="sc-table">
               <thead>

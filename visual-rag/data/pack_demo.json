@@ -1196,16 +1196,16 @@
     "fill_hint": "expand150 列表题附表；NL Read 主结果见上方。"
   },
   "nl_read_scorecard": {
-    "title": "NL Read 评测（先滤图再自然语言作答）",
-    "blurb": "上周主实验：49 题 boolean/material/number/spatial，先检索再中文作答。瞎猜基线≈0.36（boolean/material 0.5、spatial 0.25、开放域 number 计 0）。译后交付为 list-only pack-ft（作业 1145）。",
+    "title": "NL Read 评测（先滤图再自然语言作答；无 list）",
+    "blurb": "139 题（原 49 + 新 90，去重后扩充）：boolean / material / number / spatial。瞎猜≈0.35（number 开放域计 0）。译后交付为 Ask-B pack-ft（作业 1210/1223）。",
     "protocol": [
       { "item": "图库", "value": "842（与 expand150 同库）" },
-      { "item": "题数", "value": "49（nl_boolean 24 / nl_material 9 / nl_number 12 / nl_spatial 4）" },
+      { "item": "题数", "value": "139（nl_boolean 69 / nl_material 25 / nl_number 40 / nl_spatial 5）；无 image_list" },
       { "item": "协议", "value": "number 分块局部计数再求和；材质比较先计 metal/rubber 再比" },
       { "item": "候选截断", "value": "答题 Top-8；max_images_per_forward=1" },
-      { "item": "检索", "value": "Ours pool_recall 0.612 > Caption 0.507（未因本表重跑）" },
-      { "item": "译后 CE", "value": "rw842_pack_ft_bf16（仅 image_list）" },
-      { "item": "瞎猜基线", "value": "≈0.36；开放计数无选项，number 按 0 计（旧值 0.379 曾给 number≈9% 偏松）" }
+      { "item": "检索", "value": "Ours pool_recall 0.625 > Caption 0.498（139 题合并）" },
+      { "item": "译后 CE", "value": "rw842_pack_ft_ask_b（number/boolean/material/spatial；非 list）" },
+      { "item": "瞎猜基线", "value": "≈0.35；开放计数无选项，number 按 0 计" }
     ],
     "e2e_columns": [
       "Acc",
@@ -1217,35 +1217,35 @@
     "e2e_rows": [
       {
         "metric": "Caption 真基线 · 文本4B",
-        "values": [0.224, 0.375, 0.222, 0.0, 0.0],
+        "values": [0.259, 0.406, 0.32, 0.0, 0.0],
         "note": "无 VT"
       },
       {
         "metric": "Caption + 同模 8B VT",
-        "values": [0.327, 0.5, 0.333, 0.0, 0.25],
+        "values": [0.317, 0.507, 0.32, 0.0, 0.2],
         "note": ""
       },
       {
         "metric": "Ours + 同模 8B VT",
-        "values": [0.408, 0.625, 0.444, 0.0, 0.25],
+        "values": [0.439, 0.667, 0.44, 0.075, 0.2],
         "note": ""
       },
       {
-        "metric": "Ours + 译后4B（list CE）",
-        "values": [0.408, 0.625, 0.444, 0.083, 0.0],
-        "note": "交付对照"
+        "metric": "Ours + 译后4B（Ask-B）",
+        "values": [0.41, 0.58, 0.52, 0.075, 0.2],
+        "note": "交付"
       },
       {
         "metric": "Oracle + 同模 8B VT",
-        "values": [0.449, 0.583, 0.444, 0.0, 1.0],
-        "note": "number 0/12"
+        "values": [0.489, 0.681, 0.52, 0.1, 0.8],
+        "note": ""
       },
       {
-        "metric": "Oracle + 译后4B（list CE）",
-        "values": [0.51, 0.542, 0.778, 0.25, 0.5],
-        "note": ""
+        "metric": "Oracle + 译后4B（Ask-B）",
+        "values": [0.59, 0.71, 0.88, 0.2, 0.6],
+        "note": "上限"
       }
     ],
-    "fill_hint": "相对≈0.36 瞎猜仅略高；boolean 有全 true 偏置，material≈随机，number/spatial 接近崩。交付仍为 list-only pack-ft。"
+    "fill_hint": "交付 Ask-B Acc 0.41 > 瞎猜≈0.35；Oracle Ask-B 0.59。number 仍是主瓶颈；检索 Ours > Caption。"
   }
 }
