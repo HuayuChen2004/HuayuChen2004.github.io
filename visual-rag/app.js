@@ -2,7 +2,7 @@
   const $ = (sel) => document.querySelector(sel);
   const thumb = (id) => `./thumbs/${String(id).replace(/\.png$/i, ".jpg")}`;
   const fmtPct = (x) => `${(Number(x) * 100).toFixed(1)}%`;
-  const DATA_V = "20260817g";
+  const DATA_V = "20260824c";
 
   let retrieveData = null;
   let qaData = null;
@@ -324,7 +324,7 @@
       "机制（Phase G）：Ridge + 残差 MLP；载体是译后 vis，不是 KV；Consumer 冻结。",
       "单图 held-out：译后 vis 答题 EM ≈ 0.963（n=1000）。",
       "加速：相对「8B 写 Caption → 4B 读」约 11.5×（online）/ 12.6×（cached），EM 0.25 → 0.93。",
-      "下方记分板列出要测的阶段指标与端到端准确率（Ours vs Caption）；测完填 pack_demo.json。",
+      "下方记分板：主结果 NL Read（端到端 Acc）在上；expand150 列表题为附表。各表内均为端到端优先、检索阶段在后。",
       "下方列表题：三列都用译后 vis 作答，差别主要在候选池（Caption / gate / oracle）。",
     ]);
   }
@@ -374,21 +374,36 @@
     return `
       <section class="scorecard" aria-label="评测记分板">
         <div class="qa-flow-head">
-          <p class="xlate-kicker">Evaluation</p>
+          <p class="xlate-kicker">${sc.kicker || "附表 · expand150"}</p>
           <h2>${sc.title || "评测记分板"}</h2>
           <p>${sc.blurb || ""}</p>
         </div>
         <div class="sc-block">
-          <h3>0 · 评测设定</h3>
+          <h3>1 · 端到端答题（方法 × 答题臂）</h3>
           <div class="sc-table-wrap">
             <table class="sc-table">
-              <thead><tr><th>项</th><th>约定 / 数值</th></tr></thead>
-              <tbody>${protocolRows}</tbody>
+              <thead>
+                <tr>
+                  <th>指标</th>
+                  ${e2eHead}
+                  <th>备注</th>
+                </tr>
+              </thead>
+              <tbody>${e2eRows}</tbody>
             </table>
           </div>
         </div>
         <div class="sc-block">
-          <h3>1 · 阶段准确率：检索召回 → 池内精排</h3>
+          <h3>2 · 上限对照（Oracle 池）</h3>
+          <div class="sc-table-wrap">
+            <table class="sc-table">
+              <thead><tr><th>指标</th><th>数值</th><th>备注</th></tr></thead>
+              <tbody>${oracleRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sc-block">
+          <h3>3 · 阶段指标：检索召回 → 池内精排</h3>
           <div class="sc-table-wrap">
             <table class="sc-table">
               <thead>
@@ -405,26 +420,11 @@
           </div>
         </div>
         <div class="sc-block">
-          <h3>2 · 端到端答题准确率（方法 × 答题臂）</h3>
+          <h3>附 · 评测设定</h3>
           <div class="sc-table-wrap">
             <table class="sc-table">
-              <thead>
-                <tr>
-                  <th>指标</th>
-                  ${e2eHead}
-                  <th>备注</th>
-                </tr>
-              </thead>
-              <tbody>${e2eRows}</tbody>
-            </table>
-          </div>
-        </div>
-        <div class="sc-block">
-          <h3>3 · 上限对照（Oracle 池）</h3>
-          <div class="sc-table-wrap">
-            <table class="sc-table">
-              <thead><tr><th>指标</th><th>数值</th><th>备注</th></tr></thead>
-              <tbody>${oracleRows}</tbody>
+              <thead><tr><th>项</th><th>约定 / 数值</th></tr></thead>
+              <tbody>${protocolRows}</tbody>
             </table>
           </div>
         </div>
@@ -456,21 +456,12 @@
     return `
       <section class="scorecard" aria-label="NL Read 评测记分板">
         <div class="qa-flow-head">
-          <p class="xlate-kicker">NL Read</p>
+          <p class="xlate-kicker">主结果 · NL Read</p>
           <h2>${sc.title || "NL Read 评测"}</h2>
           <p>${sc.blurb || ""}</p>
         </div>
         <div class="sc-block">
-          <h3>设定</h3>
-          <div class="sc-table-wrap">
-            <table class="sc-table">
-              <thead><tr><th>项</th><th>约定 / 数值</th></tr></thead>
-              <tbody>${protocolRows}</tbody>
-            </table>
-          </div>
-        </div>
-        <div class="sc-block">
-          <h3>端到端 Acc（list-only 译后 CE）</h3>
+          <h3>1 · 端到端 Acc（译后 4B，list-only CE）</h3>
           <div class="sc-table-wrap">
             <table class="sc-table">
               <thead>
@@ -485,11 +476,20 @@
           </div>
         </div>
         <div class="sc-block">
-          <h3>译后 4B：list CE → 多题型 CE</h3>
+          <h3>2 · 译后 4B：list CE → 多题型 pack-ft</h3>
           <div class="sc-table-wrap">
             <table class="sc-table">
               <thead><tr>${mtHead}</tr></thead>
               <tbody>${mtRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sc-block">
+          <h3>附 · 设定与检索（本表未重跑检索）</h3>
+          <div class="sc-table-wrap">
+            <table class="sc-table">
+              <thead><tr><th>项</th><th>约定 / 数值</th></tr></thead>
+              <tbody>${protocolRows}</tbody>
             </table>
           </div>
         </div>
@@ -1133,8 +1133,8 @@
           <p class="pack-note">${t.vs_old || ""}</p>
         </div>
         ${qaEndToEndFlowHTML()}
-        ${scorecardHTML(d.scorecard)}
         ${nlReadScorecardHTML(d.nl_read_scorecard)}
+        ${scorecardHTML(d.scorecard)}
         <figure class="xlate-hero-fig">
           <img
             src="./assets/pipeline-e2e.png"

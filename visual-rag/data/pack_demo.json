@@ -1004,8 +1004,8 @@
     "vs_old": "⑥ 答题对比：同模型 Caption vs 原生 visual token。本页：跨模型翻译后的看图作答，并用列表题展示真实开放图库场景；上方补了相对「写 Caption 再传」的延迟对照。"
   },
   "scorecard": {
-    "title": "评测记分板（v523-842；主指标=列表 soft F1）",
-    "blurb": "主指标 list soft F1。含 Caption+同模8B VT 对照；Caption真基线=文本→4B；Ours交付=译后VT→4B。",
+    "title": "附表 · expand150 列表题（150 题，主指标 list soft F1）",
+    "blurb": "与上方 NL Read（49 题、自然语言 Acc）不同：本表为 expand150 多图列表筛选，主看 list soft F1。",
     "protocol": [
       {
         "item": "图库规模",
@@ -1193,11 +1193,11 @@
         "note": "全程无 VT | list soft F1"
       }
     ],
-    "fill_hint": "比较方法请看 list F1；soft EM 已退出主表。"
+    "fill_hint": "expand150 列表题附表；NL Read 主结果见上方。"
   },
   "nl_read_scorecard": {
     "title": "NL Read 评测（先滤图再自然语言作答）",
-    "blurb": "49 题：boolean / material / number / spatial。先检索候选，再读图用中文答；瞎猜基线≈0.379。主表为 list-only 译后 CE；对照表为多题型 pack-ft 译后 4B。",
+    "blurb": "上周主实验：49 题 boolean/material/number/spatial，先检索再中文作答。瞎猜基线≈0.379。数据更新至 2026-08-21（作业 1145 / 1162）。",
     "protocol": [
       { "item": "图库", "value": "842（与 expand150 同库）" },
       { "item": "题数", "value": "49（nl_boolean 24 / nl_material 9 / nl_number 12 / nl_spatial 4）" },
@@ -1269,6 +1269,6 @@
         "note": "检索臂回落"
       }
     ],
-    "fill_hint": "多题型 CE 抬高 Oracle 池；number 与带噪检索池仍是瓶颈。主交付暂仍看 list CE 行。"
+    "fill_hint": "多题型 CE 抬高 Oracle 池 boolean/material；number 与带噪检索臂仍是瓶颈。"
   }
 }
