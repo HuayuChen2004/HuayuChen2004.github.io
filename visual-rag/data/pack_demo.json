@@ -1197,14 +1197,15 @@
   },
   "nl_read_scorecard": {
     "title": "NL Read 评测（先滤图再自然语言作答）",
-    "blurb": "上周主实验：49 题 boolean/material/number/spatial，先检索再中文作答。瞎猜基线≈0.379。译后交付为 list-only pack-ft（作业 1145）。",
+    "blurb": "上周主实验：49 题 boolean/material/number/spatial，先检索再中文作答。瞎猜基线≈0.36（boolean/material 0.5、spatial 0.25、开放域 number 计 0）。译后交付为 list-only pack-ft（作业 1145）。",
     "protocol": [
       { "item": "图库", "value": "842（与 expand150 同库）" },
       { "item": "题数", "value": "49（nl_boolean 24 / nl_material 9 / nl_number 12 / nl_spatial 4）" },
       { "item": "协议", "value": "number 分块局部计数再求和；材质比较先计 metal/rubber 再比" },
       { "item": "候选截断", "value": "答题 Top-8；max_images_per_forward=1" },
       { "item": "检索", "value": "Ours pool_recall 0.612 > Caption 0.507（未因本表重跑）" },
-      { "item": "译后 CE", "value": "rw842_pack_ft_bf16（仅 image_list）" }
+      { "item": "译后 CE", "value": "rw842_pack_ft_bf16（仅 image_list）" },
+      { "item": "瞎猜基线", "value": "≈0.36；开放计数无选项，number 按 0 计（旧值 0.379 曾给 number≈9% 偏松）" }
     ],
     "e2e_columns": [
       "Acc",
@@ -1245,6 +1246,6 @@
         "note": ""
       }
     ],
-    "fill_hint": "交付臂看 list-only 译后 CE；number 与带噪检索池仍是瓶颈。"
+    "fill_hint": "相对≈0.36 瞎猜仅略高；boolean 有全 true 偏置，material≈随机，number/spatial 接近崩。交付仍为 list-only pack-ft。"
   }
 }
