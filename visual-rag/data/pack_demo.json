@@ -1036,8 +1036,8 @@
         "value": "同模 8B 直接注入 VT"
       },
       {
-        "item": "Caption 真基线",
-        "value": "Caption 检索池 + 候选图 VLM caption 文本 → 4B（无 VT）"
+        "item": "Caption 基线",
+        "value": "Caption 检索池 + 候选图 VLM caption 文本 → 4B（无 VT；不用 Caption+VT）"
       },
       {
         "item": "主指标",
@@ -1126,8 +1126,7 @@
     "e2e_columns": [
       "Ours + 同模 8B VT",
       "Ours + 译后 4B VT",
-      "Caption + 同模 8B VT",
-      "Caption 真基线 + 4B 文本",
+      "Caption 基线 + 4B 文本",
       "Caption 池 + 译后 4B VT（消融）"
     ],
     "e2e_rows": [
@@ -1136,7 +1135,6 @@
         "values": [
           0.214,
           0.235,
-          0.175,
           0.175,
           0.208
         ],
@@ -1147,7 +1145,6 @@
         "values": [
           0.312,
           0.275,
-          0.27,
           0.207,
           0.276
         ],
@@ -1158,7 +1155,6 @@
         "values": [
           0.194,
           0.261,
-          0.156,
           0.203,
           0.212
         ],
@@ -1169,7 +1165,6 @@
         "values": [
           65.722,
           30.555,
-          65.418,
           12.055,
           30.902
         ],
@@ -1216,14 +1211,9 @@
     ],
     "e2e_rows": [
       {
-        "metric": "Caption 真基线 · 文本4B",
+        "metric": "Caption 基线（纯文本 4B）",
         "values": [0.261, 0.406, 0.32, 0.0, 0.0],
-        "note": "无 VT"
-      },
-      {
-        "metric": "Caption + 同模 8B VT",
-        "values": [0.319, 0.507, 0.32, 0.0, 0.25],
-        "note": ""
+        "note": "Caption 检索 + 读 caption 文本；无 VT"
       },
       {
         "metric": "Ours + 同模 8B VT",
@@ -1246,6 +1236,6 @@
         "note": "上限"
       }
     ],
-    "fill_hint": "交付 Ask-B Acc 0.413 > 瞎猜≈0.35；Oracle Ask-B 0.587。number 仍是主瓶颈；检索 Ours > Caption。"
+    "fill_hint": "交付 Ask-B Acc 0.413 > 瞎猜≈0.35 / Caption 纯文本 0.261；Oracle Ask-B 0.587。number 仍是主瓶颈；检索 Ours > Caption。"
   }
 }
