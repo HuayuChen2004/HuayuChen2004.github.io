@@ -1,309 +1,248 @@
 {
-  "title": "小图库互动例子",
-  "intro": "下面只有 8 张图、3 道简单题。把图拖进上方小图库后提问：系统只在你拖入的图里检索作答（离线预计算）。约束题若拖入集合不含目标图，会提示没有符合要求的图；argmax 题则在你的子集里相对排序作答，并与全库参考答案区分开。",
+  "title": "RealWorld 30 图互动 Demo",
+  "intro": "30 张 RealWorld 场景图（6 场景各 5 张）。输入中文问题：左侧 Caption、右侧 Visual Token（tok/2 + 同模 8B）对照作答。",
   "gallery": [
     {
+      "id": "CLEVR_train_012308.png",
+      "short": "教室课桌·5物",
+      "caption": "这是一张教室课桌场景照片，能看到教室、课桌、固体胶、橡皮等环境线索。画面中有5件物品，包括青色金属胶带卷、灰色哑光橡皮、绿色金属固体胶、红色哑光橡皮、灰色金属固体胶。物体摆放在教室课桌上，颜色与材质清晰可辨。",
+      "scene_id": "classroom_desk",
+      "scene_name_zh": "教室课桌",
+      "num_objects": 5
+    },
+    {
+      "id": "CLEVR_train_046838.png",
+      "short": "教室课桌·8物",
+      "caption": "这是一张教室课桌场景照片，能看到教室、课桌、固体胶、橡皮等环境线索。画面中有8件物品，包括绿色金属橡皮、紫色金属固体胶、红色金属固体胶、紫色金属橡皮、黄色金属橡皮、蓝色哑光胶带卷、青色金属胶带卷。物体摆放在教室课桌上，颜色与材质清晰可辨。",
+      "scene_id": "classroom_desk",
+      "scene_name_zh": "教室课桌",
+      "num_objects": 8
+    },
+    {
+      "id": "CLEVR_train_046270.png",
+      "short": "教室课桌·7物",
+      "caption": "这是一张教室课桌场景照片，能看到教室、课桌、固体胶、橡皮等环境线索。画面中有7件物品，包括青色哑光橡皮、红色金属橡皮、青色金属橡皮、灰色哑光橡皮、灰色哑光胶带卷、绿色哑光固体胶、青色哑光胶带卷。物体摆放在教室课桌上，颜色与材质清晰可辨。",
+      "scene_id": "classroom_desk",
+      "scene_name_zh": "教室课桌",
+      "num_objects": 7
+    },
+    {
+      "id": "CLEVR_train_020372.png",
+      "short": "教室课桌·8物",
+      "caption": "这是一张教室课桌场景照片，能看到教室、课桌、固体胶、橡皮等环境线索。画面中有8件物品，包括蓝色哑光橡皮、青色哑光胶带卷、棕色哑光胶带卷、蓝色哑光胶带卷、红色哑光固体胶、红色哑光橡皮、棕色哑光固体胶。物体摆放在教室课桌上，颜色与材质清晰可辨。",
+      "scene_id": "classroom_desk",
+      "scene_name_zh": "教室课桌",
+      "num_objects": 8
+    },
+    {
       "id": "CLEVR_train_022058.png",
-      "short": "多紫球",
-      "caption": "画面里有好几个球体。右侧有两个紫色球，其中一个其实更像红色金属小球；左边还有一个淡紫色球。"
+      "short": "教室课桌·7物",
+      "caption": "这是一张教室课桌场景照片，能看到教室、课桌、固体胶、橡皮等环境线索。画面中有7件物品，包括灰色金属胶带卷、紫色哑光胶带卷、灰色哑光胶带卷、红色金属胶带卷、红色哑光胶带卷。物体摆放在教室课桌上，颜色与材质清晰可辨。",
+      "scene_id": "classroom_desk",
+      "scene_name_zh": "教室课桌",
+      "num_objects": 7
     },
     {
-      "id": "CLEVR_train_002234.png",
-      "short": "黄方块场景",
-      "caption": "有一个黄色立方体、一个棕色球、一个绿色圆柱，还有一个金色金属球体。"
-    },
-    {
-      "id": "CLEVR_train_055302.png",
-      "short": "青绿大立方",
-      "caption": "一个大的青绿色立方体，周围有金色球、蓝色球、绿色球和银色球。"
-    },
-    {
-      "id": "CLEVR_train_001024.png",
-      "short": "红绿金球",
-      "caption": "前景有红色立方体、绿色金属球、金色金属球；还有蓝色立方体。"
-    },
-    {
-      "id": "CLEVR_train_056027.png",
-      "short": "黄棕青球",
-      "caption": "有黄色球体、棕色球体、青色小球，还有绿色圆柱和红色金属圆柱。"
+      "id": "CLEVR_train_048707.png",
+      "short": "餐厅餐桌·10物",
+      "caption": "这是一张餐厅餐桌场景照片，能看到餐厅、餐桌、水杯、味碟等环境线索。画面中有10件物品，包括棕色哑光水杯、红色哑光水杯、蓝色金属方味碟、红色哑光碗、棕色哑光方味碟、蓝色金属碗、绿色金属水杯、紫色金属碗、灰色金属碗、紫色金属方味碟。物体摆放在餐厅餐桌上，颜色与材质清晰可辨。",
+      "scene_id": "dining_table",
+      "scene_name_zh": "餐厅餐桌",
+      "num_objects": 10
     },
     {
       "id": "CLEVR_train_035872.png",
-      "short": "紫圆柱",
-      "caption": "前景是一个大的紫色圆柱体，旁边有青绿色金属圆柱和一些小球。"
+      "short": "餐厅餐桌·10物",
+      "caption": "这是一张餐厅餐桌场景照片，能看到餐厅、餐桌、水杯、味碟等环境线索。画面中有10件物品，包括绿色金属水杯、绿色金属碗、蓝色哑光水杯、绿色哑光碗、青色金属水杯、紫色金属碗、绿色哑光方味碟、青色哑光方味碟、紫色哑光水杯。物体摆放在餐厅餐桌上，颜色与材质清晰可辨。",
+      "scene_id": "dining_table",
+      "scene_name_zh": "餐厅餐桌",
+      "num_objects": 10
     },
     {
-      "id": "CLEVR_train_066033.png",
-      "short": "绿球紫柱",
-      "caption": "前景绿色球体，旁边紫色圆柱、紫色立方体，还有黄色小立方体。"
+      "id": "CLEVR_train_019466.png",
+      "short": "餐厅餐桌·5物",
+      "caption": "这是一张餐厅餐桌场景照片，能看到餐厅、餐桌、水杯、味碟等环境线索。画面中有5件物品，包括红色金属方味碟、棕色金属水杯、蓝色哑光水杯、绿色金属碗、青色金属水杯。物体摆放在餐厅餐桌上，颜色与材质清晰可辨。",
+      "scene_id": "dining_table",
+      "scene_name_zh": "餐厅餐桌",
+      "num_objects": 5
     },
     {
-      "id": "CLEVR_train_047690.png",
-      "short": "蓝金属立方",
-      "caption": "一个蓝色金属立方体、灰色立方体，以及红色、棕色、青色圆柱。"
+      "id": "CLEVR_train_067226.png",
+      "short": "餐厅餐桌·10物",
+      "caption": "这是一张餐厅餐桌场景照片，能看到餐厅、餐桌、水杯、味碟等环境线索。画面中有10件物品，包括绿色金属方味碟、黄色哑光碗、灰色金属水杯、青色哑光水杯、青色金属水杯、青色金属方味碟、蓝色哑光方味碟、黄色金属水杯、红色哑光碗。物体摆放在餐厅餐桌上，颜色与材质清晰可辨。",
+      "scene_id": "dining_table",
+      "scene_name_zh": "餐厅餐桌",
+      "num_objects": 10
+    },
+    {
+      "id": "CLEVR_train_055820.png",
+      "short": "餐厅餐桌·10物",
+      "caption": "这是一张餐厅餐桌场景照片，能看到餐厅、餐桌、水杯、味碟等环境线索。画面中有10件物品，包括红色金属碗、紫色金属碗、红色哑光方味碟、蓝色金属水杯、蓝色金属碗、青色哑光碗、绿色金属方味碟、红色金属水杯、灰色哑光水杯、棕色哑光水杯。物体摆放在餐厅餐桌上，颜色与材质清晰可辨。",
+      "scene_id": "dining_table",
+      "scene_name_zh": "餐厅餐桌",
+      "num_objects": 10
+    },
+    {
+      "id": "CLEVR_train_019567.png",
+      "short": "玄关柜·10物",
+      "caption": "这是一张玄关柜场景照片，能看到玄关、门口、鞋油、快递等环境线索。画面中有10件物品，包括黄色金属鞋油瓶、蓝色哑光圆装饰球、黄色金属圆装饰球、黄色哑光快递盒、红色金属快递盒、红色金属鞋油瓶、红色哑光快递盒、绿色金属圆装饰球、棕色哑光快递盒、灰色哑光快递盒。物体摆放在玄关柜上，颜色与材质清晰可辨。",
+      "scene_id": "entryway_console",
+      "scene_name_zh": "玄关柜",
+      "num_objects": 10
+    },
+    {
+      "id": "CLEVR_train_007788.png",
+      "short": "玄关柜·10物",
+      "caption": "这是一张玄关柜场景照片，能看到玄关、门口、鞋油、快递等环境线索。画面中有10件物品，包括绿色哑光快递盒、灰色金属鞋油瓶、紫色哑光圆装饰球、蓝色哑光快递盒、灰色哑光快递盒、棕色金属鞋油瓶、黄色金属快递盒、红色哑光快递盒、绿色哑光圆装饰球、红色哑光鞋油瓶。物体摆放在玄关柜上，颜色与材质清晰可辨。",
+      "scene_id": "entryway_console",
+      "scene_name_zh": "玄关柜",
+      "num_objects": 10
+    },
+    {
+      "id": "CLEVR_train_057592.png",
+      "short": "玄关柜·10物",
+      "caption": "这是一张玄关柜场景照片，能看到玄关、门口、鞋油、快递等环境线索。画面中有10件物品，包括蓝色哑光圆装饰球、绿色哑光快递盒、灰色哑光鞋油瓶、绿色哑光鞋油瓶、黄色哑光圆装饰球、灰色哑光快递盒、蓝色哑光鞋油瓶、紫色金属鞋油瓶、紫色哑光鞋油瓶。物体摆放在玄关柜上，颜色与材质清晰可辨。",
+      "scene_id": "entryway_console",
+      "scene_name_zh": "玄关柜",
+      "num_objects": 10
+    },
+    {
+      "id": "CLEVR_train_002078.png",
+      "short": "玄关柜·9物",
+      "caption": "这是一张玄关柜场景照片，能看到玄关、门口、鞋油、快递等环境线索。画面中有9件物品，包括灰色哑光快递盒、棕色金属快递盒、青色金属圆装饰球、青色金属鞋油瓶、灰色哑光圆装饰球、黄色哑光圆装饰球、红色哑光圆装饰球。物体摆放在玄关柜上，颜色与材质清晰可辨。",
+      "scene_id": "entryway_console",
+      "scene_name_zh": "玄关柜",
+      "num_objects": 9
+    },
+    {
+      "id": "CLEVR_train_000530.png",
+      "short": "玄关柜·4物",
+      "caption": "这是一张玄关柜场景照片，能看到玄关、门口、鞋油、快递等环境线索。画面中有4件物品，包括灰色哑光鞋油瓶、棕色金属鞋油瓶、黄色金属鞋油瓶。物体摆放在玄关柜上，颜色与材质清晰可辨。",
+      "scene_id": "entryway_console",
+      "scene_name_zh": "玄关柜",
+      "num_objects": 4
+    },
+    {
+      "id": "CLEVR_train_002921.png",
+      "short": "厨房台面·8物",
+      "caption": "这是一张厨房台面场景照片，能看到厨房、台面、调料罐、保鲜盒等环境线索。画面中有8件物品，包括青色哑光调料罐、绿色哑光调料罐、紫色金属调料罐、灰色哑光苹果、绿色哑光保鲜盒、红色哑光苹果、灰色哑光调料罐、红色金属保鲜盒。物体摆放在厨房台面上，颜色与材质清晰可辨。",
+      "scene_id": "kitchen_counter",
+      "scene_name_zh": "厨房台面",
+      "num_objects": 8
+    },
+    {
+      "id": "CLEVR_train_016503.png",
+      "short": "厨房台面·9物",
+      "caption": "这是一张厨房台面场景照片，能看到厨房、台面、调料罐、保鲜盒等环境线索。画面中有9件物品，包括红色哑光保鲜盒、灰色金属苹果、棕色哑光苹果、棕色金属保鲜盒、灰色金属保鲜盒、棕色金属苹果、灰色金属调料罐、紫色金属苹果、黄色哑光保鲜盒。物体摆放在厨房台面上，颜色与材质清晰可辨。",
+      "scene_id": "kitchen_counter",
+      "scene_name_zh": "厨房台面",
+      "num_objects": 9
+    },
+    {
+      "id": "CLEVR_train_049729.png",
+      "short": "厨房台面·9物",
+      "caption": "这是一张厨房台面场景照片，能看到厨房、台面、调料罐、保鲜盒等环境线索。画面中有9件物品，包括灰色哑光调料罐、紫色金属调料罐、红色哑光保鲜盒、蓝色哑光调料罐、灰色金属保鲜盒、黄色金属保鲜盒、绿色金属调料罐、棕色金属保鲜盒、紫色哑光调料罐。物体摆放在厨房台面上，颜色与材质清晰可辨。",
+      "scene_id": "kitchen_counter",
+      "scene_name_zh": "厨房台面",
+      "num_objects": 9
+    },
+    {
+      "id": "CLEVR_train_048847.png",
+      "short": "厨房台面·9物",
+      "caption": "这是一张厨房台面场景照片，能看到厨房、台面、调料罐、保鲜盒等环境线索。画面中有9件物品，包括紫色哑光苹果、绿色哑光苹果、棕色金属保鲜盒、绿色金属保鲜盒、绿色哑光调料罐、棕色哑光调料罐、紫色金属调料罐、红色哑光保鲜盒。物体摆放在厨房台面上，颜色与材质清晰可辨。",
+      "scene_id": "kitchen_counter",
+      "scene_name_zh": "厨房台面",
+      "num_objects": 9
+    },
+    {
+      "id": "CLEVR_train_060806.png",
+      "short": "厨房台面·6物",
+      "caption": "这是一张厨房台面场景照片，能看到厨房、台面、调料罐、保鲜盒等环境线索。画面中有6件物品，包括灰色哑光保鲜盒、绿色金属调料罐、黄色哑光保鲜盒、青色金属调料罐、蓝色哑光苹果、棕色金属苹果。物体摆放在厨房台面上，颜色与材质清晰可辨。",
+      "scene_id": "kitchen_counter",
+      "scene_name_zh": "厨房台面",
+      "num_objects": 6
+    },
+    {
+      "id": "CLEVR_train_047904.png",
+      "short": "客厅茶几·10物",
+      "caption": "这是一张客厅茶几场景照片，能看到客厅、茶几、马克杯、零食等环境线索。画面中有10件物品，包括棕色金属马克杯、黄色金属圆杯垫、青色哑光圆杯垫、绿色金属马克杯、红色金属马克杯、紫色哑光马克杯、绿色哑光圆杯垫、青色哑光马克杯、蓝色金属马克杯。物体摆放在客厅茶几上，颜色与材质清晰可辨。",
+      "scene_id": "living_room_table",
+      "scene_name_zh": "客厅茶几",
+      "num_objects": 10
+    },
+    {
+      "id": "CLEVR_train_037289.png",
+      "short": "客厅茶几·10物",
+      "caption": "这是一张客厅茶几场景照片，能看到客厅、茶几、马克杯、零食等环境线索。画面中有10件物品，包括红色金属圆杯垫、青色金属圆杯垫、棕色哑光马克杯、棕色哑光零食盒、绿色哑光马克杯、青色哑光圆杯垫、棕色金属零食盒、灰色金属圆杯垫、青色金属零食盒、红色哑光马克杯。物体摆放在客厅茶几上，颜色与材质清晰可辨。",
+      "scene_id": "living_room_table",
+      "scene_name_zh": "客厅茶几",
+      "num_objects": 10
+    },
+    {
+      "id": "CLEVR_train_007722.png",
+      "short": "客厅茶几·8物",
+      "caption": "这是一张客厅茶几场景照片，能看到客厅、茶几、马克杯、零食等环境线索。画面中有8件物品，包括青色哑光圆杯垫、紫色哑光马克杯、青色金属零食盒、绿色金属圆杯垫、灰色金属圆杯垫、蓝色哑光零食盒、红色金属零食盒。物体摆放在客厅茶几上，颜色与材质清晰可辨。",
+      "scene_id": "living_room_table",
+      "scene_name_zh": "客厅茶几",
+      "num_objects": 8
+    },
+    {
+      "id": "CLEVR_train_001670.png",
+      "short": "客厅茶几·6物",
+      "caption": "这是一张客厅茶几场景照片，能看到客厅、茶几、马克杯、零食等环境线索。画面中有6件物品，包括蓝色金属圆杯垫、紫色金属圆杯垫、黄色金属圆杯垫、灰色哑光圆杯垫、蓝色哑光圆杯垫、紫色哑光圆杯垫。物体摆放在客厅茶几上，颜色与材质清晰可辨。",
+      "scene_id": "living_room_table",
+      "scene_name_zh": "客厅茶几",
+      "num_objects": 6
+    },
+    {
+      "id": "CLEVR_train_040966.png",
+      "short": "客厅茶几·6物",
+      "caption": "这是一张客厅茶几场景照片，能看到客厅、茶几、马克杯、零食等环境线索。画面中有6件物品，包括绿色哑光马克杯、紫色哑光马克杯、棕色哑光马克杯、蓝色哑光马克杯、灰色哑光马克杯、青色金属马克杯。物体摆放在客厅茶几上，颜色与材质清晰可辨。",
+      "scene_id": "living_room_table",
+      "scene_name_zh": "客厅茶几",
+      "num_objects": 6
+    },
+    {
+      "id": "CLEVR_train_002835.png",
+      "short": "办公桌·10物",
+      "caption": "这是一张办公桌场景照片，能看到办公桌、办公室、固体胶、橡皮等环境线索。画面中有10件物品，包括青色哑光固体胶、灰色金属固体胶、棕色哑光固体胶、绿色金属橡皮、红色金属橡皮、棕色金属橡皮、青色哑光胶带卷、蓝色金属固体胶、紫色金属固体胶。物体摆放在办公桌上，颜色与材质清晰可辨。",
+      "scene_id": "office_desk",
+      "scene_name_zh": "办公桌",
+      "num_objects": 10
+    },
+    {
+      "id": "CLEVR_train_007933.png",
+      "short": "办公桌·6物",
+      "caption": "这是一张办公桌场景照片，能看到办公桌、办公室、固体胶、橡皮等环境线索。画面中有6件物品，包括绿色哑光固体胶、青色金属固体胶、棕色哑光固体胶、红色哑光固体胶、青色哑光固体胶。物体摆放在办公桌上，颜色与材质清晰可辨。",
+      "scene_id": "office_desk",
+      "scene_name_zh": "办公桌",
+      "num_objects": 6
+    },
+    {
+      "id": "CLEVR_train_001024.png",
+      "short": "办公桌·9物",
+      "caption": "这是一张办公桌场景照片，能看到办公桌、办公室、固体胶、橡皮等环境线索。画面中有9件物品，包括绿色金属胶带卷、棕色金属胶带卷、蓝色哑光橡皮、黄色金属胶带卷、青色金属胶带卷、青色金属橡皮、红色哑光橡皮。物体摆放在办公桌上，颜色与材质清晰可辨。",
+      "scene_id": "office_desk",
+      "scene_name_zh": "办公桌",
+      "num_objects": 9
+    },
+    {
+      "id": "CLEVR_train_037040.png",
+      "short": "办公桌·10物",
+      "caption": "这是一张办公桌场景照片，能看到办公桌、办公室、固体胶、橡皮等环境线索。画面中有10件物品，包括黄色哑光橡皮、红色哑光胶带卷、青色金属橡皮、黄色金属固体胶、灰色哑光胶带卷、绿色哑光固体胶、蓝色哑光固体胶、绿色金属胶带卷、灰色金属橡皮、棕色哑光橡皮。物体摆放在办公桌上，颜色与材质清晰可辨。",
+      "scene_id": "office_desk",
+      "scene_name_zh": "办公桌",
+      "num_objects": 10
+    },
+    {
+      "id": "CLEVR_train_060872.png",
+      "short": "办公桌·9物",
+      "caption": "这是一张办公桌场景照片，能看到办公桌、办公室、固体胶、橡皮等环境线索。画面中有9件物品，包括紫色哑光固体胶、灰色金属固体胶、蓝色哑光橡皮、棕色金属橡皮、绿色哑光胶带卷、青色哑光橡皮、绿色哑光固体胶、灰色金属胶带卷。物体摆放在办公桌上，颜色与材质清晰可辨。",
+      "scene_id": "office_desk",
+      "scene_name_zh": "办公桌",
+      "num_objects": 9
     }
   ],
-  "questions": [
-    {
-      "id": "q_count_purple",
-      "label": "紫色球有几个？",
-      "question": "在你拖入的图里，请找到「紫色球最多」的那一张：上面一共有几个紫色球？",
-      "hint": "只在你拖入的图里比谁紫球多；答案是「子集相对最多」那张上的个数，不一定等于全库金标答案。",
-      "select_mode": "argmax",
-      "gt_answer": "3",
-      "gold_id": "CLEVR_train_022058.png",
-      "empty_message": "你还没有拖入任何图片。",
-      "scope_note": "本题在拖入子集内做相对排序，不是全库绝对检索。",
-      "fail_step": "read",
-      "fail_plain": "Caption 找到的图其实对了，但文字把颜色写乱了，数球数错。",
-      "answer_by_image": {
-        "CLEVR_train_022058.png": {
-          "caption": "2",
-          "ours": "3",
-          "note_caption": "文字把一只紫球写成偏红，数成 2。",
-          "note_ours": "看图数到 3 个紫色球。"
-        },
-        "CLEVR_train_035872.png": {
-          "caption": "1",
-          "ours": "1",
-          "note_caption": "子集内相对最相关的是这张；图里约 1 个偏紫的球。",
-          "note_ours": "子集内选中此图，紫球约 1 个（不是全库最多的那张）。"
-        },
-        "CLEVR_train_066033.png": { "caption": "0", "ours": "0", "note_caption": "此图几乎无紫色球。", "note_ours": "看图：几乎无紫色球。" },
-        "CLEVR_train_056027.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" },
-        "CLEVR_train_002234.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" },
-        "CLEVR_train_001024.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" },
-        "CLEVR_train_055302.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" },
-        "CLEVR_train_047690.png": { "caption": "0", "ours": "0", "note_caption": "此图无紫色球。", "note_ours": "看图：无紫色球。" }
-      },
-      "caption": {
-        "ranks": [
-          { "id": "CLEVR_train_022058.png", "score": 0.91, "role": "gold" },
-          { "id": "CLEVR_train_035872.png", "score": 0.72, "role": "noise" },
-          { "id": "CLEVR_train_066033.png", "score": 0.61, "role": "noise" },
-          { "id": "CLEVR_train_056027.png", "score": 0.4, "role": "noise" },
-          { "id": "CLEVR_train_002234.png", "score": 0.22, "role": "noise" },
-          { "id": "CLEVR_train_001024.png", "score": 0.18, "role": "noise" },
-          { "id": "CLEVR_train_055302.png", "score": 0.15, "role": "noise" },
-          { "id": "CLEVR_train_047690.png", "score": 0.11, "role": "noise" }
-        ],
-        "selected_id": "CLEVR_train_022058.png",
-        "selected_ok": true,
-        "pred_answer": "2",
-        "correct": false,
-        "read_note": "文字写「右侧两个紫色球，其中一个更像红色」，模型按文字只敢数 2；图里其实是 3 个紫色球。"
-      },
-      "ours": {
-        "ranks": [
-          { "id": "CLEVR_train_022058.png", "score": 0.96, "role": "gold" },
-          { "id": "CLEVR_train_035872.png", "score": 0.55, "role": "noise" },
-          { "id": "CLEVR_train_066033.png", "score": 0.48, "role": "noise" },
-          { "id": "CLEVR_train_056027.png", "score": 0.31, "role": "noise" },
-          { "id": "CLEVR_train_002234.png", "score": 0.2, "role": "noise" },
-          { "id": "CLEVR_train_001024.png", "score": 0.16, "role": "noise" },
-          { "id": "CLEVR_train_055302.png", "score": 0.14, "role": "noise" },
-          { "id": "CLEVR_train_047690.png", "score": 0.1, "role": "noise" }
-        ],
-        "selected_id": "CLEVR_train_022058.png",
-        "selected_ok": true,
-        "pred_answer": "3",
-        "correct": true,
-        "read_note": "直接看图数紫色球，不受「写成红色」的文字干扰，答对 3。"
-      }
-    },
-    {
-      "id": "q_exists_yellow",
-      "label": "有没有黄球？",
-      "question": "请在你拖入的图里找到同时有「绿色圆柱」和「黄色立方体」的那张：这张图里有没有黄色的球？",
-      "hint": "若拖入集合不含目标图，会提示找不到，不会强行答金标题。",
-      "select_mode": "constraint",
-      "satisfying_ids": ["CLEVR_train_002234.png"],
-      "empty_message": "你拖入的图片中，没有同时具有「绿色圆柱」和「黄色立方体」的图。",
-      "scope_note": "本题先检查拖入集合是否覆盖目标图，再在集合内排序定图。",
-      "gt_answer": "有",
-      "gold_id": "CLEVR_train_002234.png",
-      "fail_step": "read",
-      "fail_plain": "Caption 选对了图，但文字把黄球写成「金色金属球体」，存在性判断变成「没有」。",
-      "answer_by_image": {
-        "CLEVR_train_002234.png": {
-          "caption": "没有",
-          "ours": "有",
-          "note_caption": "Caption 把黄球写成金色金属球，答「没有」。",
-          "note_ours": "看图确认有黄色球体，答「有」。"
-        },
-        "CLEVR_train_056027.png": {
-          "caption": "（该图不满足「绿柱+黄立方」约束）",
-          "ours": "（该图不满足「绿柱+黄立方」约束）",
-          "note_caption": "有绿柱但没有黄色立方体。",
-          "note_ours": "有绿柱但没有黄色立方体。"
-        },
-        "CLEVR_train_001024.png": {
-          "caption": "（该图不满足「绿柱+黄立方」约束）",
-          "ours": "（该图不满足「绿柱+黄立方」约束）"
-        },
-        "CLEVR_train_055302.png": {
-          "caption": "（该图不满足「绿柱+黄立方」约束）",
-          "ours": "（该图不满足「绿柱+黄立方」约束）"
-        },
-        "CLEVR_train_066033.png": {
-          "caption": "（该图不满足「绿柱+黄立方」约束）",
-          "ours": "（该图不满足「绿柱+黄立方」约束）"
-        },
-        "CLEVR_train_047690.png": {
-          "caption": "（该图不满足「绿柱+黄立方」约束）",
-          "ours": "（该图不满足「绿柱+黄立方」约束）"
-        },
-        "CLEVR_train_035872.png": {
-          "caption": "（该图不满足「绿柱+黄立方」约束）",
-          "ours": "（该图不满足「绿柱+黄立方」约束）"
-        },
-        "CLEVR_train_022058.png": {
-          "caption": "（该图不满足「绿柱+黄立方」约束）",
-          "ours": "（该图不满足「绿柱+黄立方」约束）"
-        }
-      },
-      "caption": {
-        "ranks": [
-          { "id": "CLEVR_train_002234.png", "score": 0.88, "role": "gold" },
-          { "id": "CLEVR_train_056027.png", "score": 0.7, "role": "noise" },
-          { "id": "CLEVR_train_001024.png", "score": 0.52, "role": "noise" },
-          { "id": "CLEVR_train_055302.png", "score": 0.41, "role": "noise" },
-          { "id": "CLEVR_train_066033.png", "score": 0.33, "role": "noise" },
-          { "id": "CLEVR_train_047690.png", "score": 0.25, "role": "noise" },
-          { "id": "CLEVR_train_035872.png", "score": 0.2, "role": "noise" },
-          { "id": "CLEVR_train_022058.png", "score": 0.12, "role": "noise" }
-        ],
-        "selected_id": "CLEVR_train_002234.png",
-        "selected_ok": true,
-        "pred_answer": "没有",
-        "correct": false,
-        "read_note": "Caption 明确写了「黄色立方体」和「金色金属球体」，字面上没有稳定的「黄色球体」，于是答「没有」。"
-      },
-      "ours": {
-        "ranks": [
-          { "id": "CLEVR_train_002234.png", "score": 0.94, "role": "gold" },
-          { "id": "CLEVR_train_056027.png", "score": 0.58, "role": "noise" },
-          { "id": "CLEVR_train_001024.png", "score": 0.44, "role": "noise" },
-          { "id": "CLEVR_train_055302.png", "score": 0.36, "role": "noise" },
-          { "id": "CLEVR_train_066033.png", "score": 0.28, "role": "noise" },
-          { "id": "CLEVR_train_047690.png", "score": 0.22, "role": "noise" },
-          { "id": "CLEVR_train_035872.png", "score": 0.18, "role": "noise" },
-          { "id": "CLEVR_train_022058.png", "score": 0.1, "role": "noise" }
-        ],
-        "selected_id": "CLEVR_train_002234.png",
-        "selected_ok": true,
-        "pred_answer": "有",
-        "correct": true,
-        "read_note": "看图像素：图里确实有黄色球体，答「有」。"
-      }
-    },
-    {
-      "id": "q_pick_metal",
-      "label": "大立方体是金属吗？",
-      "question": "请在你拖入的图里找到「有一个很大的青绿色立方体」的那张：这个大立方体是金属材质吗？",
-      "hint": "若没有青绿大立方体那张图，会提示不满足要求；若拖入了但 Caption 被金属球吸走，仍可能选错。",
-      "select_mode": "constraint",
-      "satisfying_ids": ["CLEVR_train_055302.png"],
-      "empty_message": "你拖入的图片中，没有「很大的青绿色立方体」那张图。",
-      "scope_note": "本题先检查拖入集合是否覆盖目标图；Caption 仍可能在有金标时选错旁图。",
-      "gt_answer": "不是（哑光/橡胶）",
-      "gold_id": "CLEVR_train_055302.png",
-      "fail_step": "select",
-      "fail_plain": "Caption 被「金属球」关键词吸走，选错了图，后面答案建立在错误场景上。",
-      "answer_by_image": {
-        "CLEVR_train_055302.png": {
-          "caption": "不是（哑光）",
-          "ours": "不是（哑光）",
-          "note_caption": "若选对这张图，读 Caption 也能判断大立方偏哑光。",
-          "note_ours": "看图判断大立方为哑光。"
-        },
-        "CLEVR_train_001024.png": {
-          "caption": "是金属",
-          "ours": "（选中图不是青绿大立方体目标）",
-          "note_caption": "选错图：图里金属球很多，答「是金属」。",
-          "note_ours": "看图可知这不是青绿大立方体目标图。"
-        },
-        "CLEVR_train_047690.png": {
-          "caption": "（该图不是青绿大立方体目标）",
-          "ours": "（该图不是青绿大立方体目标）"
-        },
-        "CLEVR_train_002234.png": {
-          "caption": "（该图不是青绿大立方体目标）",
-          "ours": "（该图不是青绿大立方体目标）"
-        },
-        "CLEVR_train_056027.png": {
-          "caption": "（该图不是青绿大立方体目标）",
-          "ours": "（该图不是青绿大立方体目标）"
-        },
-        "CLEVR_train_066033.png": {
-          "caption": "（该图不是青绿大立方体目标）",
-          "ours": "（该图不是青绿大立方体目标）"
-        },
-        "CLEVR_train_035872.png": {
-          "caption": "（该图不是青绿大立方体目标）",
-          "ours": "（该图不是青绿大立方体目标）"
-        },
-        "CLEVR_train_022058.png": {
-          "caption": "（该图不是青绿大立方体目标）",
-          "ours": "（该图不是青绿大立方体目标）"
-        }
-      },
-      "caption": {
-        "ranks": [
-          { "id": "CLEVR_train_001024.png", "score": 0.86, "role": "wrong" },
-          { "id": "CLEVR_train_055302.png", "score": 0.79, "role": "gold" },
-          { "id": "CLEVR_train_047690.png", "score": 0.64, "role": "noise" },
-          { "id": "CLEVR_train_002234.png", "score": 0.5, "role": "noise" },
-          { "id": "CLEVR_train_056027.png", "score": 0.37, "role": "noise" },
-          { "id": "CLEVR_train_066033.png", "score": 0.29, "role": "noise" },
-          { "id": "CLEVR_train_035872.png", "score": 0.21, "role": "noise" },
-          { "id": "CLEVR_train_022058.png", "score": 0.14, "role": "noise" }
-        ],
-        "selected_id": "CLEVR_train_001024.png",
-        "selected_ok": false,
-        "pred_answer": "是金属",
-        "correct": false,
-        "read_note": "选中的图里金属球很多，文字也强调金属，于是答「是金属」——但那根本不是青绿大立方体那张图。"
-      },
-      "ours": {
-        "ranks": [
-          { "id": "CLEVR_train_055302.png", "score": 0.95, "role": "gold" },
-          { "id": "CLEVR_train_001024.png", "score": 0.57, "role": "noise" },
-          { "id": "CLEVR_train_047690.png", "score": 0.46, "role": "noise" },
-          { "id": "CLEVR_train_002234.png", "score": 0.33, "role": "noise" },
-          { "id": "CLEVR_train_056027.png", "score": 0.28, "role": "noise" },
-          { "id": "CLEVR_train_066033.png", "score": 0.22, "role": "noise" },
-          { "id": "CLEVR_train_035872.png", "score": 0.17, "role": "noise" },
-          { "id": "CLEVR_train_022058.png", "score": 0.11, "role": "noise" }
-        ],
-        "selected_id": "CLEVR_train_055302.png",
-        "selected_ok": true,
-        "pred_answer": "不是（哑光）",
-        "correct": true,
-        "read_note": "选中青绿大立方体那张图后，从外观判断它是哑光而非金属，答对。"
-      }
-    }
-  ],
-  "steps": [
-    { "key": "ask", "title": "提出问题" },
-    { "key": "gallery", "title": "面对小图库" },
-    { "key": "rank", "title": "给图打分排序" },
-    { "key": "select", "title": "选定要看的图" },
-    { "key": "read", "title": "读证据作答" },
-    { "key": "verdict", "title": "对照结果" }
-  ],
-  "free_ask": {
-    "enabled": true,
-    "title": "自由提问",
-    "blurb": "在固定 8 张示例图上输入问题。左侧 Caption 草稿；右侧 Visual Token（tok/2 + 同模 8B，无翻译）。后续替换 gallery/thumbs 即可换成真实场景。",
-    "method_note": "测 Visual Token 请用同源代理页 http://127.0.0.1:7866/#mode=mini（先 SSH -L 7866），不要用 GitHub Pages（HTTPS 无法连 HTTP API）。",
-    "top_k": 3,
-    "placeholder": "例如：哪张图紫色球最多？有没有蓝色金属立方体？",
-    "examples": [
-      "哪张图紫色球最多？上面大概有几个？",
-      "有没有蓝色金属立方体？在哪张图？",
-      "青绿大立方体看起来是金属的吗？",
-      "哪张图前景有紫色圆柱？"
-    ]
-  }
+  "questions": [],
+  "blurb": "RealWorld 30 张；自由提问走 GPU Visual Token API。"
 }
